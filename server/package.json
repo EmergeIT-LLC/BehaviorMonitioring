@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Node Server Application for Behavior Monitoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "author": "EmergeIT LLC",
+  "license": "ISC"
+}
