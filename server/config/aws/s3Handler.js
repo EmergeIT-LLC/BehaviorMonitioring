@@ -129,14 +129,11 @@ function updateBackupImportStatus(backupOrImport, successOrUnsuccess) {
   }
 }
 
-// Schedule backup to run every Sunday at 12:00 AM
-cron.schedule('0 0 * * 0', () => {
+// Schedule backup to run every day at 12:00 AM EST
+cron.schedule('5 0 * * *', () => {
   backupDatabaseToS3();
-});
-
-// Schedule backup to run every Wednesday at 12:00 AM
-cron.schedule('0 0 * * 3', () => {
-  backupDatabaseToS3();
+}, {
+  timezone: "America/New_York"
 });
 
 module.exports = {
