@@ -5,6 +5,7 @@ const abaQueries = require('../config/database/storedProcedures/ABAStoredProcedu
 const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
 const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
 const behaviorPlanExpirationCountDown = require('../functions/behaviorPlanExpirationCountDown');
+const currentDateTime = require('../functions/currentDateTime');
 const dateTimeFormat = require('../functions/dateTimeFormat');
 const generateSecurityToken = require('../functions/generateSecurityToken');
 const generateUsername = require('../functions/generateUsername');
@@ -34,7 +35,7 @@ router.post('/addNewEmployee', async (req, res) => {
                     username = await generateUsername(fName, lName, role);
                 }
 
-                if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeUsername)) {
+                if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
 
                     //Need to send the verification email to the new employee and return 201 code if email is successfully sent...
                     return res.json({ statusCode: 201, serverMessage: 'New Admin Added' });
