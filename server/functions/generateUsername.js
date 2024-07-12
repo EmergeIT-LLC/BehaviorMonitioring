@@ -1,4 +1,6 @@
 //Queries imported
+const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
+const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
 
 //Function to generate a username
 async function GenerateUsername (fName, lName, role) {
@@ -33,9 +35,9 @@ async function GenerateUsername (fName, lName, role) {
 //Checking is username exists
 async function checkIfUsernameExists(generatedUsername, role) {
     if (role.toLowerCase() === "admin" || role.toLowerCase() === "root"){
-        return adminQueries.adminCheckUsername(generatedUsername);
-    } else if (role.toLowerCase() === "tenant") {
-        return tenantQueries.tenantCheckUsername(generatedUsername);
+        return adminQueries.adminExistbyUsername(generatedUsername);
+    } else if (role.toLowerCase() === "employee") {
+        return employeeQueries.employeeExistbyUsername(generatedUsername);
     }
 }
 
