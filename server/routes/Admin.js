@@ -35,6 +35,8 @@ router.post('/addNewEmployee', async (req, res) => {
                 }
 
                 if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeUsername)) {
+
+                    //Need to send the verification email to the new employee and return 201 code if email is successfully sent...
                     return res.json({ statusCode: 201, serverMessage: 'New Admin Added' });
                 }
                 else {
