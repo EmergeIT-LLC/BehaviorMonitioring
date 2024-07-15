@@ -38,7 +38,39 @@ router.post('/addNewEmployee', async (req, res) => {
                 if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
 
                     //Need to send the verification email to the new employee and return 201 code if email is successfully sent...
-                    return res.json({ statusCode: 201, serverMessage: 'New Admin Added' });
+                    return res.json({ statusCode: 201, serverMessage: 'New ' + role.toLowerCase() + ' added' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+//Add new Home
+router.post('/addNewHome', async (req, res) => {
+    try {
+        const name = req.body.name;
+        const streetAddress = req.body.streetAddress;
+        const city = req.body.city;
+        const zipCode = req.body.zipCode;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await adminQueries.adminExistbyUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDatabyUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminAddNewHome(name, streetAddress, city, state, zipCode, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                    return res.json({ statusCode: 201, serverMessage: 'New home added' });
                 }
                 else {
                     return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
