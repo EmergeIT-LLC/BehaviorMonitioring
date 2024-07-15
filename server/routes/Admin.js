@@ -56,9 +56,30 @@ router.post('/addNewEmployee', async (req, res) => {
 });
 
 router.post('/deleteAnEmployee', async (req, res) => {
+    try {
+        const eID = req.body.employeeID;
+        const employeeUsername = req.body.employeeUsername;
+
+        //Complete API build out
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
 });
 
 router.post('/updateAnEmployeeAccountStatus', async (req, res) => {
+    try {
+        const eID = req.body.employeeID;
+        const fName = req.body.fName;
+        const lName = req.body.lName;
+        const email = req.body.email;
+        const pNumber = req.body.pNumber;
+        const role = req.body.role;
+        const employeeUsername = req.body.employeeUsername;
+
+        //Complete API build out
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
 });
 
 /*-----------------------------------------------Home-----------------------------------------------*/
@@ -94,6 +115,63 @@ router.post('/addNewHome', async (req, res) => {
 });
 
 router.post('/deleteAHome', async (req, res) => {
+    try {
+        const hID = req.body.homeID;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminDeleteAHomeByID(hID)) {
+                    return res.json({ statusCode: 201, serverMessage: 'Home has been deleted' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/updateAHome', async (req, res) => {
+    try {
+        const hID = req.body.homeID;
+        const name = req.body.name;
+        const streetAddress = req.body.streetAddress;
+        const city = req.body.city;
+        const zipCode = req.body.zipCode;
+        const employeeUsername = req.body.employeeUsername;
+    
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminUpdateHomeByID(name, streetAddress, city, state, zipCode, hID)) {
+                    return res.json({ statusCode: 201, serverMessage: 'Home has been updated' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
 });
 
 module.exports = router;
