@@ -13,9 +13,8 @@ const emailHandler = require('../config/email/emailTemplate');
 const cookieMonster = require('../config/cookies/cookieHandler');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
-const { addYears } = require('date-fns');
 
-//Add new employee
+/*-----------------------------------------------Employee-----------------------------------------------*/
 router.post('/addNewEmployee', async (req, res) => {
     try {
         const fName = req.body.fName;
@@ -26,12 +25,12 @@ router.post('/addNewEmployee', async (req, res) => {
         const role = req.body.role;
         const employeeUsername = req.body.employeeUsername;
 
-        if (await adminQueries.adminExistbyUsername(employeeUsername.toLowerCase())) {
-            const employeeData = await adminQueries.adminDatabyUsername(employeeUsername.toLowerCase());
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "admin") {
                 
-                if (await adminQueries.adminExistbyUsername(username.toLowerCase())) {
+                if (await adminQueries.adminExistByUsername(username.toLowerCase())) {
                     username = await generateUsername(fName, lName, role);
                 }
 
@@ -56,7 +55,13 @@ router.post('/addNewEmployee', async (req, res) => {
     }
 });
 
-//Add new Home
+router.post('/deleteAnEmployee', async (req, res) => {
+});
+
+router.post('/updateAnEmployeeAccountStatus', async (req, res) => {
+});
+
+/*-----------------------------------------------Home-----------------------------------------------*/
 router.post('/addNewHome', async (req, res) => {
     try {
         const name = req.body.name;
@@ -65,8 +70,8 @@ router.post('/addNewHome', async (req, res) => {
         const zipCode = req.body.zipCode;
         const employeeUsername = req.body.employeeUsername;
 
-        if (await adminQueries.adminExistbyUsername(employeeUsername.toLowerCase())) {
-            const employeeData = await adminQueries.adminDatabyUsername(employeeUsername.toLowerCase());
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "admin") {
                 if (await adminQueries.adminAddNewHome(name, streetAddress, city, state, zipCode, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
@@ -86,6 +91,9 @@ router.post('/addNewHome', async (req, res) => {
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
+});
+
+router.post('/deleteAHome', async (req, res) => {
 });
 
 module.exports = router;
