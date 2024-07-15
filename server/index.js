@@ -54,21 +54,15 @@ app.get('/', (req, res) => {
   }
 });
 
-// Define other routes here (userRoute, adminRoute, triviaRoute, etc.)
 const adminRoute = require('./routes/Admin');
 app.use('/admin', setHeadersForAllowedRoutes, adminRoute);
-
-// Catch-all route for handling non-existent pages (404 errors)
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
 
 const employeeRoute = require('./routes/Employee');
 app.use('/employee', setHeadersForAllowedRoutes, employeeRoute);
 
-// Catch-all route for handling non-existent pages (404 errors)
+const abaRoute = require('./routes/ABA');
+app.use('/aba', setHeadersForAllowedRoutes, abaRoute);
+
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
