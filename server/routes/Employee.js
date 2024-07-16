@@ -2,10 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 //Import Queries
-const behaviorPlanExpirationCountDown = require('../functions/behaviorPlanExpirationCountDown');
-const dateTimeFormat = require('../functions/dateTimeFormat');
-const generateSecurityToken = require('../functions/generateSecurityToken');
-const generateUsername = require('../functions/generateUsername');
+const behaviorPlanExpirationCountDown = require('../functions/basic/behaviorPlanExpirationCountDown');
+const dateTimeFormat = require('../functions/basic/dateTimeFormat');
+const generateSecurityToken = require('../functions/basic/generateSecurityToken');
+const generateUsername = require('../functions/basic/generateUsername');
 const emailHandler = require('../config/email/emailTemplate');
 const cookieMonster = require('../config/cookies/cookieHandler');
 const bcrypt = require('bcryptjs');

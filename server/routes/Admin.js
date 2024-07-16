@@ -4,11 +4,11 @@ const router = express.Router();
 const abaQueries = require('../config/database/storedProcedures/ABAStoredProcedures');
 const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
 const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
-const behaviorPlanExpirationCountDown = require('../functions/behaviorPlanExpirationCountDown');
-const currentDateTime = require('../functions/currentDateTime');
-const dateTimeFormat = require('../functions/dateTimeFormat');
-const generateSecurityToken = require('../functions/generateSecurityToken');
-const generateUsername = require('../functions/generateUsername');
+const behaviorPlanExpirationCountDown = require('../functions/basic/behaviorPlanExpirationCountDown');
+const currentDateTime = require('../functions/basic/currentDateTime');
+const dateTimeFormat = require('../functions/basic/dateTimeFormat');
+const generateSecurityToken = require('../functions/basic/generateSecurityToken');
+const generateUsername = require('../functions/basic/generateUsername');
 const emailHandler = require('../config/email/emailTemplate');
 const cookieMonster = require('../config/cookies/cookieHandler');
 const bcrypt = require('bcryptjs');
@@ -60,13 +60,30 @@ router.post('/deleteAnEmployee', async (req, res) => {
         const eID = req.body.employeeID;
         const employeeUsername = req.body.employeeUsername;
 
-        //Complete API build out
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminDeleteAnEmployeeByID(eID)) {
+                    return res.json({ statusCode: 201, serverMessage: 'Account has been updated' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
 });
 
-router.post('/updateAnEmployeeAccountStatus', async (req, res) => {
+router.post('/updateAnEmployeeDetail', async (req, res) => {
     try {
         const eID = req.body.employeeID;
         const fName = req.body.fName;
@@ -76,7 +93,53 @@ router.post('/updateAnEmployeeAccountStatus', async (req, res) => {
         const role = req.body.role;
         const employeeUsername = req.body.employeeUsername;
 
-        //Complete API build out
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminUpdateEmployeeAccountByID(fName, lName, email, pNumber, role, eID)) {
+                    return res.json({ statusCode: 201, serverMessage: 'Account has been updated' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/updateAnEmployeeAccountStatus', async (req, res) => {
+    try {
+        const eID = req.body.employeeID;
+        const accountStatus = req.body.accountStatus
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await adminQueries.adminExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "admin") {
+                if (await adminQueries.adminUpdateEmployeeAccountByID(accountStatus, eID)) {
+                    return res.json({ statusCode: 201, serverMessage: 'Account has been updated' });
+                }
+                else {
+                    return res.json({ statusCode: 500, serverMessage: 'A server error occurred' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
