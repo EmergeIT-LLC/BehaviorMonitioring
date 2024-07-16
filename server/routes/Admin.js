@@ -1,18 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const abaQueries = require('../config/database/storedProcedures/ABAStoredProcedures');
 const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
-const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
-const behaviorPlanExpirationCountDown = require('../functions/basic/behaviorPlanExpirationCountDown');
 const currentDateTime = require('../functions/basic/currentDateTime');
-const dateTimeFormat = require('../functions/basic/dateTimeFormat');
-const generateSecurityToken = require('../functions/basic/generateSecurityToken');
 const generateUsername = require('../functions/basic/generateUsername');
-const emailHandler = require('../config/email/emailTemplate');
-const cookieMonster = require('../config/cookies/cookieHandler');
-const bcrypt = require('bcryptjs');
-const saltRounds = 10;
 
 /*-----------------------------------------------Employee-----------------------------------------------*/
 router.post('/addNewEmployee', async (req, res) => {
