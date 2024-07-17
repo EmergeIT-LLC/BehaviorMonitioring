@@ -4,6 +4,7 @@ const router = express.Router();
 const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
 const currentDateTime = require('../functions/basic/currentDateTime');
 const generateUsername = require('../functions/basic/generateUsername');
+const emailHandler = require('../config/email/emailTemplate');
 
 /*-----------------------------------------------Employee-----------------------------------------------*/
 router.post('/addNewEmployee', async (req, res) => {
@@ -25,7 +26,7 @@ router.post('/addNewEmployee', async (req, res) => {
                     username = await generateUsername(fName, lName, role);
                 }
 
-                if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                if (await adminQueries.adminAddNewEmployee(fName, lName, username.toLowerCase(), email, pNumber, role, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
 
                     //Need to send the verification email to the new employee and return 201 code if email is successfully sent...
                     return res.json({ statusCode: 201, serverMessage: 'New ' + role.toLowerCase() + ' added' });
@@ -149,7 +150,7 @@ router.post('/addNewHome', async (req, res) => {
             const employeeData = await adminQueries.adminDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "admin") {
-                if (await adminQueries.adminAddNewHome(name, streetAddress, city, state, zipCode, employeeUsername, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                if (await adminQueries.adminAddNewHome(name, streetAddress, city, state, zipCode, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
                     return res.json({ statusCode: 201, serverMessage: 'New home added' });
                 }
                 else {
