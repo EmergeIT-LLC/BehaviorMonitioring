@@ -131,7 +131,7 @@ router.post('/deleteClientInfo', async (req, res) => {
     try {
         const cID = req.body.clientID;
 
-        //Determine where to terminate
+        //Determine whether to terminate client or if all data related to client should be deleted...
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
@@ -152,15 +152,19 @@ router.post('/addNewTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                const clientData = await abaQueries.abaGetClientDataByID(cID);
-                if (clientData.length > 0){
-                    if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
-                        return res.json({ statusCode: 200, clientAdded: true });
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                    if (clientData.length > 0){
+                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                            return res.json({ statusCode: 200, clientAdded: true });
+                        }
+                        else {
+                            return res.json({ statusCode: 500, clientAdded: false, serverMessage: 'Unable add a client' });
+                        }
                     }
                     else {
-                        return res.json({ statusCode: 500, clientAdded: false, serverMessage: 'Unable add a client' });
+                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
                     }
-    
                 }
                 else {
                     return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
@@ -191,7 +195,23 @@ router.post('/updateTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                //Complete build out
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                    if (clientData.length > 0){
+                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                            return res.json({ statusCode: 200, clientAdded: true });
+                        }
+                        else {
+                            return res.json({ statusCode: 500, clientAdded: false, serverMessage: 'Unable add a client' });
+                        }
+                    }
+                    else {
+                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
             }
             else {
                 return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
@@ -214,7 +234,7 @@ router.post('/deleteTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                //Complete build out
+                //Determine whether to terminate target behavior or if all data related to client should be deleted...
             }
             else {
                 return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
