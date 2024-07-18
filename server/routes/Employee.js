@@ -125,6 +125,9 @@ router.post('/getEmployeeData', async (req, res) => {
             if (employeeData.length > 0) {
                 return res.json({ statusCode: 200, employeeData: employeeData });
             }
+            else {
+                return res.json({ statusCode: 500, serverMessage: 'Unable to locate data' });
+            }
         }
         else {
             return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });

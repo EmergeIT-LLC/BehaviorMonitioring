@@ -25,6 +25,30 @@ async function abaAddClientData(fName, lName, DOB, intakeDate, groupHomeName, me
     });
 }
 
+async function abaGetClientDataByID(cID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client WHERE clientID = ?', [cID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+async function abaUpdateClientData(fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, cID) {
+    return new Promise((resolve, reject) => {
+        db.run('UDATE client SET fName = ?, lName = ?, DOB = ?, intake_Date = ?, group_home_name = ?, medicaid_id_number = ?, behavior_plan_due_date = ?, WHERE clientID = ?', [fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
 /*-------------------------------------------------ABA--------------------------------------------------*/
 async function behaviorSkillExistByID(bsID) {
     return new Promise((resolve, reject) => {
@@ -41,6 +65,18 @@ async function behaviorSkillExistByID(bsID) {
 async function abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
         db.run('INSERT INTO BehaviorAndSkill (name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorAndSkill SET name = ?, definition= ?, measurement= ?, category= ?, type= ?, clientID = ?, clientName = ? WHERE bsID = ?', [name, def, meas, cat, type, cID, cName, bsID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -89,8 +125,11 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
 module.exports = {
     abaClientExistByID,
     abaAddClientData,
+    abaGetClientDataByID,
+    abaUpdateClientData,
     behaviorSkillExistByID,
     abaAddBehaviorOrSkill,
+    abaUpdateBehaviorOrSkill,
     abaAddFrequencyBehaviorData,
     abaAddRateBehaviorData,
     abaAddDurationBehaviorData
