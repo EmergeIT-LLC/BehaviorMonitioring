@@ -1,6 +1,6 @@
 require('dotenv').config();
 const AWS_S3_Bucket_Handler = require('./config/aws/s3Handler');
-const jsonHandler = require('./functions/jsonHandler');
+const jsonHandler = require('./functions/basic/jsonHandler');
 const host = process.env.HOST;
 const port = process.env.PORT;
 const prodStatus = process.env.IN_PROD;

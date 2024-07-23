@@ -7,7 +7,7 @@ const emailHandler = require('../email/emailTemplate');
 const AWSbackupFileName = 'dataStorage.db'; // Backup file name
 const AWSDBFilePath = `./config/database/${AWSbackupFileName}`;
 const AWSBackupKey = `behaviorMonitoring/${AWSbackupFileName}`;
-const jsonHandler = require('../../functions/jsonHandler');
+const jsonHandler = require('../../functions/basic/jsonHandler');
 const prodStatus = process.env.IN_PROD;
 
 // Configure AWS credentials
