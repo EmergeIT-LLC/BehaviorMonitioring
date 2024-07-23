@@ -5,6 +5,7 @@ import Link from '../components/Link';
 
 const Header: React.FC = () => {
     let menu = null;
+    let links = null;
     const [showMenu, setShowMenu] = useState(false);
   
     const showMenuBoolean = () => {
