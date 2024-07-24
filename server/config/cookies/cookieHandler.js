@@ -16,7 +16,7 @@ const setCookie = async (res, name, options = {}) => {
             path: '/',
             domain: prodStatus === "true" ? [clientOrigin, amplifyOrigin] : clientOrigin,
             secure: prodStatus === "true",
-            sameSite: 'Lax',
+            sameSite: 'lax',
             httpOnly: true // Set the cookie as HTTP-only by default
         };
 
@@ -83,7 +83,7 @@ const deleteCookie = async (res, name, options = {}) => {
 
         const defaultOptions = {
             path: '/',
-            domain: prodStatus === "true" ? clientOrigin : undefined
+            domain: prodStatus === "true" ? [clientOrigin, amplifyOrigin] : clientOrigin,
         };
 
         const mergedOptions = { ...defaultOptions, ...options };

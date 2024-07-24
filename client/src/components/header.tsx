@@ -1,14 +1,30 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import componentStyles from '../styles/components.module.scss';
 import farBars from '../Images/naviconrww752.png';
 import Link from '../components/Link';
+import {GetLoggedInUserStatus} from '../function/VerificationCheck';
 
 const Header: React.FC = () => {
-    let menu = null;
-    let links = null;
+    const userIsLoggedIn = GetLoggedInUserStatus();
+    let phoneMenu = null;
+    const [links, setLinks] = useState<JSX.Element[]>([]);
     const [showMenu, setShowMenu] = useState(false);
-  
-    const showMenuBoolean = () => {
+    
+    useEffect(() => {
+        if (userIsLoggedIn) {
+            setLinks([
+                <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>
+            ]);
+        } else {
+            setLinks([
+                <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
+                <li key="about"><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>,
+                <li key="contact"><Link href='/ContactUs' hrefType='link' placeholder="Contact us"/></li>
+            ]);
+        }
+    }, [userIsLoggedIn]);
+      
+    const showPhoneMenuBoolean = () => {
         if (!showMenu){
             setShowMenu(true);
         }
@@ -18,12 +34,10 @@ const Header: React.FC = () => {
     }
 
     if (showMenu){
-        menu = 
+        phoneMenu = 
         <nav className={componentStyles.mobileNav}>
             <ul>
-                <li><Link href='/' hrefType='link' placeholder="Home"/></li>
-                <li><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>
-                <li><Link href='/ContactUs' hrefType='link' placeholder="Contact us"/></li>
+                {links}
             </ul>
         </nav>
     }
@@ -32,13 +46,11 @@ const Header: React.FC = () => {
         <div className={componentStyles.headerBody}>
             {/* <a href='/'><img src={companyLogo} alt ="EmergeIT Logo" /></a> */}
             <h1 className={componentStyles.companyName}>Behavior Monitoring <span className={componentStyles.trade}>&trade;</span></h1>
-            <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showMenuBoolean}/>
-            {menu}
+            <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
+            {phoneMenu}
             <nav>
                 <ul>
-                    <li><Link href='/' hrefType='link' placeholder="Home"/></li>
-                    <li><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>
-                    <li><Link href='/ContactUs' hrefType='link' placeholder="Contact us"/></li>
+                    {links}
                 </ul>
             </nav>
         </div>

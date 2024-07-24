@@ -9,9 +9,9 @@ const Footer: React.FC = () => {
                 Behavior Monitoring <span className={componentStyles.trade}>&trade;</span>
             </h1>
             <div className={componentStyles.rightSide}>
-                <Link href="https://emerge-it.net" hrefType='' placeholder='EmergeIT LLC'/>
-                <Link href="/privacy-policy" hrefType='' placeholder='Privacy Policy'/>
-                <Link href="/terms" hrefType='' placeholder='Terms and Conditions'/>
+                <Link href="https://emerge-it.net" hrefType='link' placeholder="EmergeIT LLC"/>
+                <Link href="/privacy-policy" hrefType='link' placeholder="Privacy Policy"/>
+                <Link href="/terms-and-conditions" hrefType='link' placeholder="Terms and Conditions"/>
             </div>
             <p className={componentStyles.copyRight}>
                 Copyright 2024 EmergeIT LLC
