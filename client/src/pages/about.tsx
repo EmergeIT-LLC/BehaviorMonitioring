@@ -1,9 +1,13 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import componentStyles from '../styles/components.module.scss'
 import Header from '../components/header';
 import Footer from '../components/footer';
 
 const About: React.FC = () => {
+    useEffect(() => {
+        document.title = "Behavior Monitoring About Page";
+    }, []);
+
     return (
         <>
         <Header/>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
@@ -6,6 +6,10 @@ import Link from '../components/Link';
 // import Logo from '../Images/EmergeIT Icon 2.png'
 
 const Pagenotfound: React.FC = () => {
+    useEffect(() => {
+        document.title = "Behavior Monitoring Page Not Found Page";
+    }, []);
+  
     return (
         <>
             <Header/>

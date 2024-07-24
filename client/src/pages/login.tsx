@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
-const Home: React.FC = () => {
-  useEffect(() => {
-      document.title = "Behavior Monitoring Home Page";
-  }, []);
+const Login: React.FC = () => {
+    useEffect(() => {
+        document.title = "Behavior Monitoring Login Page";
+    }, []);
 
   return (
     <>
@@ -14,7 +14,7 @@ const Home: React.FC = () => {
         <div className={componentStyles.pageBody}>
             <main>
                 <div className={componentStyles.homeBody}>
-                    Home
+                    Login
                 </div>
             </main>
         </div>
@@ -23,4 +23,4 @@ const Home: React.FC = () => {
   );
 }
 
-export default Home;
+export default Login;

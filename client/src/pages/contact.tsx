@@ -19,6 +19,11 @@ const Contact: React.FC = () => {
     const [count, setCount] = useState<number>(0);
     const [reload, setReload] = useState<boolean>(false);
 
+    useEffect(() => {
+        document.title = "Behavior Monitoring Contact Page";
+    }, []);
+
+
     return (
         <>
             <Header />
