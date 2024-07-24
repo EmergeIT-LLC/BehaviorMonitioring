@@ -12,7 +12,7 @@ const Pagenotfound: React.FC = () => {
             <div className={componentStyles.pageBody}>
                 <main>
                     <div className={componentStyles.pageNotFoundPageBody}>
-                        {/* <img src={Logo} alt ="Patmos Haitina SDA Logo" /> */}
+                        {/* <img src={Logo} alt ="Behavior Monitoring Logo" /> */}
                         <p>The page you are looking for does not exist. <br/> Please return to the <Link href="/" hrefType="link" placeholder="homepage"/> for your convenience.</p>
                     </div>
                 </main>
