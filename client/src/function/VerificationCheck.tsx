@@ -41,10 +41,24 @@ export const isCookieValid = () => {
     return false;
 };
 
+export const SetLoggedInUserStatus = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
+    if (loginSuccessful) {
+        localStorage.setItem('bmLoggedInStatus', "true");
+        localStorage.setItem('bmUsername', uName);
+
+        if (isAdmin) {
+            localStorage.setItem('bmAdmin', "true")
+        }
+    }
+    else {
+        localStorage.clear();
+    }
+}
+
 export const GetLoggedInUserStatus = () => {
     const isUserLoggedStatus = localStorage.getItem('bmLoggedInStatus');
 
-    if (isUserLoggedStatus) {
+    if (isUserLoggedStatus === "true") {
         return true;
     }
     return false;
@@ -71,5 +85,7 @@ export const NeedToLogout = (uName: string) => {
     if (GetLoggedInUserStatus() && uName === GetLoggedInUser()) {
         return false;
     }
+
+    localStorage.clear();
     return true;
 }
