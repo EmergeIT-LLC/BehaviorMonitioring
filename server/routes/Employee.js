@@ -80,10 +80,10 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
                     const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
                     
                     if (employeeData.role === "root" || employeeData.role === "admin") {
-                        return res.json({ statusCode: 200, loginStatus: true, isAdmin: true });
+                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: true });
                     }
                     else {
-                        return res.json({ statusCode: 200, loginStatus: true, isAdmin: false });
+                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: false });
                     }
                 }
                 else {

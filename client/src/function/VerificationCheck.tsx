@@ -41,7 +41,7 @@ export const isCookieValid = () => {
     return false;
 };
 
-export const SetLoggedInUserStatus = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
+export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
     if (loginSuccessful) {
         localStorage.setItem('bmLoggedInStatus', "true");
         localStorage.setItem('bmUsername', uName);

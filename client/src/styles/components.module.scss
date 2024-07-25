@@ -220,14 +220,25 @@
     border: .012em solid $color5;
 
     form {
+        background-color: $color5;
+        margin: 15% auto;
+        width: 75%;
+        border: .25em solid $color2;
+
+        h2 {
+            color: $font-color;
+            margin: 2em auto 1em;
+        }
+    }
+
+    .loginForm {
         background-color: $color4;
         margin: 15% auto;
         width: 25%;
         border: .25em solid $color2;
 
-        h2, span {
-            color: $font-color;
-            margin: 2em auto 1em;
+        .statusMessage {
+            margin: 1em auto 1em;
         }
     }
 
@@ -257,11 +268,12 @@
     input {
         margin: 0 auto 2em;
         height: 2em;
+        display: block;
     }
 
     input::placeholder {
         text-align: center;
-        color: $color6;
+        color: $color4;
         font-weight: bold;
     }
 
@@ -272,18 +284,23 @@
 
     button {
         display: block;
-        margin: 0 auto;
-        background-color: $color2;
-        color: $color1;
+        margin: 0 auto 2em;
+        background-color: $color6;
+        color: $button-font-color;
         font-size: 1em;
         font-weight: bold;
-        height: 3em;
-        width: 8em;
+        height: 2em;
+        width: 9em;
     }
 
     button:hover {
         background-color: $color1;
-        color: $color4;
+        color: $buttonHover-font-color;
+    }
+
+    .statusMessage {
+        color: $font-color;
+        margin: 2em auto;
     }
 
     .loadingBody {

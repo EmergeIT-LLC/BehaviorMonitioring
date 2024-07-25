@@ -4,6 +4,9 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import InputFields from '../components/TextInput';
 import Button from '../components/Button';
+import { CheckUsername, CheckPassword } from '../function/EntryCheck';
+import { SetLoggedInUser } from '../function/VerificationCheck';
+import Axios from 'axios';
 
 const Login: React.FC = () => {
     useEffect(() => {
@@ -23,31 +26,38 @@ const Login: React.FC = () => {
             setIsLoading(false);
             return setStatusMessage('All fields must be filled out');
         }
-        else if (!CheckEmail(email)) {
+        else if (!CheckUsername(uName)) {
             setIsLoading(false);
-            return setStatusMessage('Email is not a valid email address!')
+            return setStatusMessage('Username is not valid')
+        }
+        else if (!CheckPassword(pWord)) {
+            setIsLoading(false);
+            return setStatusMessage('Password is incorrect')  
         }
 
-        const url = process.env.REACT_APP_Backend_URL + '/user/contactUs_formSubmission';
+        const url = process.env.REACT_APP_Backend_URL + '/employee/verifyEmployeeLogin';
 
         Axios.post(url, {
-            fullName: fullName,
-            companyName: companyName,
-            email: email,
-            howCanWeHelp: howCanWeHelp
+            username: uName,
+            password: pWord
         })
         .then((response) => {
-            const message = response.data.message;
-            setStatusMessage(message);
-
-            if (message === 'Email sent!') {
-                setCount(3);
-                setReload(true);
+            if (response.data.statusCode === 200) {
+                SetLoggedInUser(response.data.loginStatus, response.data.uName, response.data.isAdmin);
+                //Set cookie
+                //set redirect
+            }
+            else {
+                if (response.data.statusCode === 401) {
+                    setStatusMessage(response.data.serverMessage);
+                }
+                else {
+                    throw new Error(response.data.serverMessage);
+                }
             }
         })
         .catch((error) => {
-            setStatusMessage('An error occurred while submitting the form.');
-            console.log(error);
+            console.error(error.message);
         })
         .finally(() => {
             setIsLoading(false);
@@ -63,7 +73,8 @@ const Login: React.FC = () => {
                     <h2>Login</h2>
                     <InputFields name="usernameField" type="text" placeholder="Username" requiring='true' value={uName} onChange={(e) => setuName(e.target.value)}/>
                     <InputFields name="passwordField" type="password" placeholder="Password" requiring='true' value={pWord} onChange={(e) => setPWord(e.target.value)}/>
-                    <Button nameOfClass='loginButton' placeholder='Login' btnType='button' onClick={submitForm}/>
+                    <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={submitForm}/>
+                    <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
                 </form>
             </main>
         </div>
