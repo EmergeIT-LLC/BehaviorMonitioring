@@ -77,13 +77,14 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
                 });
 
                 if (bcryptResult) {
+                    const cookieSettings = await cookieMonster.setCookie(res, 'bmAuthServices-' + uName.toLowerCase());
                     const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
                     
                     if (employeeData.role === "root" || employeeData.role === "admin") {
-                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: true });
+                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: true, cookie: cookieSettings });
                     }
                     else {
-                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: false });
+                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), isAdmin: false, cookie: cookieSettings });
                     }
                 }
                 else {

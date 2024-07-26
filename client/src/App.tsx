@@ -6,6 +6,7 @@ import Home from './pages/home';
 import About from './pages/about';
 import Contact from './pages/contact';
 import Pagenotfound from './pages/pagenotfound';
+import Logout from './pages/logout';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path = "/Login" element = {<Login />} Component={Login}/>
+        <Route path = "/Logout" element = { <Logout />} Component={Logout}/>
         <Route path = "/" element = {<Home />} Component={Home}/>
         <Route path = "/AboutUs" element = {<About />} Component={About}/>
         <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>

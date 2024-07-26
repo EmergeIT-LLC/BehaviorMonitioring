@@ -1,4 +1,4 @@
-import Cookies from 'js-cookies';
+import Cookies from 'js-cookie';
 
 export const SetCookies = (name: string, value: string, expirationTime: string, path: string, secure: boolean, sameSite: 'strict' | 'lax' | 'none') => {
 
@@ -13,7 +13,7 @@ export const SetCookies = (name: string, value: string, expirationTime: string, 
 };
 
 export const isCookieValid = () => {
-    const cookieName = 'bmAuthServices-' + GetLoggedInUser();
+    const cookieName = "bmAuthServices-" + GetLoggedInUser();
     const cookieValue = Cookies.get(cookieName);
 
     if (cookieValue) {
@@ -41,6 +41,16 @@ export const isCookieValid = () => {
     return false;
 };
 
+export const DeleteCookies = (name: string, expirationTime: string, path: string) => {
+
+    const cookieOptions = {
+        path: path,
+        expires: new Date(expirationTime)
+    };
+
+    Cookies.remove(name, cookieOptions);
+};
+
 export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
     if (loginSuccessful) {
         localStorage.setItem('bmLoggedInStatus', "true");
@@ -53,6 +63,10 @@ export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin
     else {
         localStorage.clear();
     }
+}
+
+export const ClearLoggedInUser = () => {
+    localStorage.clear();
 }
 
 export const GetLoggedInUserStatus = () => {

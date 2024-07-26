@@ -1,21 +1,31 @@
 import React, {useState, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import farBars from '../Images/naviconrww752.png';
 import Link from '../components/Link';
+import Button from './Button';
 import {GetLoggedInUserStatus} from '../function/VerificationCheck';
 
 const Header: React.FC = () => {
+    const navigate = useNavigate();
     const userIsLoggedIn = GetLoggedInUserStatus();
     let phoneMenu = null;
+    const [buttonLabel, setButtonLabel] = useState<string>('Login');
     const [links, setLinks] = useState<JSX.Element[]>([]);
-    const [showMenu, setShowMenu] = useState(false);
+    const [showMenu, setShowMenu] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     
     useEffect(() => {
         if (userIsLoggedIn) {
+            setButtonLabel('Logout');
             setLinks([
-                <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>
+                <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
+                <li key="targetBehavior"><Link href='/' hrefType='link' placeholder="Target Behavior"/></li>,
+                <li key="skillAquisition"><Link href='/' hrefType='link' placeholder="Skill Aquisition"/></li>,
+                <li key="dataEntry"><Link href='/' hrefType='link' placeholder="Data Entry"/></li>
             ]);
         } else {
+            setButtonLabel('Login');
             setLinks([
                 <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
                 <li key="about"><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>,
@@ -23,6 +33,15 @@ const Header: React.FC = () => {
             ]);
         }
     }, [userIsLoggedIn]);
+
+    const routeChange = () => {
+        if (userIsLoggedIn) {
+            navigate('/logout');
+        }
+        else {
+            navigate('/login');
+        }
+    }
       
     const showPhoneMenuBoolean = () => {
         if (!showMenu){
@@ -47,6 +66,7 @@ const Header: React.FC = () => {
             {/* <a href='/'><img src={companyLogo} alt ="EmergeIT Logo" /></a> */}
             <h1 className={componentStyles.companyName}>Behavior Monitoring <span className={componentStyles.trade}>&trade;</span></h1>
             <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
+            <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' isLoading={isLoading} onClick={routeChange}/>
             {phoneMenu}
             <nav>
                 <ul>
