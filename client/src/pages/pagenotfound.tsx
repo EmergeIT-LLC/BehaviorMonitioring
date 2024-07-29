@@ -7,7 +7,7 @@ import Link from '../components/Link';
 
 const Pagenotfound: React.FC = () => {
     useEffect(() => {
-        document.title = "Behavior Monitoring Page Not Found Page";
+        document.title = "404 Page Not Found";
     }, []);
   
     return (

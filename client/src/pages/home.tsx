@@ -11,8 +11,7 @@ import Axios from 'axios';
 
 const Home: React.FC = () => {
     useEffect(() => {
-        document.title = "Behavior Monitoring Home Page";
-        isCookieValid();
+        document.title = "Home - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -22,7 +21,7 @@ const Home: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!userLoggedIn && !cookieIsValid) {
+        if (!userLoggedIn || !cookieIsValid) {
             navigate('/Login', {
                 state: {
                     previousUrl: location.pathname,

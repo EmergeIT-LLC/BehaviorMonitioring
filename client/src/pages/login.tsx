@@ -13,7 +13,7 @@ import Axios from 'axios';
 
 const Login: React.FC = () => {
     useEffect(() => {
-        document.title = "Behavior Monitoring Login Page";
+        document.title = "Login - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();

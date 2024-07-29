@@ -5,7 +5,7 @@ import Footer from '../components/footer';
 
 const About: React.FC = () => {
     useEffect(() => {
-        document.title = "Behavior Monitoring About Page";
+        document.title = "About - Behavior Monitoring";
     }, []);
 
     return (
