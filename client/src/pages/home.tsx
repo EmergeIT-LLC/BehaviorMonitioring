@@ -12,6 +12,7 @@ import Axios from 'axios';
 const Home: React.FC = () => {
     useEffect(() => {
         document.title = "Behavior Monitoring Home Page";
+        isCookieValid();
     }, []);
 
     const navigate = useNavigate();

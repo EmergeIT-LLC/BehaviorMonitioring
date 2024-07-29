@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-export const SetCookies = (name: string, value: string, expirationTime: string, path: string, secure: boolean, sameSite: 'strict' | 'lax' | 'none') => {
+export const SetCookies = (name: string, value: object, expirationTime: string, path: string, secure: boolean, sameSite: 'strict' | 'lax' | 'none') => {
 
     const cookieOptions = {
         path: path,
@@ -9,7 +9,8 @@ export const SetCookies = (name: string, value: string, expirationTime: string, 
         expires: new Date(expirationTime)
     };
 
-    Cookies.set(name, value, cookieOptions);
+    const values = { ...value, expirationDate: expirationTime };
+    Cookies.set(name, JSON.stringify(values), cookieOptions);
 };
 
 export const isCookieValid = () => {
@@ -21,19 +22,28 @@ export const isCookieValid = () => {
         try {
             const parsedValue = JSON.parse(cookieValue);
 
-            // Check if the expiration date is valid
-            const expirationDate = new Date(parsedValue.expirationDate);
-            const currentTime = new Date();
+            // Check if the parsed value has a valid expirationDate
+            if (parsedValue.expirationDate) {
+                const expirationDate = new Date(parsedValue.expirationDate);
 
-            if (currentTime > expirationDate) {
-                // True if current time is after expiration
-                localStorage.clear();
+                // Validate the expiration date
+                if (isNaN(expirationDate.getTime())) {
+                    return false;
+                }
+
+                const currentTime = new Date();
+
+                if (currentTime > expirationDate) {
+                    // True if current time is after expiration
+                    localStorage.clear();
+                    return false;
+                }
+                // True if current time is before expiration
+                return true;
+            } else {
                 return false;
             }
-            // True if current time is before expiration
-            return true;
         } catch (error) {
-            console.error('Failed to parse cookie value:', error);
             return false;
         }
     }
@@ -61,7 +71,7 @@ export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin
         }
     }
     else {
-        localStorage.clear();
+        ClearLoggedInUser();
     }
 }
 
@@ -100,6 +110,6 @@ export const NeedToLogout = (uName: string) => {
         return false;
     }
 
-    localStorage.clear();
+    ClearLoggedInUser();
     return true;
 }

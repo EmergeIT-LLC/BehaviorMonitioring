@@ -258,6 +258,7 @@
 
         .statusMessage {
             margin: 1em auto 1em;
+            color: $font-color;
         }
     }
 
@@ -269,6 +270,7 @@
 
         p {
             margin: 1em auto 2em;
+            color: $font-color;
         }
     }
 
@@ -292,7 +294,7 @@
     }
 
     p {
-        margin: 1em 8em 2em;
+        margin: 1em auto;
     }
 
     input {
