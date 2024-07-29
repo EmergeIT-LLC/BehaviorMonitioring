@@ -35,7 +35,7 @@ export const isCookieValid = () => {
 
                 if (currentTime > expirationDate) {
                     // True if current time is after expiration
-                    localStorage.clear();
+                    ClearLoggedInUser();
                     return false;
                 }
                 // True if current time is before expiration
