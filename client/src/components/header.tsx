@@ -20,9 +20,9 @@ const Header: React.FC = () => {
             setButtonLabel('Logout');
             setLinks([
                 <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
-                <li key="targetBehavior"><Link href='/' hrefType='link' placeholder="Target Behavior"/></li>,
-                <li key="skillAquisition"><Link href='/' hrefType='link' placeholder="Skill Aquisition"/></li>,
-                <li key="dataEntry"><Link href='/' hrefType='link' placeholder="Data Entry"/></li>
+                <li key="targetBehavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Target Behavior"/></li>,
+                <li key="skillAquisition"><Link href='/SkillAquisition' hrefType='link' placeholder="Skill Aquisition"/></li>,
+                <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry"/></li>
             ]);
         } else {
             setButtonLabel('Login');
