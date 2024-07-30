@@ -4,11 +4,12 @@ import componentStyles from '../styles/components.module.scss';
 import farBars from '../Images/naviconrww752.png';
 import Link from '../components/Link';
 import Button from './Button';
-import {GetLoggedInUserStatus} from '../function/VerificationCheck';
+import {GetLoggedInUserStatus, GetAdminStatus} from '../function/VerificationCheck';
 
 const Header: React.FC = () => {
     const navigate = useNavigate();
     const userIsLoggedIn = GetLoggedInUserStatus();
+    const userIsAdmin = GetAdminStatus();
     let phoneMenu = null;
     const [buttonLabel, setButtonLabel] = useState<string>('Login');
     const [links, setLinks] = useState<JSX.Element[]>([]);
@@ -18,12 +19,16 @@ const Header: React.FC = () => {
     useEffect(() => {
         if (userIsLoggedIn) {
             setButtonLabel('Logout');
-            setLinks([
-                <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
-                <li key="targetBehavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Target Behavior"/></li>,
-                <li key="skillAquisition"><Link href='/SkillAquisition' hrefType='link' placeholder="Skill Aquisition"/></li>,
-                <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry"/></li>
-            ]);
+            const userLinks = [
+                <li key="home"><Link href='/' hrefType='link' placeholder="Home" /></li>,
+                <li key="targetBehavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>,
+                // <li key="skillAquisition"><Link href='/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>,
+                <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry" /></li>,
+            ];
+            if (userIsAdmin) {
+                userLinks.push(<li key="admin"><Link href='/Admin' hrefType='link' placeholder="Admin" /></li>);
+            }
+            setLinks(userLinks);
         } else {
             setButtonLabel('Login');
             setLinks([
