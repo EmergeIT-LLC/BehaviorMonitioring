@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss'
 import Header from '../components/header';
 import Footer from '../components/footer';
-import InputFields from '../components/TextInput';
-import Button from '../components/Button';
+import InputFields from '../components/Inputfield';
+import Link from '../components/Link';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetAdminStatus, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
@@ -47,10 +47,15 @@ const Admin: React.FC = () => {
                 {isLoading ? 
                     <Loading/> 
                     :
-                    <div className={componentStyles.adminBody}>
-                        Admin
+                    <div className={componentStyles.bodyBlock}>
+                        <h1 className={componentStyles.pageHeader}>Admin Portal</h1>
+                        <div className={componentStyles.innerBlock}>
+                            <Link href='/admin/manageAdmins' hrefType='link' placeholder="Manage admins" />
+                            <Link href='/admin/manageClients' hrefType='link' placeholder="Manage clients" />
+                            <Link href='/admin/manageHomes' hrefType='link' placeholder="Manage homes" />
+                        </div>
                     </div>
-                    }
+                }
             </main>
         </div>
         <Footer/>

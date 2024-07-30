@@ -3,7 +3,7 @@ import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import Axios from 'axios';
-import TextInput from '../components/TextInput';
+import TextInput from '../components/Inputfield';
 import TextareaInput from '../components/TextareaInput';
 import SubmitButton from '../components/Button';
 import Loading from '../components/loading';
@@ -29,6 +29,7 @@ const Contact: React.FC = () => {
             <Header />
             <div className={componentStyles.pageBody}>
                 <main>
+                    Contact
                 </main>
             </div>
             <Footer />

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
-import InputFields from '../components/TextInput';
+import InputFields from '../components/Inputfield';
 import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, SetCookies } from '../function/VerificationCheck'
@@ -95,8 +95,8 @@ const Login: React.FC = () => {
                     :
                     <form className={componentStyles.loginForm} onSubmit={submitLoginForm}>
                         <h2>Login</h2>
-                        <InputFields name="usernameField" type="text" placeholder="Username" requiring='true' value={uName} onChange={(e) => setuName(e.target.value)}/>
-                        <InputFields name="passwordField" type="password" placeholder="Password" requiring='true' value={pWord} onChange={(e) => setPWord(e.target.value)}/>
+                        <InputFields name="usernameField" type="text" placeholder="Username" requiring={true} value={uName} onChange={(e) => setuName(e.target.value)}/>
+                        <InputFields name="passwordField" type="password" placeholder="Password" requiring={true} value={pWord} onChange={(e) => setPWord(e.target.value)}/>
                         <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={submitLoginForm}/>
                         <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
                     </form>

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
+import Link from '../components/Link';
+import InputFields from '../components/Inputfield';
 import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, isCookieValid } from '../function/VerificationCheck';
@@ -18,6 +20,7 @@ const DataEntry: React.FC = () => {
     const userLoggedIn = GetLoggedInUserStatus();
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [targetAmt, setTargetAmt] = useState<number>(1);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -34,6 +37,12 @@ const DataEntry: React.FC = () => {
         setIsLoading(false);
     }, [userLoggedIn]);
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const numericValue = value === '' ? NaN : parseFloat(value);
+        setTargetAmt(numericValue);
+    };
+
   return (
     <>
         <Header />
@@ -42,8 +51,18 @@ const DataEntry: React.FC = () => {
                 {isLoading ? 
                     <Loading/> 
                     :
-                    <div className={componentStyles.deBody}>
-                        Data Entry
+                    <div className={componentStyles.bodyBlock}>
+                        <h1 className={componentStyles.pageHeader}>Data Entry</h1>
+                        <div className={componentStyles.innerBlock}>
+                            <ul className={componentStyles.innerTab}>
+                                <li><Link href='/DataEntry/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>
+                                <li><Link href='/DataEntry/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>
+                            </ul>
+
+                            <p>Number of target:
+                                <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleChange}/>
+                            </p>
+                        </div>
                     </div>
                 }
             </main>

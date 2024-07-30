@@ -190,7 +190,7 @@
     .copyRight {
         text-align: center;
         margin: 0 auto 2em;
-        width: 100%; /* Ensures it takes full width below */
+        width: 50%;
         position: absolute;
         bottom: 0;
     }
@@ -237,42 +237,6 @@
     width: 85%;
     height: auto;
     border: .012em solid $color5;
-
-    form {
-        background-color: $color4;
-        margin: 15% auto;
-        width: 75%;
-        border: .25em solid $color2;
-
-        h2 {
-            color: $font-color;
-            margin: 2em auto 1em;
-        }
-    }
-
-    .loginForm {
-        background-color: $color4;
-        margin: 15% auto;
-        width: 25%;
-        border: .25em solid $color2;
-
-        .statusMessage {
-            margin: 1em auto 1em;
-            color: $font-color;
-        }
-    }
-
-    .logoutForm {
-        background-color: $color4;
-        margin: 15% auto;
-        width: 25%;
-        border: .25em solid $color2;
-
-        p {
-            margin: 1em auto 2em;
-            color: $font-color;
-        }
-    }
 
     h1 {
         font-size: 2.5em;
@@ -332,9 +296,130 @@
         border-color: $color5;
     }
 
+    a {
+        display: block;
+        margin: 2em auto;
+        background-color: $color6;
+        color: $nav-font-color;
+        font-size: 1em;
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        width: 9em;
+        padding: 0.50em;
+        border: 0.15em solid $color1;
+    }
+
+    a:hover {
+        background-color: $color1;
+        color: $navHover-font-color;
+        border-color: $color5;
+    }
+
     .statusMessage {
         color: $font-color;
         margin: 2em auto;
+    }
+
+    form {
+        background-color: $color4;
+        margin: 0 auto;
+        width: 75%;
+        border: .012em solid $color5;
+
+        .pageHeader {
+            font-size: 1.75em;
+            text-align: left;
+            margin: 1em 1.25em;
+            color: $font-color;
+        }
+
+        h2 {
+            color: $font-color;
+            margin: 2em auto 1em;
+        }
+    }
+
+    .bodyBlock {
+        background-color: $color4;
+        margin: 0 auto;
+        width: 75%;
+        border: .012em solid $color5;
+
+        .pageHeader {
+            font-size: 1.75em;
+            text-align: left;
+            margin: 1em 1.25em;
+            color: $font-color;
+        }
+
+        h2 {
+            color: $font-color;
+            margin: 2em auto 1em;
+        }
+    }
+
+    .innerForm {
+        background-color: $color3;
+        margin: 5% auto;
+        width: 75%;
+        border: .012em solid $color5;
+    }
+
+    .innerBlock {
+        background-color: $color3;
+        margin: 5% auto;
+        width: 75%;
+        border: .012em solid $color5;
+
+        .innerTab {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+
+            li {
+                display: inline;
+                a {
+                    background-color: transparent;
+                    border: none;
+                    display: inline;
+                    padding: 0;
+                    margin: 0 1em 0 0;
+                    color: $color6;
+                    font-size: 1em;
+                    font-weight: bold;
+                    text-decoration: underline;
+                }
+            
+                a:hover {
+                    color: $color4;
+                }
+            }
+        }
+    }
+
+    .loginForm {
+        background-color: $color4;
+        margin: 15% auto;
+        width: 25%;
+        border: .25em solid $color2;
+
+        .statusMessage {
+            margin: 1em auto 1em;
+            color: $font-color;
+        }
+    }
+
+    .logoutForm {
+        background-color: $color4;
+        margin: 15% auto;
+        width: 25%;
+        border: .25em solid $color2;
+
+        p {
+            margin: 1em auto 2em;
+            color: $font-color;
+        }
     }
 
     .loadingBody {
@@ -368,6 +453,11 @@
             margin: 0 auto 2em auto;
 
             a {
+                background-color: transparent;
+                border: none;
+                display: inline;
+                padding: 0;
+                margin: 0;
                 text-decoration: none;
                 color: $color2;
                 font-weight: bold;
