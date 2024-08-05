@@ -13,6 +13,8 @@ const Input: React.FC<InputProps> = ({ name, type, placeholder, requiring, value
     switch (type) {
         case ('number') :
             return <input type='number' name={name} placeholder={placeholder} aria-label={placeholder + ' text field'} required={requiring} autoComplete="off" value={value} onChange={onChange} />
+        case ('password') :
+            return <input type='password' name={name} placeholder={placeholder} aria-label={placeholder + ' text field'} required={requiring} autoComplete="off" value={value} onChange={onChange} />
         default:
             return <input type='text' name={name} placeholder={placeholder} aria-label={placeholder + ' text field'} required={requiring} autoComplete="off" value={value} onChange={onChange} />
         };    
