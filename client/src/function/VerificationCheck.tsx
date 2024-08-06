@@ -41,13 +41,16 @@ export const isCookieValid = () => {
                 // True if current time is before expiration
                 return true;
             } else {
+                ClearLoggedInUser();
                 return false;
             }
         } catch (error) {
+            ClearLoggedInUser();
             return false;
         }
     }
     // Cookie doesn't exist
+    ClearLoggedInUser();
     return false;
 };
 
