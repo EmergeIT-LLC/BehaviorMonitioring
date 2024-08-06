@@ -31,7 +31,7 @@ async function abaGetClientDataByID(cID) {
             if (err) {
                 reject({ message: err.message });
             } else {
-                resolve(rows);
+                resolve(rows[0]);
             }
         });
     });

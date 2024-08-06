@@ -67,7 +67,8 @@ router.post('/getClientInfo', async (req, res) => {
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
                     const clientData = await abaQueries.abaGetClientDataByID(cID);
-                    if (clientData.length > 0){
+
+                    if (clientData){
                         return res.json({ statusCode: 200, clientData: clientData });
                     }
                     else {
@@ -154,7 +155,8 @@ router.post('/addNewTargetBehavior', async (req, res) => {
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
                     const clientData = await abaQueries.abaGetClientDataByID(cID);
-                    if (clientData.length > 0){
+
+                    if (clientData){
                         if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({ statusCode: 200, clientAdded: true });
                         }
@@ -197,7 +199,8 @@ router.post('/updateTargetBehavior', async (req, res) => {
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
                     const clientData = await abaQueries.abaGetClientDataByID(cID);
-                    if (clientData.length > 0){
+
+                    if (clientData){
                         if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({ statusCode: 200, clientAdded: true });
                         }
