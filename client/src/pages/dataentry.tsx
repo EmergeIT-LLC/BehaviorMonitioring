@@ -5,6 +5,8 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from '../components/Link';
 import InputFields from '../components/Inputfield';
+import DateFields from '../components/Datefield';
+import TimeFields from '../components/Timefield';
 import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, isCookieValid } from '../function/VerificationCheck';
@@ -21,6 +23,8 @@ const DataEntry: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [targetAmt, setTargetAmt] = useState<number>(1);
+    const [dates, setDates] = useState<string[]>([])
+    const [times, setTimes] = useState<string[]>([])
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -37,39 +41,81 @@ const DataEntry: React.FC = () => {
         setIsLoading(false);
     }, [userLoggedIn]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        const numericValue = value === '' ? NaN : parseFloat(value);
+    const handleTargetAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value;
+        let numericValue = value === '' ? NaN : parseFloat(value);
+        if (numericValue <= 0) {
+            numericValue = 1;
+        }
         setTargetAmt(numericValue);
     };
 
-  return (
-    <>
-        <Header />
-        <div className={componentStyles.pageBody}>
-            <main>
-                {isLoading ? 
-                    <Loading/> 
-                    :
-                    <div className={componentStyles.bodyBlock}>
-                        <h1 className={componentStyles.pageHeader}>Data Entry</h1>
-                        <div className={componentStyles.innerBlock}>
-                            <ul className={componentStyles.innerTab}>
-                                <li><Link href='/DataEntry/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>
-                                <li><Link href='/DataEntry/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>
-                            </ul>
+    useEffect(() => {
+        // Initialize dates array with empty strings based on targetAmt
+        if (targetAmt > 0) {
+            setDates(Array(targetAmt).fill(''));
+            setTimes(Array(targetAmt).fill(''));
+        }
+    }, [targetAmt]);
 
-                            <p>Number of target:
-                                <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleChange}/>
-                            </p>
+    const handleDateChange = (index: number, value: string) => {
+        const newDates = [...dates];
+        newDates[index] = value;
+        setDates(newDates);
+    };
+
+    const handleTimeChange = (index: number, value: string) => {
+        const newTimes = [...times];
+        newTimes[index] = value;
+        setDates(newTimes);
+    };
+
+    return (
+        <>
+            <Header />
+            <div className={componentStyles.pageBody}>
+                <main>
+                    {isLoading ?
+                        <Loading />
+                        :
+                        <div className={componentStyles.bodyBlock}>
+                            <h1 className={componentStyles.pageHeader}>Data Entry</h1>
+                            <div className={componentStyles.innerBlock}>
+                                <ul className={componentStyles.innerTab}>
+                                    <li><Link href='/DataEntry/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>
+                                    <li><Link href='/DataEntry/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>
+                                </ul>
+
+                                <label className={componentStyles.dataEntryInputAMT}>Number of target:
+                                    <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
+                                </label>
+
+                                <table className={componentStyles.dataEntryTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>Target:</th>
+                                            <th>Session Date:</th>
+                                            <th>Time:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {targetAmt > 0 && dates.map((date, index) =>
+                                            <tr key={index}>
+                                                <td><p>Dropdown...</p></td>
+                                                <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
+                                                <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                }
-            </main>
-        </div>
-        <Footer />
-    </>
-  );
+                    }
+                </main>
+            </div>
+            <Footer />
+        </>
+    );
 }
 
 export default DataEntry;

@@ -376,6 +376,7 @@
             list-style: none;
             padding: 0;
             text-align: left;
+            margin-left: 1em;
 
             li {
                 display: inline;
@@ -395,6 +396,33 @@
                     color: $color4;
                 }
             }
+        }
+    }
+
+    .dataEntryInputAMT {
+        display: flex;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        width: 15em;
+
+        input {
+            display: flex;
+            width: 5em;
+            margin: 0 1em;
+            height: 1.50em;
+        }
+
+        input::placeholder {
+            text-align: center;
+        }
+    }
+    
+    .dataEntryTable {
+        margin: auto;
+        th {
+            background-color: antiquewhite;
+            width: 25em;
+            max-width: 25em;
         }
     }
 
