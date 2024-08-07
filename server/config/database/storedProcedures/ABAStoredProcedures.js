@@ -37,6 +37,18 @@ async function abaGetClientDataByID(cID) {
     });
 }
 
+async function abaGetAllClientData() {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client', [cID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+}
+
 async function abaUpdateClientData(fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, cID) {
     return new Promise((resolve, reject) => {
         db.run('UDATE client SET fName = ?, lName = ?, DOB = ?, intake_Date = ?, group_home_name = ?, medicaid_id_number = ?, behavior_plan_due_date = ?, WHERE clientID = ?', [fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, cID], function (err) {
@@ -86,6 +98,19 @@ async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, 
     });
 }
 
+async function abaGetBehaviorOrSkill(cID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered FROM BehaviorAndSkill WHERE clientID = ?', [cID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+
 async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
         db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered], function (err) {
@@ -127,9 +152,11 @@ module.exports = {
     abaAddClientData,
     abaGetClientDataByID,
     abaUpdateClientData,
+    abaGetAllClientData,
     behaviorSkillExistByID,
     abaAddBehaviorOrSkill,
     abaUpdateBehaviorOrSkill,
+    abaGetBehaviorOrSkill,
     abaAddFrequencyBehaviorData,
     abaAddRateBehaviorData,
     abaAddDurationBehaviorData
