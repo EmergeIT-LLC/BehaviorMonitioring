@@ -140,7 +140,6 @@ router.post('/deleteClientInfo', async (req, res) => {
 
 router.post('/getAllClientInfo', async (req, res) => {
     try {
-        const cID = req.body.clientID;
         const employeeUsername = req.body.employeeUsername;
 
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
@@ -154,7 +153,7 @@ router.post('/getAllClientInfo', async (req, res) => {
                     return res.json({ statusCode: 200, clientData: clientData });
                 }
                 else {
-                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                    return res.json({ statusCode: 400, serverMessage: 'Unable to locate client data' });
                 }
             }
             else {

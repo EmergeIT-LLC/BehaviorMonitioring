@@ -425,31 +425,54 @@
                 }
             }
         }
+
+        .statusMessage {
+            color: $color1;
+        }
+    }
+    
+    // Parent container for the .dataEntryInputAMT and .clientNameDropdown
+    .dataEntryContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin: 1em auto 2em;
     }
 
     .dataEntryInputAMT {
         display: flex;
-        margin-bottom: 1em;
-        margin-left: 1em;
-        width: 15em;
+        align-items: center;
 
         input {
-            display: flex;
             width: 5em;
-            margin: 0 1em;
-            height: 1.50em;
+            margin: 0 auto 0 1em;
+            height: 1.5em;
             text-align: center;
         }
-
+        
         input::placeholder {
             text-align: center;
         }
     }
-    
+
+    .clientNameDropdown {
+        display: flex;
+        align-items: center;
+
+        select {
+            margin: 0 auto 0 1em;
+            height: 2em;
+            min-width: 12em;
+            max-width: 25%;
+            width: 12em;
+            text-align: center;
+        }
+    }
+
     .dataEntryTable {
         margin: auto;
         th {
-            background-color: antiquewhite;
             width: 25em;
             max-width: 25em;
         }

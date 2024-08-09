@@ -27,6 +27,8 @@ const DataEntry: React.FC = () => {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [targetAmt, setTargetAmt] = useState<number>(1);
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
+    const [selectedClient, setSelectedClient] = useState<string>('');
+    const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
     const [dates, setDates] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
@@ -39,78 +41,54 @@ const DataEntry: React.FC = () => {
                     previousUrl: location.pathname,
                 }
             });
-        }
-        else {
+        } else {
             setIsLoading(true);
-            //Prep page
-            //getClientNames();
-            getClientTargetBehaviors();
+            getClientNames();
         }
         setIsLoading(false);
     }, [userLoggedIn]);
 
     const getClientNames = async () => {
-        const url = process.env.REACT_APP_Backend_URL + '/aba/getClientInfo';
-                
-        await Axios.post(url, {
-            "employeeUsername" : loggedInUser
-        })
-        .then((response) => {
+        const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
+        try {
+            const response = await Axios.post(url, { "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                const fetchedOptions = response.data.clientDetails.map((clientDetails: { cID: number, fName: string, lName: string }) => ({
-                    value: clientDetails.cID,
-                    label: clientDetails.fName + " " + clientDetails.lName,
+                setSelectedClientID(response.data.clientData[0].clientID);
+                const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
+                    value: clientData.clientID,
+                    label: `${clientData.fName} ${clientData.lName}`,
                 }));
-                
-                // Prepend the default option to the fetched options
-                const combinedOptions = [{ value: 'null', label: 'Select Target Behavior' }, ...fetchedOptions];
-                setClientLists(combinedOptions);            
+                setClientLists(fetchedOptions);
+            } else {
+                setStatusMessage(response.data.serverMessage);
             }
-            else {
-                if (response.data.statusCode === 401) {
-                    setStatusMessage(response.data.serverMessage);
-                }
-                else {
-                    throw new Error(response.data.serverMessage);
-                }
-            }
-        })
-        .catch((error) => {
-            console.error(error.message);
-        })
-    }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const getClientTargetBehaviors = async () => {
+        if (selectedClientID === 0) return; // Skip if no client is selected
+
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
-                
-        await Axios.post(url, {
-            "clientID" : 1,
-            "employeeUsername" : loggedInUser
-        })
-        .then((response) => {
+        try {
+            const response = await Axios.post(url, {
+                "clientID": selectedClientID,
+                "employeeUsername": loggedInUser
+            });
             if (response.data.statusCode === 200) {
                 const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string }) => ({
                     value: behavior.bsID,
                     label: behavior.name,
                 }));
-                
-                // Prepend the default option to the fetched options
-                const combinedOptions = [{ value: 'null', label: 'Select Target Behavior' }, ...fetchedOptions];
-                setTargetOptions(combinedOptions);            
+                setTargetOptions([{ value: 'null', label: 'Select Target Behavior' }, ...fetchedOptions]);
+            } else {
+                setStatusMessage(response.data.serverMessage);
             }
-            else {
-                if (response.data.statusCode === 401) {
-                    setStatusMessage(response.data.serverMessage);
-                }
-                else {
-                    throw new Error(response.data.serverMessage);
-                }
-            }
-        })
-        .catch((error) => {
-            console.error(error.message);
-        })
-    }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const handleTargetAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
@@ -122,13 +100,22 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
-        // Initialize dates array with empty strings based on targetAmt
         if (targetAmt > 0) {
             setSelectedTargets(Array(targetAmt).fill(''));
             setDates(Array(targetAmt).fill(''));
             setTimes(Array(targetAmt).fill(''));
         }
     }, [targetAmt]);
+
+    const handleClientChange = (value: string) => {
+        let numericValue = value === '' ? NaN : parseFloat(value);
+        setSelectedClientID(numericValue);
+        setSelectedClient(value);
+    };
+
+    useEffect(() => {
+        getClientTargetBehaviors();
+    }, [selectedClientID]);
 
     const handleOptionChange = (index: number, value: string) => {
         const selectedOptions = [...selectedTargets];
@@ -145,8 +132,12 @@ const DataEntry: React.FC = () => {
     const handleTimeChange = (index: number, value: string) => {
         const newTimes = [...times];
         newTimes[index] = value;
-        setDates(newTimes);
+        setTimes(newTimes);
     };
+
+    const submitDataEntryForm = () => {
+
+    }
 
     return (
         <>
@@ -159,16 +150,23 @@ const DataEntry: React.FC = () => {
                         <div className={componentStyles.bodyBlock}>
                             <h1 className={componentStyles.pageHeader}>Data Entry</h1>
                             <div className={componentStyles.innerBlock}>
-                                <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
+                            <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
                                 <ul className={componentStyles.innerTab}>
                                     <li><Link href='/DataEntry/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>
                                     <li><Link href='/DataEntry/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>
                                 </ul>
 
-                                <label className={componentStyles.dataEntryInputAMT}>Number of target:
-                                    <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
-                                </label>
+                                <div className={componentStyles.dataEntryContainer}>
+                                    <label className={componentStyles.dataEntryInputAMT}>
+                                        Number of target:
+                                        <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
+                                    </label>
 
+                                    <label className={componentStyles.clientNameDropdown}>
+                                        Client:
+                                        <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                    </label>
+                                </div>
                                 <table className={componentStyles.dataEntryTable}>
                                     <thead>
                                         <tr>
@@ -187,6 +185,7 @@ const DataEntry: React.FC = () => {
                                         )}
                                     </tbody>
                                 </table>
+                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
                             </div>
                         </div>
                     }

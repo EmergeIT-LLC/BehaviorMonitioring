@@ -1,7 +1,6 @@
 import Cookies from 'js-cookie';
 
 export const SetCookies = (name: string, value: object, expirationTime: string, path: string, secure: boolean, sameSite: 'strict' | 'lax' | 'none') => {
-
     const cookieOptions = {
         path: path,
         secure: secure,

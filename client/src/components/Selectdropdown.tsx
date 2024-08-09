@@ -3,7 +3,7 @@ import React from 'react';
 interface SelectDropdownProps {
     name: string;
     requiring: boolean;
-    value: string;
+    value: string | number;
     options: { value: string | number; label: string }[];
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }

@@ -39,11 +39,11 @@ async function abaGetClientDataByID(cID) {
 
 async function abaGetAllClientData() {
     return new Promise((resolve, reject) => {
-        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client', [cID], (err, rows) => {
+        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client', [], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
-                resolve(rows[0]);
+                resolve(rows);
             }
         });
     });
