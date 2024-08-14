@@ -52,6 +52,16 @@ const DataEntry: React.FC = () => {
         setIsLoading(false);
     }, [userLoggedIn]);
 
+    const getCurrentDate = (): string => {
+        const now = new Date();
+        return now.toISOString().slice(0, 10);
+    };
+
+    const getCurrentTime = (): string => {
+        const now = new Date();
+        return now.toTimeString().slice(0, 5); // returns 'HH:MM'
+    };
+
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
@@ -116,8 +126,8 @@ const DataEntry: React.FC = () => {
     useEffect(() => {
         if (activeTab === 'TargetBehavior' && targetAmt > 0) {
             setSelectedTargets(Array(targetAmt).fill(''));
-            setDates(Array(targetAmt).fill(''));
-            setTimes(Array(targetAmt).fill(''));
+            setDates(Array(targetAmt).fill(getCurrentDate()));
+            setTimes(Array(targetAmt).fill(getCurrentTime()));
         }
         else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
             //To be filled out soon

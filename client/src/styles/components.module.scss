@@ -425,7 +425,7 @@
 
                 .activeTab {
                     font-weight: bold;
-                    border-bottom: 2px solid black; /* or any other style */
+                    border-bottom: 2px solid $color6;
                 }
             }
         }
@@ -435,7 +435,6 @@
         }
     }
     
-    // Parent container for the .dataEntryInputAMT and .clientNameDropdown
     .dataEntryContainer {
         display: flex;
         justify-content: space-between;
