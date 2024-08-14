@@ -408,7 +408,7 @@
 
             li {
                 display: inline;
-                a {
+                button {
                     background-color: transparent;
                     border: none;
                     display: inline;
@@ -417,11 +417,15 @@
                     color: $color6;
                     font-size: 1em;
                     font-weight: bold;
-                    text-decoration: underline;
                 }
             
-                a:hover {
+                button:hover {
                     color: $color4;
+                }
+
+                .activeTab {
+                    font-weight: bold;
+                    border-bottom: 2px solid black; /* or any other style */
                 }
             }
         }
@@ -443,6 +447,7 @@
     .dataEntryInputAMT {
         display: flex;
         align-items: center;
+        margin-left: 1em;
 
         input {
             width: 5em;
@@ -459,6 +464,7 @@
     .clientNameDropdown {
         display: flex;
         align-items: center;
+        margin-right: 1em;
 
         select {
             margin: 0 auto 0 1em;

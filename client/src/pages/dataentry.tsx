@@ -9,6 +9,7 @@ import SelectDropdown from '../components/Selectdropdown';
 import DateFields from '../components/Datefield';
 import TimeFields from '../components/Timefield';
 import Button from '../components/Button';
+import Tab from '../components/Tab';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
@@ -25,14 +26,17 @@ const DataEntry: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<string>('');
+    const [activeTab, setActiveTab] = useState<string>('TargetBehavior');
     const [targetAmt, setTargetAmt] = useState<number>(1);
+    const [skillAmt, setSkillAmt] = useState<number>(1);
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
+    const [selectedMeasurementTypes, setSelectedMeasurementTypes] = useState<string[]>([]);
     const [dates, setDates] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
-    const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string }[]>([]);
+    const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -68,7 +72,7 @@ const DataEntry: React.FC = () => {
     };
 
     const getClientTargetBehaviors = async () => {
-        if (selectedClientID === 0) return; // Skip if no client is selected
+        if (selectedClientID === 0) return;
 
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
         try {
@@ -77,9 +81,10 @@ const DataEntry: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string }) => ({
+                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
                     value: behavior.bsID,
                     label: behavior.name,
+                    measurementType: behavior.measurement
                 }));
                 setTargetOptions([{ value: 'null', label: 'Select Target Behavior' }, ...fetchedOptions]);
             } else {
@@ -99,13 +104,25 @@ const DataEntry: React.FC = () => {
         setTargetAmt(numericValue);
     };
 
+    const handleSkillAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value;
+        let numericValue = value === '' ? NaN : parseFloat(value);
+        if (numericValue <= 0) {
+            numericValue = 1;
+        }
+        setSkillAmt(numericValue);
+    };
+
     useEffect(() => {
-        if (targetAmt > 0) {
+        if (activeTab === 'TargetBehavior' && targetAmt > 0) {
             setSelectedTargets(Array(targetAmt).fill(''));
             setDates(Array(targetAmt).fill(''));
             setTimes(Array(targetAmt).fill(''));
         }
-    }, [targetAmt]);
+        else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
+            //To be filled out soon
+        }
+    }, [targetAmt, skillAmt]);
 
     const handleClientChange = (value: string) => {
         let numericValue = value === '' ? NaN : parseFloat(value);
@@ -114,15 +131,27 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
-        getClientTargetBehaviors();
+        if (activeTab === 'TargetBehavior') {
+            getClientTargetBehaviors();
+        }
+        else if (activeTab === 'SkillAquisition') {
+            //To be filled out later
+        }
     }, [selectedClientID]);
 
     const handleOptionChange = (index: number, value: string) => {
         const selectedOptions = [...selectedTargets];
+        const selectedMeasurements = [...selectedMeasurementTypes];
+        
+        const selectedOption = targetOptions.find(option => option.value === value);
+        
         selectedOptions[index] = value;
+        selectedMeasurements[index] = selectedOption?.measurementType || '';
+    
         setSelectedTargets(selectedOptions);
+        setSelectedMeasurementTypes(selectedMeasurements);
     };
-
+    
     const handleDateChange = (index: number, value: string) => {
         const newDates = [...dates];
         newDates[index] = value;
@@ -136,7 +165,12 @@ const DataEntry: React.FC = () => {
     };
 
     const submitDataEntryForm = () => {
-
+        if (activeTab === 'TargetBehavior') {
+            //To be filled out soon
+        }
+        else if (activeTab === 'SkillAquisition') {
+            //To be filled out soon
+        }
     }
 
     return (
@@ -152,39 +186,63 @@ const DataEntry: React.FC = () => {
                             <div className={componentStyles.innerBlock}>
                             <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
                                 <ul className={componentStyles.innerTab}>
-                                    <li><Link href='/DataEntry/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>
-                                    <li><Link href='/DataEntry/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>
+                                    <li><Tab nameOfClass={activeTab === 'TargetBehavior' ? componentStyles.activeTab : ''} placeholder="Target Behavior" onClick={() => setActiveTab('TargetBehavior')}/></li>
+                                    {/* <li><Tab nameOfClass={activeTab === 'SkillAquisition' ? componentStyles.activeTab : ''} placeholder="Skill Aquisition" onClick={() => setActiveTab('SkillAquisition')}/></li> */}
                                 </ul>
 
                                 <div className={componentStyles.dataEntryContainer}>
-                                    <label className={componentStyles.dataEntryInputAMT}>
-                                        Number of target:
-                                        <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
-                                    </label>
+                                    {activeTab === 'TargetBehavior' && (
+                                        <label className={componentStyles.dataEntryInputAMT}>
+                                            Number of target:
+                                            <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
+                                        </label>
+                                    )}
+
+                                    {activeTab === 'SkillAquisition' && (
+                                            <label className={componentStyles.dataEntryInputAMT}>
+                                                Number of skill:
+                                                <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleSkillAMTChange} />
+                                            </label>
+                                    )}
 
                                     <label className={componentStyles.clientNameDropdown}>
                                         Client:
                                         <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                     </label>
                                 </div>
-                                <table className={componentStyles.dataEntryTable}>
-                                    <thead>
-                                        <tr>
-                                            <th>Target:</th>
-                                            <th>Session Date:</th>
-                                            <th>Time:</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {targetAmt > 0 && dates.map((date, index) =>
-                                            <tr key={index}>
-                                                <td><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
-                                                <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
-                                                <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+                                {activeTab === 'TargetBehavior' && (
+                                    <table className={componentStyles.dataEntryTable}>
+                                        <thead>
+                                            <tr>
+                                                <th>Target:</th>
+                                                <th>Session Date:</th>
+                                                <th>Time:</th>
+                                                {targetAmt > 0 && dates.map((date, index) =>
+                                                    selectedMeasurementTypes[index] && (
+                                                        <th key={index}></th>
+                                                    )
+                                                )}
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {targetAmt > 0 && dates.map((date, index) =>
+                                                <tr key={index}>
+                                                    <td><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
+                                                    <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
+                                                    <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+                                                    {selectedMeasurementTypes[index] && (
+                                                        <td></td>
+                                                    )}
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                )}
+                                {activeTab === 'SkillAquisition' && (
+                                    <div>
+                                        <p>Skill Acquisition content goes here...</p>
+                                    </div>
+                                )}
                                 <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
                             </div>
                         </div>
