@@ -98,9 +98,9 @@ async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, 
     });
 }
 
-async function abaGetBehaviorOrSkill(cID) {
+async function abaGetBehaviorOrSkill(cID, BorS) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered FROM BehaviorAndSkill WHERE clientID = ?', [cID], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered FROM BehaviorAndSkill WHERE clientID = ? and type=?', [cID, BorS], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {

@@ -4,7 +4,7 @@
     display: block;
     margin: 0 auto;
     text-align: center;
-    width: 85%;
+    width: 100%;
     height: auto;
     line-height: 1.875em;
     background-color: $header-footer-background;
@@ -160,7 +160,7 @@
 }
 
 .footerBody {
-    width: 85%;
+    width: 100%;
     margin: 0 auto;
     background-color: $header-footer-background;
     color: $nav-font-color;
@@ -234,7 +234,7 @@
     display: block;
     background-color: $page-background;
     margin: 0 auto;
-    width: 85%;
+    width: 100%;
     height: auto;
     border: .012em solid $color5;
 
@@ -276,17 +276,6 @@
     input:focus {
         outline: none;
         border: .25em solid $color2;
-    }
-
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-    }
-
-    /* Firefox */
-    input[type=number] {
-    -moz-appearance: textfield;
     }
 
     select {
@@ -371,7 +360,7 @@
     .bodyBlock {
         background-color: $color4;
         margin: 0 auto;
-        width: 75%;
+        width: 85%;
         border: .012em solid $color5;
 
         .pageHeader {

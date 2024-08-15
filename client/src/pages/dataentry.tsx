@@ -33,10 +33,12 @@ const DataEntry: React.FC = () => {
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [selectedMeasurementTypes, setSelectedMeasurementTypes] = useState<string[]>([]);
     const [dates, setDates] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
+    const [skillOptions, setSkillOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -54,9 +56,12 @@ const DataEntry: React.FC = () => {
 
     const getCurrentDate = (): string => {
         const now = new Date();
-        return now.toISOString().slice(0, 10);
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`; // Returns 'YYYY-MM-DD'
     };
-
+    
     const getCurrentTime = (): string => {
         const now = new Date();
         return now.toTimeString().slice(0, 5); // returns 'HH:MM'
@@ -105,6 +110,30 @@ const DataEntry: React.FC = () => {
         }
     };
 
+    const getClientSkillAquisitions = async () => {
+        if (selectedClientID === 0) return;
+
+        const url = process.env.REACT_APP_Backend_URL + '/aba/getClientSkillAquisition';
+        try {
+            const response = await Axios.post(url, {
+                "clientID": selectedClientID,
+                "employeeUsername": loggedInUser
+            });
+            if (response.data.statusCode === 200) {
+                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
+                    value: behavior.bsID,
+                    label: behavior.name,
+                    measurementType: behavior.measurement
+                }));
+                setSkillOptions([{ value: 'null', label: 'Select Skill Aquisition' }, ...fetchedOptions]);
+            } else {
+                setStatusMessage(response.data.serverMessage);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleTargetAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
         let numericValue = value === '' ? NaN : parseFloat(value);
@@ -130,7 +159,9 @@ const DataEntry: React.FC = () => {
             setTimes(Array(targetAmt).fill(getCurrentTime()));
         }
         else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
-            //To be filled out soon
+            setSelectedSkills(Array(skillAmt).fill(''));
+            setDates(Array(skillAmt).fill(getCurrentDate()));
+            setTimes(Array(skillAmt).fill(getCurrentTime()));
         }
     }, [targetAmt, skillAmt]);
 
@@ -145,23 +176,35 @@ const DataEntry: React.FC = () => {
             getClientTargetBehaviors();
         }
         else if (activeTab === 'SkillAquisition') {
-            //To be filled out later
+            getClientSkillAquisitions();
         }
     }, [selectedClientID]);
 
+    useEffect(() => {
+        // Reset state if needed when switching cards
+        return () => {
+            setSelectedMeasurementTypes([]);
+        };
+    }, [/* dependencies or card switches */]);
+    
+
     const handleOptionChange = (index: number, value: string) => {
+        const selectedOption = targetOptions.find(option => option.value.toString() === value);
+    
+        if (!selectedOption) {
+            return;
+        }
+    
         const selectedOptions = [...selectedTargets];
         const selectedMeasurements = [...selectedMeasurementTypes];
         
-        const selectedOption = targetOptions.find(option => option.value === value);
-        
         selectedOptions[index] = value;
-        selectedMeasurements[index] = selectedOption?.measurementType || '';
+        selectedMeasurements[index] = selectedOption.measurementType || '';
     
         setSelectedTargets(selectedOptions);
         setSelectedMeasurementTypes(selectedMeasurements);
     };
-    
+            
     const handleDateChange = (index: number, value: string) => {
         const newDates = [...dates];
         newDates[index] = value;
@@ -207,14 +250,12 @@ const DataEntry: React.FC = () => {
                                             <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
                                         </label>
                                     )}
-
                                     {activeTab === 'SkillAquisition' && (
                                             <label className={componentStyles.dataEntryInputAMT}>
                                                 Number of skill:
                                                 <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleSkillAMTChange} />
                                             </label>
                                     )}
-
                                     <label className={componentStyles.clientNameDropdown}>
                                         Client:
                                         <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
@@ -227,12 +268,9 @@ const DataEntry: React.FC = () => {
                                                 <th>Target:</th>
                                                 <th>Session Date:</th>
                                                 <th>Time:</th>
-                                                {targetAmt > 0 && dates.map((date, index) =>
-                                                    selectedMeasurementTypes[index] && (
-                                                        <th key={index}></th>
-                                                    )
-                                                )}
-                                            </tr>
+                                                {selectedMeasurementTypes.includes('frequency') ? <th>Frequency</th> : <th>No Frequency</th>}
+                                                {selectedMeasurementTypes.includes('rate') ? <th>Rate</th> : <th>No Rate</th>}
+                                                {selectedMeasurementTypes.includes('duration') ? <th>Duration</th> : <th>No Duration</th>}                                            </tr>
                                         </thead>
                                         <tbody>
                                             {targetAmt > 0 && dates.map((date, index) =>
@@ -240,18 +278,39 @@ const DataEntry: React.FC = () => {
                                                     <td><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
                                                     <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
                                                     <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
-                                                    {selectedMeasurementTypes[index] && (
-                                                        <td></td>
-                                                    )}
+                                                    {selectedMeasurementTypes.includes('frequency') && (<td></td>)}
                                                 </tr>
                                             )}
                                         </tbody>
                                     </table>
                                 )}
                                 {activeTab === 'SkillAquisition' && (
-                                    <div>
-                                        <p>Skill Acquisition content goes here...</p>
-                                    </div>
+                                    <table className={componentStyles.dataEntryTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>Target:</th>
+                                            <th>Session Date:</th>
+                                            <th>Time:</th>
+                                            {targetAmt > 0 && dates.map((date, index) =>
+                                                selectedMeasurementTypes[index] && (
+                                                    <th key={index}></th>
+                                                )
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {skillAmt > 0 && dates.map((date, index) =>
+                                            <tr key={index}>
+                                                <td><SelectDropdown name={`SkillAquisition-${index}`} requiring={true} value={selectedSkills[index]} options={skillOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
+                                                <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
+                                                <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+                                                {selectedMeasurementTypes.includes('frequency') && (
+                                                    <td></td>
+                                                )}
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                                 )}
                                 <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
                             </div>
