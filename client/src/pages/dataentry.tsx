@@ -39,6 +39,9 @@ const DataEntry: React.FC = () => {
     const [times, setTimes] = useState<string[]>([]);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
     const [skillOptions, setSkillOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
+    const [headers, setHeaders] = useState<JSX.Element[]>([]);
+    const [count, setCount] = useState<number[]>([]);
+    const [duration, setDuration] = useState<string[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -154,12 +157,12 @@ const DataEntry: React.FC = () => {
 
     useEffect(() => {
         if (activeTab === 'TargetBehavior' && targetAmt > 0) {
-            setSelectedTargets(Array(targetAmt).fill(''));
+            setSelectedTargets(Array(targetAmt).fill(null));
             setDates(Array(targetAmt).fill(getCurrentDate()));
             setTimes(Array(targetAmt).fill(getCurrentTime()));
         }
         else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
-            setSelectedSkills(Array(skillAmt).fill(''));
+            setSelectedSkills(Array(skillAmt).fill(null));
             setDates(Array(skillAmt).fill(getCurrentDate()));
             setTimes(Array(skillAmt).fill(getCurrentTime()));
         }
@@ -178,32 +181,25 @@ const DataEntry: React.FC = () => {
         else if (activeTab === 'SkillAquisition') {
             getClientSkillAquisitions();
         }
-    }, [selectedClientID]);
-
-    useEffect(() => {
-        // Reset state if needed when switching cards
-        return () => {
-            setSelectedMeasurementTypes([]);
-        };
-    }, [/* dependencies or card switches */]);
-    
+    }, [selectedClientID]);    
 
     const handleOptionChange = (index: number, value: string) => {
-        const selectedOption = targetOptions.find(option => option.value.toString() === value);
-    
-        if (!selectedOption) {
-            return;
-        }
-    
-        const selectedOptions = [...selectedTargets];
-        const selectedMeasurements = [...selectedMeasurementTypes];
-        
-        selectedOptions[index] = value;
-        selectedMeasurements[index] = selectedOption.measurementType || '';
-    
-        setSelectedTargets(selectedOptions);
-        setSelectedMeasurementTypes(selectedMeasurements);
+        if (!value) return; // Prevent empty strings from being set
+        const updatedTargets = [...selectedTargets];
+        updatedTargets[index] = value;
+        setSelectedTargets(updatedTargets);
+        console.log("Updated Targets:", updatedTargets);
     };
+    
+    useEffect(() => {
+        const newSelectedMeasurements = selectedTargets.map(targetValue => {
+            const selectedOption = targetOptions.find(option => option.value.toString() === targetValue);
+            return selectedOption ? selectedOption.measurementType || '' : '';
+        });
+        console.log("newSelectedMeasurements:", newSelectedMeasurements);
+        setSelectedMeasurementTypes(newSelectedMeasurements);
+    }, [selectedTargets, targetOptions]);
+    
             
     const handleDateChange = (index: number, value: string) => {
         const newDates = [...dates];
@@ -217,6 +213,56 @@ const DataEntry: React.FC = () => {
         setTimes(newTimes);
     };
 
+    useEffect(() => {
+        const generateHeaders = () => {
+            const newHeaders: JSX.Element[] = [
+                <th key="target">Target:</th>,
+                <th key="sessionDate">Session Date:</th>,
+                <th key="time">Time:</th>
+            ];
+    
+
+            if (selectedMeasurementTypes.includes('Frequency') || selectedMeasurementTypes.includes('Rate')) {
+                newHeaders.push(<th key="count">Count:</th>);
+            }
+            if (selectedMeasurementTypes.includes('Duration') || selectedMeasurementTypes.includes('Rate')) {
+                newHeaders.push(<th key="duration">Duration:</th>);
+            }    
+            return newHeaders;
+        };
+        setHeaders(generateHeaders());
+    }, [selectedMeasurementTypes]);
+    
+    const handleCountChange = (index: number, value: number) => {
+        const newCounts = [...count];
+        newCounts[index] = value;
+        setCount(newCounts);
+    };
+
+    const handleDurationChange = (index: number, value: string) => {
+        const newDurations = [...duration];
+        newDurations[index] = value;
+        setDuration(newDurations);
+    };
+
+    const renderTableData = (index: number) => {
+        const cells = [
+            <td key={`target-${index}`}><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
+            <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
+            <td key={`time-${index}`}><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+        ];
+    
+        if (headers.some(header => header.key === 'count')) {
+            cells.push(<td key={`count-${index}`}>{selectedMeasurementTypes[index] === 'Frequency' || selectedMeasurementTypes[index] === 'Rate' ? (<p>Count</p>) : null}</td>);
+        }
+
+        if (headers.some(header => header.key === 'duration')) {
+            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<p>Duration</p>) : null}</td>);
+        }
+        
+        return cells;
+    };
+    
     const submitDataEntryForm = () => {
         if (activeTab === 'TargetBehavior') {
             //To be filled out soon
@@ -265,20 +311,13 @@ const DataEntry: React.FC = () => {
                                     <table className={componentStyles.dataEntryTable}>
                                         <thead>
                                             <tr>
-                                                <th>Target:</th>
-                                                <th>Session Date:</th>
-                                                <th>Time:</th>
-                                                {selectedMeasurementTypes.includes('frequency') ? <th>Frequency</th> : <th>No Frequency</th>}
-                                                {selectedMeasurementTypes.includes('rate') ? <th>Rate</th> : <th>No Rate</th>}
-                                                {selectedMeasurementTypes.includes('duration') ? <th>Duration</th> : <th>No Duration</th>}                                            </tr>
+                                                {headers}                                            
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             {targetAmt > 0 && dates.map((date, index) =>
                                                 <tr key={index}>
-                                                    <td><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
-                                                    <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
-                                                    <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
-                                                    {selectedMeasurementTypes.includes('frequency') && (<td></td>)}
+                                                    {renderTableData(index)}
                                                 </tr>
                                             )}
                                         </tbody>

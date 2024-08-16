@@ -379,7 +379,7 @@
     .innerForm {
         background-color: $color3;
         margin: 5% auto;
-        width: 75%;
+        width: 85%;
         border: .012em solid $color5;
     }
 
@@ -410,6 +410,7 @@
             
                 button:hover {
                     color: $color4;
+                    cursor: pointer;
                 }
 
                 .activeTab {
