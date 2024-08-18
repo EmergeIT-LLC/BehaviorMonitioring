@@ -3,11 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
-import Link from '../components/Link';
 import InputFields from '../components/Inputfield';
 import SelectDropdown from '../components/Selectdropdown';
 import DateFields from '../components/Datefield';
 import TimeFields from '../components/Timefield';
+import TimerField from '../components/Timer';
 import Button from '../components/Button';
 import Tab from '../components/Tab';
 import Loading from '../components/loading';
@@ -188,7 +188,6 @@ const DataEntry: React.FC = () => {
         const updatedTargets = [...selectedTargets];
         updatedTargets[index] = value;
         setSelectedTargets(updatedTargets);
-        console.log("Updated Targets:", updatedTargets);
     };
     
     useEffect(() => {
@@ -196,7 +195,6 @@ const DataEntry: React.FC = () => {
             const selectedOption = targetOptions.find(option => option.value.toString() === targetValue);
             return selectedOption ? selectedOption.measurementType || '' : '';
         });
-        console.log("newSelectedMeasurements:", newSelectedMeasurements);
         setSelectedMeasurementTypes(newSelectedMeasurements);
     }, [selectedTargets, targetOptions]);
     
@@ -233,12 +231,17 @@ const DataEntry: React.FC = () => {
         setHeaders(generateHeaders());
     }, [selectedMeasurementTypes]);
     
-    const handleCountChange = (index: number, value: number) => {
+    const handleCountChange  = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        let numericValue = value === '' ? NaN : parseFloat(value);
+        if (numericValue <= -1) {
+            numericValue = 0;
+        }
         const newCounts = [...count];
-        newCounts[index] = value;
+        newCounts[index] = numericValue;
         setCount(newCounts);
     };
-
+    
     const handleDurationChange = (index: number, value: string) => {
         const newDurations = [...duration];
         newDurations[index] = value;
@@ -253,11 +256,11 @@ const DataEntry: React.FC = () => {
         ];
     
         if (headers.some(header => header.key === 'count')) {
-            cells.push(<td key={`count-${index}`}>{selectedMeasurementTypes[index] === 'Frequency' || selectedMeasurementTypes[index] === 'Rate' ? (<p>Count</p>) : null}</td>);
+            cells.push(<td key={`count-${index}`}>{selectedMeasurementTypes[index] === 'Frequency' || selectedMeasurementTypes[index] === 'Rate' ? (<InputFields name={`count ${index} field`} type="number" placeholder="1" requiring={true} value={count[index]} onChange={(e) => handleCountChange(index, e)} />) : null}</td>);
         }
 
         if (headers.some(header => header.key === 'duration')) {
-            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<p>Duration</p>) : null}</td>);
+            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<TimerField name={`duration input field ${index}`} />) : null}</td>);
         }
         
         return cells;
