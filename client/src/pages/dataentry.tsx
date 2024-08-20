@@ -43,6 +43,32 @@ const DataEntry: React.FC = () => {
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<string[]>([]);
 
+    //Refill
+    useEffect(() => {
+        const storedData = localStorage.getItem('dataEntryState');
+        if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            setActiveTab(parsedData.activeTab);
+            setTargetAmt(parsedData.targetAmt);
+            setSkillAmt(parsedData.skillAmt);
+            setSelectedClient(parsedData.selectedClient);
+            setSelectedClientID(parsedData.selectedClientID);
+            setSelectedTargets(parsedData.selectedTargets);
+            setSelectedSkills(parsedData.selectedSkills);
+            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
+            setDates(parsedData.dates);
+            setTimes(parsedData.times);
+            setCount(parsedData.count);
+            setDuration(parsedData.duration);
+        }
+    }, []);
+    
+    //Update storage
+    useEffect(() => {
+        const dataToStore = {activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration};
+        localStorage.setItem('dataEntryState', JSON.stringify(dataToStore));
+    }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration]);
+
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
             navigate('/Login', {
@@ -242,9 +268,10 @@ const DataEntry: React.FC = () => {
         setCount(newCounts);
     };
     
-    const handleDurationChange = (index: number, value: string) => {
+    const handleDurationChange = (index: number, time: { hour: number; minute: number; second: number }) => {
+        const timeString = `${time.hour}:${time.minute}:${time.second}`;
         const newDurations = [...duration];
-        newDurations[index] = value;
+        newDurations[index] = timeString;
         setDuration(newDurations);
     };
 
@@ -260,7 +287,7 @@ const DataEntry: React.FC = () => {
         }
 
         if (headers.some(header => header.key === 'duration')) {
-            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<TimerField name={`duration input field ${index}`} />) : null}</td>);
+            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<TimerField name={`duration-${index}`} required={true} onChange={(time) => handleDurationChange(index, time)} />) : null}</td>);
         }
         
         return cells;

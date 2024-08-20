@@ -7,9 +7,8 @@ interface CustomTimerProps {
     initialMinute?: number;
     initialSecond?: number;
     name: string;
-    ariaLabel?: string;
-    required?: boolean;
-    onChange?: (time: { hour: number; minute: number; second: number }) => void;
+    required: boolean;
+    onChange: (time: { hour: number; minute: number; second: number }) => void;
 }
 
 const CustomTimer: React.FC<CustomTimerProps> = ({initialHour = 0, initialMinute = 0, initialSecond = 0, name, required, onChange}) => {
