@@ -42,8 +42,9 @@ const DataEntry: React.FC = () => {
     const [headers, setHeaders] = useState<JSX.Element[]>([]);
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<string[]>([]);
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-    //Refill
+    // Refill
     useEffect(() => {
         const storedData = localStorage.getItem('dataEntryState');
         if (storedData) {
@@ -53,21 +54,28 @@ const DataEntry: React.FC = () => {
             setSkillAmt(parsedData.skillAmt);
             setSelectedClient(parsedData.selectedClient);
             setSelectedClientID(parsedData.selectedClientID);
-            setSelectedTargets(parsedData.selectedTargets);
-            setSelectedSkills(parsedData.selectedSkills);
-            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
-            setDates(parsedData.dates);
-            setTimes(parsedData.times);
-            setCount(parsedData.count);
-            setDuration(parsedData.duration);
+            setSelectedTargets(parsedData.selectedTargets || []);
+            setSelectedSkills(parsedData.selectedSkills || []);
+            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes || []);
+            setDates(parsedData.dates || []);
+            setTimes(parsedData.times || []);
+            setCount(parsedData.count || []);
+            setDuration(parsedData.duration || []);
         }
+        setIsInitialized(true); // Mark the initialization as complete
     }, []);
     
-    //Update storage
+    // Update storage
     useEffect(() => {
-        const dataToStore = {activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration};
-        localStorage.setItem('dataEntryState', JSON.stringify(dataToStore));
-    }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration]);
+        if (isInitialized) {
+            const dataToStore = {
+                activeTab, targetAmt, skillAmt, selectedClient, selectedClientID,
+                selectedTargets, selectedSkills, selectedMeasurementTypes,
+                dates, times, count, duration
+            };
+            localStorage.setItem('dataEntryState', JSON.stringify(dataToStore));
+        }
+    }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration, isInitialized]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -90,7 +98,7 @@ const DataEntry: React.FC = () => {
         const day = String(now.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`; // Returns 'YYYY-MM-DD'
     };
-    
+
     const getCurrentTime = (): string => {
         const now = new Date();
         return now.toTimeString().slice(0, 5); // returns 'HH:MM'
@@ -183,12 +191,22 @@ const DataEntry: React.FC = () => {
 
     useEffect(() => {
         if (activeTab === 'TargetBehavior' && targetAmt > 0) {
-            setSelectedTargets(Array(targetAmt).fill(null));
+            if (selectedTargets) {
+                setSelectedTargets(Array(targetAmt).fill(selectedTargets));
+            }
+            else {
+                setSelectedTargets(Array(targetAmt).fill(null));
+            }
             setDates(Array(targetAmt).fill(getCurrentDate()));
             setTimes(Array(targetAmt).fill(getCurrentTime()));
         }
         else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
-            setSelectedSkills(Array(skillAmt).fill(null));
+            if (selectedSkills) {
+                setSelectedSkills(Array(skillAmt).fill(selectedSkills));
+            }
+            else {
+                setSelectedSkills(Array(skillAmt).fill(null));
+            }
             setDates(Array(skillAmt).fill(getCurrentDate()));
             setTimes(Array(skillAmt).fill(getCurrentTime()));
         }
@@ -215,7 +233,7 @@ const DataEntry: React.FC = () => {
         updatedTargets[index] = value;
         setSelectedTargets(updatedTargets);
     };
-    
+
     useEffect(() => {
         const newSelectedMeasurements = selectedTargets.map(targetValue => {
             const selectedOption = targetOptions.find(option => option.value.toString() === targetValue);
@@ -223,8 +241,7 @@ const DataEntry: React.FC = () => {
         });
         setSelectedMeasurementTypes(newSelectedMeasurements);
     }, [selectedTargets, targetOptions]);
-    
-            
+
     const handleDateChange = (index: number, value: string) => {
         const newDates = [...dates];
         newDates[index] = value;
@@ -238,13 +255,26 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
+        const loadData = () => {
+            const storedTargets = JSON.parse(localStorage.getItem('selectedTargets') || '[]');
+            const storedDates = JSON.parse(localStorage.getItem('dates') || '[]');
+            const storedTimes = JSON.parse(localStorage.getItem('times') || '[]');
+            const storedCounts = JSON.parse(localStorage.getItem('count') || '[]');
+            const storedMeasurementTypes = JSON.parse(localStorage.getItem('selectedMeasurementTypes') || '[]');
+
+            if (storedTargets.length) setSelectedTargets(storedTargets);
+            if (storedDates.length) setDates(storedDates);
+            if (storedTimes.length) setTimes(storedTimes);
+            if (storedCounts.length) setCount(storedCounts);
+            if (storedMeasurementTypes.length) setSelectedMeasurementTypes(storedMeasurementTypes);
+        };
+
         const generateHeaders = () => {
             const newHeaders: JSX.Element[] = [
                 <th key="target">Target:</th>,
                 <th key="sessionDate">Session Date:</th>,
                 <th key="time">Time:</th>
             ];
-    
 
             if (selectedMeasurementTypes.includes('Frequency') || selectedMeasurementTypes.includes('Rate')) {
                 newHeaders.push(<th key="count">Count:</th>);
@@ -254,9 +284,11 @@ const DataEntry: React.FC = () => {
             }    
             return newHeaders;
         };
+
+        loadData();  // Load data when component mounts
         setHeaders(generateHeaders());
     }, [selectedMeasurementTypes]);
-    
+
     const handleCountChange  = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         let numericValue = value === '' ? NaN : parseFloat(value);
@@ -267,7 +299,7 @@ const DataEntry: React.FC = () => {
         newCounts[index] = numericValue;
         setCount(newCounts);
     };
-    
+
     const handleDurationChange = (index: number, time: { hour: number; minute: number; second: number }) => {
         const timeString = `${time.hour}:${time.minute}:${time.second}`;
         const newDurations = [...duration];
@@ -281,15 +313,24 @@ const DataEntry: React.FC = () => {
             <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
             <td key={`time-${index}`}><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
         ];
-    
+
         if (headers.some(header => header.key === 'count')) {
-            cells.push(<td key={`count-${index}`}>{selectedMeasurementTypes[index] === 'Frequency' || selectedMeasurementTypes[index] === 'Rate' ? (<InputFields name={`count ${index} field`} type="number" placeholder="1" requiring={true} value={count[index]} onChange={(e) => handleCountChange(index, e)} />) : null}</td>);
+            cells.push(
+                <td key={`count-${index}`}>
+                    {selectedMeasurementTypes[index] === 'Frequency' || selectedMeasurementTypes[index] === 'Rate' ? 
+                        (<InputFields name={`count-${index}`} type="number" placeholder="1" requiring={true} value={count[index]} onChange={(e) => handleCountChange(index, e)} />)  : null}
+                </td>
+            );
         }
 
         if (headers.some(header => header.key === 'duration')) {
-            cells.push(<td key={`duration-${index}`}>{selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? (<TimerField name={`duration-${index}`} required={true} onChange={(time) => handleDurationChange(index, time)} />) : null}</td>);
+            cells.push(
+                <td key={`duration-${index}`}>
+                    {selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? 
+                        (<TimerField name={`duration-${index}`} required={true} onChange={(time) => handleDurationChange(index, time)} />) : null}
+                </td>
+            );
         }
-        
         return cells;
     };
     
