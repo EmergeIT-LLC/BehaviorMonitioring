@@ -3,18 +3,23 @@ import React, { useState } from 'react';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 
 interface CustomTimerProps {
-    initialHour?: number;
-    initialMinute?: number;
-    initialSecond?: number;
+    initialValue: string;
     name: string;
     required: boolean;
     onChange: (time: { hour: number; minute: number; second: number }) => void;
 }
 
-const CustomTimer: React.FC<CustomTimerProps> = ({initialHour = 0, initialMinute = 0, initialSecond = 0, name, required, onChange}) => {
-    const [hour, setHour] = useState<number>(initialHour);
-    const [minute, setMinute] = useState<number>(initialMinute);
-    const [second, setSecond] = useState<number>(initialSecond);
+const CustomTimer: React.FC<CustomTimerProps> = ({ initialValue = "00:00:00", name, required, onChange }) => {
+    const parseTimeString = (timeString: string) => {
+        const [hour, minute, second] = timeString.split(':').map(Number);
+        return { hour, minute, second };
+    };
+
+    const initialTime = parseTimeString(initialValue);
+
+    const [hour, setHour] = useState<number>(initialTime.hour);
+    const [minute, setMinute] = useState<number>(initialTime.minute);
+    const [second, setSecond] = useState<number>(initialTime.second);
 
     const updateTime = (newHour: number, newMinute: number, newSecond: number) => {
         setHour(newHour);
@@ -68,7 +73,7 @@ const CustomTimer: React.FC<CustomTimerProps> = ({initialHour = 0, initialMinute
         let newMinute = newSecond === 59 ? minute - 1 : minute;
         let newHour = newMinute === -1 ? hour - 1 : hour;
         if (newSecond <= -1) {
-            newSecond = 0
+            newSecond = 0;
         }
         if (newMinute <= 0) {
             newMinute = 0;

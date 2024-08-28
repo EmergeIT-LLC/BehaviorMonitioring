@@ -41,10 +41,9 @@ const DataEntry: React.FC = () => {
     const [skillOptions, setSkillOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
     const [headers, setHeaders] = useState<JSX.Element[]>([]);
     const [count, setCount] = useState<number[]>([]);
-    const [duration, setDuration] = useState<string[]>([]);
+    const [duration, setDuration] = useState<(string | null)[]>([]);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-    // Refill
     useEffect(() => {
         const storedData = localStorage.getItem('dataEntryState');
         if (storedData) {
@@ -62,9 +61,9 @@ const DataEntry: React.FC = () => {
             setCount(parsedData.count || []);
             setDuration(parsedData.duration || []);
         }
-        setIsInitialized(true); // Mark the initialization as complete
+        setIsInitialized(true);
     }, []);
-    
+        
     // Update storage
     useEffect(() => {
         if (isInitialized) {
@@ -109,6 +108,7 @@ const DataEntry: React.FC = () => {
         try {
             const response = await Axios.post(url, { "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
+                setSelectedClient(response.data.clientData[0].fName + " " + response.data.clientData[0].lName);
                 setSelectedClientID(response.data.clientData[0].clientID);
                 const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
                     value: clientData.clientID,
@@ -190,27 +190,38 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'TargetBehavior' && targetAmt > 0) {
-            if (selectedTargets) {
-                setSelectedTargets(Array(targetAmt).fill(selectedTargets));
-            }
-            else {
-                setSelectedTargets(Array(targetAmt).fill(null));
-            }
-            setDates(Array(targetAmt).fill(getCurrentDate()));
-            setTimes(Array(targetAmt).fill(getCurrentTime()));
-        }
-        else if (activeTab === 'SkillAquisition' && skillAmt > 0) {
-            if (selectedSkills) {
-                setSelectedSkills(Array(skillAmt).fill(selectedSkills));
-            }
-            else {
-                setSelectedSkills(Array(skillAmt).fill(null));
-            }
-            setDates(Array(skillAmt).fill(getCurrentDate()));
-            setTimes(Array(skillAmt).fill(getCurrentTime()));
-        }
-    }, [targetAmt, skillAmt]);
+        if (activeTab === 'TargetBehavior' && isInitialized) {
+            setSelectedTargets(prev => {
+                const newTargets = Array(targetAmt).fill(''); // Initialize with empty strings instead of null
+                return newTargets.map((_, i) => prev[i] || '');
+            });
+                
+            setDates(prev => {
+                const newDates = Array(targetAmt).fill(getCurrentDate());
+                return newDates.map((_, i) => prev[i] || getCurrentDate());
+            });
+    
+            setTimes(prev => {
+                const newTimes = Array(targetAmt).fill(getCurrentTime());
+                return newTimes.map((_, i) => prev[i] || getCurrentTime());
+            });
+        } else if (activeTab === 'SkillAquisition' && isInitialized) {
+            setSelectedSkills(prev => {
+                const newSkills = Array(skillAmt).fill(''); // Initialize with empty strings instead of null
+                return newSkills.map((_, i) => prev[i] || '');
+            });
+                
+            setDates(prev => {
+                const newDates = Array(skillAmt).fill(getCurrentDate());
+                return newDates.map((_, i) => prev[i] || getCurrentDate());
+            });
+    
+            setTimes(prev => {
+                const newTimes = Array(skillAmt).fill(getCurrentTime());
+                return newTimes.map((_, i) => prev[i] || getCurrentTime());
+            });        }
+    }, [targetAmt, activeTab, isInitialized]);
+    
 
     const handleClientChange = (value: string) => {
         let numericValue = value === '' ? NaN : parseFloat(value);
@@ -229,11 +240,28 @@ const DataEntry: React.FC = () => {
 
     const handleOptionChange = (index: number, value: string) => {
         if (!value) return; // Prevent empty strings from being set
+    
         const updatedTargets = [...selectedTargets];
         updatedTargets[index] = value;
         setSelectedTargets(updatedTargets);
+    
+        // Handle clearing or resetting duration and count based on the new value
+        if (value !== 'Duration' && value !== 'Rate') {
+            // Clear the duration or count for the index if no longer needed
+            setDuration(prevDurations => {
+                const newDurations = [...prevDurations];
+                newDurations[index] = null; // Set to null or default value
+                return newDurations;
+            });
+    
+            setCount(prevCounts => {
+                const newCounts = [...prevCounts];
+                newCounts[index] = NaN; // Set to null or default value
+                return newCounts;
+            });
+        }
     };
-
+    
     useEffect(() => {
         const newSelectedMeasurements = selectedTargets.map(targetValue => {
             const selectedOption = targetOptions.find(option => option.value.toString() === targetValue);
@@ -243,12 +271,14 @@ const DataEntry: React.FC = () => {
     }, [selectedTargets, targetOptions]);
 
     const handleDateChange = (index: number, value: string) => {
+        if (!value) return; // Prevent empty strings from being set
         const newDates = [...dates];
         newDates[index] = value;
         setDates(newDates);
     };
 
     const handleTimeChange = (index: number, value: string) => {
+        if (!value) return; // Prevent empty strings from being set
         const newTimes = [...times];
         newTimes[index] = value;
         setTimes(newTimes);
@@ -256,17 +286,13 @@ const DataEntry: React.FC = () => {
 
     useEffect(() => {
         const loadData = () => {
-            const storedTargets = JSON.parse(localStorage.getItem('selectedTargets') || '[]');
-            const storedDates = JSON.parse(localStorage.getItem('dates') || '[]');
-            const storedTimes = JSON.parse(localStorage.getItem('times') || '[]');
-            const storedCounts = JSON.parse(localStorage.getItem('count') || '[]');
-            const storedMeasurementTypes = JSON.parse(localStorage.getItem('selectedMeasurementTypes') || '[]');
-
-            if (storedTargets.length) setSelectedTargets(storedTargets);
-            if (storedDates.length) setDates(storedDates);
-            if (storedTimes.length) setTimes(storedTimes);
-            if (storedCounts.length) setCount(storedCounts);
-            if (storedMeasurementTypes.length) setSelectedMeasurementTypes(storedMeasurementTypes);
+            if (selectedClient.length > 0) { setSelectedClient(selectedClient); }
+            if (selectedClientID > 0) setSelectedClientID(selectedClientID);
+            if (selectedTargets.length > 0) setSelectedTargets(selectedTargets);
+            if (dates.length > 0) setDates(dates);
+            if (times.length > 0) setTimes(times);
+            if (count.length > 0) setCount(count);
+            if (selectedMeasurementTypes.length > 0) setSelectedMeasurementTypes(selectedMeasurementTypes);
         };
 
         const generateHeaders = () => {
@@ -285,7 +311,9 @@ const DataEntry: React.FC = () => {
             return newHeaders;
         };
 
-        loadData();  // Load data when component mounts
+        if (isInitialized) {
+            loadData();  // Load data when component mounts
+        }
         setHeaders(generateHeaders());
     }, [selectedMeasurementTypes]);
 
@@ -327,7 +355,7 @@ const DataEntry: React.FC = () => {
             cells.push(
                 <td key={`duration-${index}`}>
                     {selectedMeasurementTypes[index] === 'Duration' || selectedMeasurementTypes[index] === 'Rate' ? 
-                        (<TimerField name={`duration-${index}`} required={true} onChange={(time) => handleDurationChange(index, time)} />) : null}
+                        (<TimerField name={`duration-${index}`} required={true} initialValue={duration[index] || "00:00:00"} onChange={(time) => handleDurationChange(index, time)} />) : null}
                 </td>
             );
         }
