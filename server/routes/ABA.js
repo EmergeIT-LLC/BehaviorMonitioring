@@ -353,7 +353,67 @@ router.post('/getClientSkillAquisition', async (req, res) => {
 
 router.post('/submitTargetBehavior', async (req, res) => {
     try {
-        //
+        const cID = req.body.clientID;
+        const targetAmount = req.body.targetAmt;
+        const selectedTargetIds = req.body.selectedTargets;
+        const selectedMeasurementTypes = req.body.selectedMeasurementTypes;
+        const datesTargetsOccured = req.body.dates;
+        const timesTargetsOccured = req.body.times;
+        const count = req.body.count;
+        const duration = req.body.duration;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+    
+                    for (let i = 0; i < targetAmount; i++) {
+                        if (await abaQueries.behaviorSkillExistByID(selectedTargetIds[i])) {
+                            if (selectedMeasurementTypes[i] = "Frequency") {
+                                if (await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    //Add to success point
+                                }
+                                else {
+                                    //Add to fail point
+                                }
+                            }
+
+                            if (selectedMeasurementTypes[i] = "Duration") {
+                                if (await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    //Add to success point
+                                }
+                                else {
+                                    //Add to fail point
+                                }
+                            }
+
+                            if (selectedMeasurementTypes[i] = "Rate") {
+                                if (await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    //Add to success point
+                                }
+                                else {
+                                    //Add to fail point
+                                }
+                            }
+                        }
+                        //Skip if behavior does not exist...
+                    }
+                    //Return statement for when forloop finishes with no fail points
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+        }
     }
     catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });

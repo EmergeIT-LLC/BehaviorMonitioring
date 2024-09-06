@@ -364,7 +364,6 @@ const DataEntry: React.FC = () => {
                     "selectedMeasurementTypes": selectedMeasurementTypes,
                     "dates": dates,
                     "times": times,
-                    
                     "count": count,
                     "duration": duration,
                     "employeeUsername": loggedInUser
