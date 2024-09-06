@@ -351,4 +351,21 @@ router.post('/getClientSkillAquisition', async (req, res) => {
     }
 });
 
+router.post('/submitTargetBehavior', async (req, res) => {
+    try {
+        //
+    }
+    catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/submitSkillAquisition', async (req, res) => {
+    try {
+        //
+    }
+    catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
 module.exports = router;

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
+import { getCurrentDate, getCurrentTime } from '../function/DateTimes';
 import InputFields from '../components/Inputfield';
 import SelectDropdown from '../components/Selectdropdown';
 import DateFields from '../components/Datefield';
@@ -45,7 +46,7 @@ const DataEntry: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
     useEffect(() => {
-        const storedData = localStorage.getItem('dataEntryState');
+        const storedData = sessionStorage.getItem('dataEntryState');
         if (storedData) {
             const parsedData = JSON.parse(storedData);
             setActiveTab(parsedData.activeTab);
@@ -53,13 +54,15 @@ const DataEntry: React.FC = () => {
             setSkillAmt(parsedData.skillAmt);
             setSelectedClient(parsedData.selectedClient);
             setSelectedClientID(parsedData.selectedClientID);
-            setSelectedTargets(parsedData.selectedTargets || []);
-            setSelectedSkills(parsedData.selectedSkills || []);
-            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes || []);
-            setDates(parsedData.dates || []);
-            setTimes(parsedData.times || []);
-            setCount(parsedData.count || []);
-            setDuration(parsedData.duration || []);
+            setSelectedTargets(parsedData.selectedTargets);
+            setSelectedSkills(parsedData.selectedSkills);
+            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
+            if (selectedTargets.length > 1 || selectedSkills.length > 1) {
+                setDates(parsedData.dates);
+                setTimes(parsedData.times);
+            }
+            setCount(parsedData.count);
+            setDuration(parsedData.duration);
         }
         setIsInitialized(true);
     }, []);
@@ -72,7 +75,7 @@ const DataEntry: React.FC = () => {
                 selectedTargets, selectedSkills, selectedMeasurementTypes,
                 dates, times, count, duration
             };
-            localStorage.setItem('dataEntryState', JSON.stringify(dataToStore));
+            sessionStorage.setItem('dataEntryState', JSON.stringify(dataToStore));
         }
     }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration, isInitialized]);
 
@@ -89,19 +92,6 @@ const DataEntry: React.FC = () => {
         }
         setIsLoading(false);
     }, [userLoggedIn]);
-
-    const getCurrentDate = (): string => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
-        const day = String(now.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`; // Returns 'YYYY-MM-DD'
-    };
-
-    const getCurrentTime = (): string => {
-        const now = new Date();
-        return now.toTimeString().slice(0, 5); // returns 'HH:MM'
-    };
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -295,7 +285,7 @@ const DataEntry: React.FC = () => {
             if (selectedMeasurementTypes.length > 0) setSelectedMeasurementTypes(selectedMeasurementTypes);
         };
 
-        const generateHeaders = () => {
+        const generateTargetTableHeaders = () => {
             const newHeaders: JSX.Element[] = [
                 <th key="target">Target:</th>,
                 <th key="sessionDate">Session Date:</th>,
@@ -314,7 +304,7 @@ const DataEntry: React.FC = () => {
         if (isInitialized) {
             loadData();  // Load data when component mounts
         }
-        setHeaders(generateHeaders());
+        setHeaders(generateTargetTableHeaders());
     }, [selectedMeasurementTypes]);
 
     const handleCountChange  = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -335,7 +325,7 @@ const DataEntry: React.FC = () => {
         setDuration(newDurations);
     };
 
-    const renderTableData = (index: number) => {
+    const renderTargetTableData = (index: number) => {
         const cells = [
             <td key={`target-${index}`}><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
             <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
@@ -362,12 +352,34 @@ const DataEntry: React.FC = () => {
         return cells;
     };
     
-    const submitDataEntryForm = () => {
-        if (activeTab === 'TargetBehavior') {
-            //To be filled out soon
-        }
-        else if (activeTab === 'SkillAquisition') {
-            //To be filled out soon
+    const submitDataEntryForm = async () => {
+        try {
+            if (activeTab === 'TargetBehavior') {
+                const url = process.env.REACT_APP_Backend_URL + '/aba/submitTargetBehavior';
+
+                const response = await Axios.post(url, {
+                    "clientID": selectedClientID,
+                    "targetAmt": targetAmt,
+                    "selectedTargets": selectedTargets,
+                    "selectedMeasurementTypes": selectedMeasurementTypes,
+                    "dates": dates,
+                    "times": times,
+                    
+                    "count": count,
+                    "duration": duration,
+                    "employeeUsername": loggedInUser
+                });
+                if (response.data.statusCode === 200) {
+                    //Clear data
+                } else {
+                    setStatusMessage(response.data.serverMessage);
+                }    
+            }
+            else if (activeTab === 'SkillAquisition') {
+                const url = process.env.REACT_APP_Backend_URL + '/aba/submitSkillAquisition';
+            }    
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -416,7 +428,7 @@ const DataEntry: React.FC = () => {
                                         <tbody>
                                             {targetAmt > 0 && dates.map((date, index) =>
                                                 <tr key={index}>
-                                                    {renderTableData(index)}
+                                                    {renderTargetTableData(index)}
                                                 </tr>
                                             )}
                                         </tbody>
