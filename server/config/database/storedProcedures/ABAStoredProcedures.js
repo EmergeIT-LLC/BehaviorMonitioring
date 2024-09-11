@@ -137,7 +137,7 @@ async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, dur
 
 async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, trial, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {

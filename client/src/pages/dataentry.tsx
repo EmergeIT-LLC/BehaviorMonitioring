@@ -44,6 +44,8 @@ const DataEntry: React.FC = () => {
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<(string | null)[]>([]);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
+    const [timerCount, setTimerCount] = useState<number>(0);
+    const [reloadStatus, setReloadStatus] = useState<boolean>(false);
 
     useEffect(() => {
         const storedData = sessionStorage.getItem('dataEntryState');
@@ -92,6 +94,22 @@ const DataEntry: React.FC = () => {
         }
         setIsLoading(false);
     }, [userLoggedIn]);
+
+    useEffect(() => {
+        if (timerCount > 0) {
+            const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+        if (timerCount === 0 && reloadStatus) {
+            sessionStorage.removeItem('dataEntryState');
+            setReloadStatus(false);
+            refreshPage();
+        }
+    }, [timerCount, reloadStatus]);
+
+    const refreshPage = () => {
+        window.location.reload();
+    }
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -161,15 +179,23 @@ const DataEntry: React.FC = () => {
         }
     };
 
-    const handleTargetAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
-        let numericValue = value === '' ? NaN : parseFloat(value);
-        if (numericValue <= 0) {
+    const handleTargetAMTChange = (input: number | React.ChangeEvent<HTMLInputElement>) => {
+        let numericValue: number;
+    
+        if (typeof input === 'number') {
+            numericValue = input;
+        } else {
+            let value = input.target.value;
+            numericValue = value === '' ? NaN : parseFloat(value);
+        }
+    
+        if (numericValue <= 0 || isNaN(numericValue)) {
             numericValue = 1;
         }
+    
         setTargetAmt(numericValue);
     };
-
+    
     const handleSkillAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
         let numericValue = value === '' ? NaN : parseFloat(value);
@@ -368,17 +394,34 @@ const DataEntry: React.FC = () => {
                     "duration": duration,
                     "employeeUsername": loggedInUser
                 });
-                if (response.data.statusCode === 200) {
-                    //Clear data
+                if (response.data.statusCode === 201) {
+                    setStatusMessage(response.data.serverMessage + "\nRefreshing in 3 seconds...");
+                    setTimerCount(3);
+                    setReloadStatus(true);                                   
                 } else {
                     setStatusMessage(response.data.serverMessage);
+                    setIsLoading(false);
                 }    
             }
             else if (activeTab === 'SkillAquisition') {
                 const url = process.env.REACT_APP_Backend_URL + '/aba/submitSkillAquisition';
+
+                const response = await Axios.post(url, {
+                    "clientID": selectedClientID,
+                    "employeeUsername": loggedInUser
+                });
+                if (response.data.statusCode === 201) {
+                    setStatusMessage(response.data.serverMessage + "\nRefreshing in 3 seconds...");
+                    setTimerCount(3);
+                    setReloadStatus(true);                                   
+                } else {
+                    setStatusMessage(response.data.serverMessage);
+                    setIsLoading(false);
+                }
             }    
         } catch (error) {
             console.error(error);
+            setIsLoading(false);
         }
     }
 

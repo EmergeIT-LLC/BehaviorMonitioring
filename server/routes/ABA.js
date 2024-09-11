@@ -363,6 +363,9 @@ router.post('/submitTargetBehavior', async (req, res) => {
         const duration = req.body.duration;
         const employeeUsername = req.body.employeeUsername;
 
+        //For successful/failed adds
+        let addedSuccessfully = true;
+
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
@@ -372,47 +375,43 @@ router.post('/submitTargetBehavior', async (req, res) => {
     
                     for (let i = 0; i < targetAmount; i++) {
                         if (await abaQueries.behaviorSkillExistByID(selectedTargetIds[i])) {
-                            if (selectedMeasurementTypes[i] = "Frequency") {
-                                if (await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
-                                    //Add to success point
-                                }
-                                else {
-                                    //Add to fail point
-                                }
-                            }
 
-                            if (selectedMeasurementTypes[i] = "Duration") {
-                                if (await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
-                                    //Add to success point
-                                }
-                                else {
-                                    //Add to fail point
-                                }
+                            switch (selectedMeasurementTypes[i]) {
+                                case "Frequency":
+                                    if (!await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                        addedSuccessfully = false;
+                                    }
+                                    break;    
+                                case "Duration":
+                                    if (!await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                        addedSuccessfully = false;
+                                    }
+                                    break;
+                                case "Rate":
+                                    if (!await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                        addedSuccessfully = false;
+                                    }
+                                    break; 
                             }
-
-                            if (selectedMeasurementTypes[i] = "Rate") {
-                                if (await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
-                                    //Add to success point
-                                }
-                                else {
-                                    //Add to fail point
-                                }
+                            //If data failed to add
+                            if (addedSuccessfully === false) {
+                                return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Target behavior id, ' + selectedTargetIds[i] + ', does not exist', Data: {index: i, Date: datesTargetsOccured[i], time: timesTargetsOccured[i], count: count[i], duration: duration[i]} });
                             }
-                        }
-                        //Skip if behavior does not exist...
+                        } //Skip if behavior does not exist...
                     }
                     //Return statement for when forloop finishes with no fail points
+                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All target behavior data added' });
                 }
                 else {
-                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                    return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Client does not exist' });
                 }
             }
             else {
-                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+                return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
             }
         }
         else {
-            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
         }
     }
     catch (error) {
