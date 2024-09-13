@@ -26,7 +26,7 @@ const DataEntry: React.FC = () => {
     const loggedInUser = GetLoggedInUser();
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [statusMessage, setStatusMessage] = useState<string>('');
+    const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [activeTab, setActiveTab] = useState<string>('TargetBehavior');
     const [targetAmt, setTargetAmt] = useState<number>(1);
     const [skillAmt, setSkillAmt] = useState<number>(1);
@@ -43,6 +43,7 @@ const DataEntry: React.FC = () => {
     const [headers, setHeaders] = useState<JSX.Element[]>([]);
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<(string | null)[]>([]);
+    const [submitted, setSubmitted] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
     const [reloadStatus, setReloadStatus] = useState<boolean>(false);
@@ -379,6 +380,7 @@ const DataEntry: React.FC = () => {
     };
     
     const submitDataEntryForm = async () => {
+        setIsLoading(true);
         try {
             if (activeTab === 'TargetBehavior') {
                 const url = process.env.REACT_APP_Backend_URL + '/aba/submitTargetBehavior';
@@ -395,12 +397,14 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
                 if (response.data.statusCode === 201) {
-                    setStatusMessage(response.data.serverMessage + "\nRefreshing in 3 seconds...");
+                    setIsLoading(false);
+                    setSubmitted(true);
+                    setStatusMessage(<>{response.data.serverMessage} <br /> Refreshing in 3 seconds...</>);
                     setTimerCount(3);
                     setReloadStatus(true);                                   
                 } else {
-                    setStatusMessage(response.data.serverMessage);
                     setIsLoading(false);
+                    setStatusMessage(response.data.serverMessage);
                 }    
             }
             else if (activeTab === 'SkillAquisition') {
@@ -411,12 +415,14 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
                 if (response.data.statusCode === 201) {
-                    setStatusMessage(response.data.serverMessage + "\nRefreshing in 3 seconds...");
+                    setIsLoading(false);
+                    setSubmitted(true);
+                    setStatusMessage(<>{response.data.serverMessage} + <br /> + Refreshing in 3 seconds...</>);
                     setTimerCount(3);
                     setReloadStatus(true);                                   
                 } else {
-                    setStatusMessage(response.data.serverMessage);
                     setIsLoading(false);
+                    setStatusMessage(response.data.serverMessage);
                 }
             }    
         } catch (error) {
@@ -436,7 +442,7 @@ const DataEntry: React.FC = () => {
                         <div className={componentStyles.bodyBlock}>
                             <h1 className={componentStyles.pageHeader}>Data Entry</h1>
                             <div className={componentStyles.innerBlock}>
-                            <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
+                            <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                                 <ul className={componentStyles.innerTab}>
                                     <li><Tab nameOfClass={activeTab === 'TargetBehavior' ? componentStyles.activeTab : ''} placeholder="Target Behavior" onClick={() => setActiveTab('TargetBehavior')}/></li>
                                     {/* <li><Tab nameOfClass={activeTab === 'SkillAquisition' ? componentStyles.activeTab : ''} placeholder="Skill Aquisition" onClick={() => setActiveTab('SkillAquisition')}/></li> */}
@@ -504,7 +510,7 @@ const DataEntry: React.FC = () => {
                                     </tbody>
                                 </table>
                                 )}
-                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
+                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={submitted} onClick={submitDataEntryForm}/>
                             </div>
                         </div>
                     }
