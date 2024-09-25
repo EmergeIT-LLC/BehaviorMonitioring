@@ -23,6 +23,7 @@ const TargetBehavior: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
+    const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -62,7 +63,7 @@ const TargetBehavior: React.FC = () => {
 
     const getClientTargetBehaviors = async () => {
         if (selectedClientID === 0) return;
-
+    
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
         try {
             const response = await Axios.post(url, {
@@ -75,6 +76,8 @@ const TargetBehavior: React.FC = () => {
                     label: behavior.name,
                     measurementType: behavior.measurement
                 }));
+                console.log(...fetchedOptions)
+                setTargetOptions([...fetchedOptions]); // No default placeholder option
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
@@ -82,7 +85,7 @@ const TargetBehavior: React.FC = () => {
             console.error(error);
         }
     };
-
+    
   return (
     <>
         <Header />
@@ -91,8 +94,16 @@ const TargetBehavior: React.FC = () => {
                 {isLoading ? 
                     <Loading/> 
                     :
-                    <div className={componentStyles.tbBody}>
-                        Target Behavior
+                    <div className={componentStyles.bodyBlock}>
+                        <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
+                        <div className={componentStyles.innerBlock}>
+                            <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                            {targetOptions.map((option, index) => 
+                                <tr key={index}>
+                                    <p>{option.measurementType}</p>
+                                </tr>
+                            )}
+                        </div>
                     </div>
                 }
             </main>
