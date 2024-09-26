@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
-import Button from '../components/Button';
 import Loading from '../components/loading';
+import SelectDropdown from '../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
+import Button from '../components/Button';
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
@@ -32,14 +33,17 @@ const TargetBehavior: React.FC = () => {
                     previousUrl: location.pathname,
                 }
             });
-        }
-        else {
+        } else {
             setIsLoading(true);
             getClientNames();
+        }
+    }, [userLoggedIn]);
+
+    useEffect(() => {
+        if (selectedClientID > 0) {
             getClientTargetBehaviors();
         }
-        setIsLoading(false);
-    }, [userLoggedIn]);
+    }, [selectedClientID]);
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -56,14 +60,15 @@ const TargetBehavior: React.FC = () => {
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
+            setIsLoading(false);
         } catch (error) {
             console.error(error);
+            setIsLoading(false);
         }
     };
 
     const getClientTargetBehaviors = async () => {
-        if (selectedClientID === 0) return;
-    
+        setIsLoading(true);
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
         try {
             const response = await Axios.post(url, {
@@ -76,41 +81,66 @@ const TargetBehavior: React.FC = () => {
                     label: behavior.name,
                     measurementType: behavior.measurement
                 }));
-                console.log(...fetchedOptions)
-                setTargetOptions([...fetchedOptions]); // No default placeholder option
+                setTargetOptions(fetchedOptions);
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
-    
-  return (
-    <>
-        <Header />
-        <div className={componentStyles.pageBody}>
-            <main>
-                {isLoading ? 
-                    <Loading/> 
-                    :
-                    <div className={componentStyles.bodyBlock}>
-                        <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
-                        <div className={componentStyles.innerBlock}>
-                            <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-                            {targetOptions.map((option, index) => 
-                                <tr key={index}>
-                                    <p>{option.measurementType}</p>
-                                </tr>
-                            )}
+
+    const handleClientChange = (value: string) => {
+        setStatusMessage('');
+        setTargetOptions([]);
+        setSelectedClient(value);
+        const numericValue = value === '' ? NaN : parseFloat(value);
+        setSelectedClientID(numericValue);
+    };
+
+    return (
+        <>
+            <Header />
+            <div className={componentStyles.pageBody}>
+                <main>
+                    {isLoading ? 
+                        <Loading/> 
+                        :
+                        <div className={componentStyles.bodyBlock}>
+                            <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
+                            <div className={componentStyles.tbHRSButtons}>
+                                buttons go here
+                            </div>
+                            <div className={componentStyles.innerBlock}>
+                                <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                                <label className={componentStyles.clientNameDropdown}>
+                                    Client:
+                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                </label>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Measurement Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {targetOptions.map((option, index) => (
+                                            <tr key={index}>
+                                                <td>{option.measurementType}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                }
-            </main>
-        </div>
-        <Footer />
-    </>
-  );
+                    }
+                </main>
+            </div>
+            <Footer />
+        </>
+    );
 }
 
 export default TargetBehavior;
