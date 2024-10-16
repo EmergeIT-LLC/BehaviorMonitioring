@@ -510,7 +510,7 @@ const DataEntry: React.FC = () => {
                                     </tbody>
                                 </table>
                                 )}
-                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='button' isLoading={submitted} onClick={submitDataEntryForm}/>
+                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={submitted} onClick={submitDataEntryForm}/>
                             </div>
                         </div>
                     }

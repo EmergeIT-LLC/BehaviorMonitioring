@@ -368,24 +368,50 @@
             text-align: left;
             margin: 1em 1.25em;
             color: $font-color;
-        }
-
-        h2 {
-            color: $font-color;
-            margin: 2em auto 1em;
+            display: inline-flex;
+            float: left;
         }
 
         .tbHRSButtons {
-            align-content: right;
-            justify-content: ;
-            width: 15em;
-            margin: 1em 1.25em;
+            display: flex;
+            flex-direction: row;
+            float: right;
+            margin: 2em 3em 2em 0;
             color: $font-color;
-            background-color: beige;
+
+            button {
+                display: inline;
+                background-color: $color6;
+                color: $button-font-color;
+                border: 0.15em solid $color1;
+                width: 5em;
+                margin: 0;
+                font-size: 1em;
+                font-weight: bold;
+            }
+        
+            button:hover {
+                background-color: $color1;
+                color: $buttonHover-font-color;
+                border-color: $color5;
+                cursor: pointer;
+            }
+            
+            button:first-child {
+                margin-right: 1em;
+            }
+        }
+
+        /* Clear float to avoid layout issues */
+        &:after {
+            content: '';
+            display: table;
+            clear: both;
         }
     }
-
+    
     .innerForm {
+        clear: both;
         background-color: $color3;
         margin: 5% auto;
         width: 85%;
@@ -393,10 +419,15 @@
     }
 
     .innerBlock {
+        clear: both;
         background-color: $color3;
         margin: 5% auto;
-        width: 75%;
+        width: 85%;
         border: .012em solid $color5;
+
+        .statusMessage {
+            color: $color1;
+        }
 
         .innerTab {
             list-style: none;
@@ -429,8 +460,54 @@
             }
         }
 
-        .statusMessage {
-            color: $color1;
+        .tbHRSTopBar {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            background-color: #B1B2B5;
+        
+            .clientNameDropdown {
+                display: flex;
+                margin: 0 1em 0 0;
+            }
+
+            p {
+                margin: 0;
+                padding: 0;
+            }
+        }
+        
+        table {
+            width: 100%;
+            table-layout: fixed; /* Ensures the columns are evenly distributed */
+    
+            th, td {
+                padding: 0 1em;
+                text-align: left;
+            }
+            
+            th {
+                margin: 0;
+                background-color: lightgray;
+                border: .012em solid black;
+            }
+
+            td {
+                min-height: 3em; //Not working
+            }
+
+            tr:not(:last-child) > td {
+                border-bottom: .012em solid black;
+            }
+
+            th:nth-last-child(-n+3), td:nth-last-child(-n+3) {
+                width: 3em; /* Auto width for the last three columns */
+            }
+    
+            th:not(:nth-last-child(-n+3)), td:not(:nth-last-child(-n+3)) {
+                width: calc(100% / auto); /* Distribute other columns evenly */
+            }
         }
     }
     
