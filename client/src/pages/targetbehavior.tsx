@@ -76,14 +76,13 @@ const TargetBehavior: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string, dataToday: number }) => ({
+                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string }) => ({
                     value: behavior.bsID,
                     label: behavior.name,
                     definition: behavior.definition,
                     dateCreated: behavior.dateCreated,
                     measurementType: behavior.measurement,
                     behaviorCategory: behavior.behaviorCategory,
-                    dataToday: behavior.dataToday
                 }));
                 setTargetOptions(fetchedOptions);
             } else {
@@ -105,8 +104,28 @@ const TargetBehavior: React.FC = () => {
         setSelectedClientID(numericValue);
     };
 
-    const submitDataEntryForm = () => {
-        alert('Button is functional')
+    const addBehaviorDetail = () => {
+        navigate(`/TargetBehavior/Add`);
+    }
+
+    const graphBehaviorDetail = () => {
+        navigate(`/TargetBehavior/Graph`);
+    }
+
+    const openBehaviorDetail = (id: string | number) => {
+        navigate(`/TargetBehavior/Detail/${id}`);
+    }
+
+    const archiveBehaviorCall = (id: string | number) => {
+        navigate(`/TargetBehavior/Archive/${id}`);
+    }
+
+    const editBehaviorCall = (id: string | number) => {
+        navigate(`/TargetBehavior/Edit/${id}`);
+    }
+
+    const deleteBehaviorCall = (id: string | number) => {
+        navigate(`/TargetBehavior/Delete/${id}`);
     }
 
     return (
@@ -120,18 +139,18 @@ const TargetBehavior: React.FC = () => {
                         <div className={componentStyles.bodyBlock}>
                             <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
                             <div className={componentStyles.tbHRSButtons}>
-                                <Button nameOfClass='tbHRSButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
-                                <Button nameOfClass='tbHRSButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={submitDataEntryForm}/>
+                                <Button nameOfClass='tbHRSAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehaviorDetail}/>
+                                <Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={graphBehaviorDetail}/>
                             </div>
                             <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                             <div className={componentStyles.innerBlock}>
                                 <div className={componentStyles.tbHRSTopBar}>
                                     <label className={componentStyles.clientNameDropdown}>
+                                    Current Behavior for
                                         <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                     </label>
-                                    <p>Current Behavior</p>
                                 </div>    
-                                <table>
+                                <table className={componentStyles.tbHRSTable}>
                                     <thead>
                                         <tr>
                                             <th>Behavior Name</th>
@@ -145,14 +164,14 @@ const TargetBehavior: React.FC = () => {
                                     </thead>
                                     <tbody>
                                         {targetOptions.map((option, index) => (
-                                            <tr key={index}>
-                                                <td>{option.label}</td>
-                                                <td>{option.definition}</td>
-                                                <td>{option.measurementType}</td>
-                                                <td>{option.dataToday}</td>
-                                                <td>Archive</td>
-                                                <td>Edit</td>
-                                                <td>Delete</td>
+                                            <tr key={index} onClick={() => openBehaviorDetail(option.value)}>
+                                                <td><div>{option.label}</div></td>
+                                                <td><div>{option.definition}</div></td>
+                                                <td><div>{option.measurementType}</div></td>
+                                                <td><div>0</div></td>
+                                                <td><div><Button nameOfClass='tbHRSArchiveButton' placeholder='Archive' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); archiveBehaviorCall(option.value)}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSEditButton' placeholder='Edit' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); editBehaviorCall(option.value)}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSDeleteButton' placeholder='Delete' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); deleteBehaviorCall(option.value)}}/></div></td>
                                             </tr>
                                         ))}
                                     </tbody>
