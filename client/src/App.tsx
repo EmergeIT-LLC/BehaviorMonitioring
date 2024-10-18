@@ -13,6 +13,7 @@ import SkillAquisition from './pages/skillaquisition';
 import AddSkillAquisition from './pages/skillaquisition_add';
 import DataEntry from './pages/dataentry';
 import Pagenotfound from './pages/pagenotfound';
+import Graph from './pages/graph';
 
 function App() {
   return (
@@ -26,7 +27,8 @@ function App() {
         <Route path = "/AboutUs" element = {<About />} Component={About}/>
         <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>
         <Route path = "/TargetBehavior" element = {<TargetBehavior />} Component={TargetBehavior}/>
-        <Route path = "/TargetBehavior-Add" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
+        <Route path = "/TargetBehavior/Add/" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
+        <Route path = "/TargetBehavior/Graph/:selectedClientID" element = {<Graph />} Component={Graph} />
         {/* <Route path = "/SkillAquisition" element = {<SkillAquisition />} Component={SkillAquisition}/> */}
         {/* <Route path = "/SkillAquisition-Add" element = {<AddSkillAquisition />} Component={AddSkillAquisition} /> */}
         <Route path = "/DataEntry" element = {<DataEntry />} Component={DataEntry}/>

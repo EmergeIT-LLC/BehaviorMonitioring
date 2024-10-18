@@ -244,6 +244,7 @@ const DataEntry: React.FC = () => {
         let numericValue = value === '' ? NaN : parseFloat(value);
         setSelectedClientID(numericValue);
         setSelectedClient(value);
+        setStatusMessage('')
     };
 
     useEffect(() => {
@@ -442,7 +443,7 @@ const DataEntry: React.FC = () => {
                         <div className={componentStyles.bodyBlock}>
                             <h1 className={componentStyles.pageHeader}>Data Entry</h1>
                             <div className={componentStyles.innerBlock}>
-                            <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                                {statusMessage && <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>}
                                 <ul className={componentStyles.innerTab}>
                                     <li><Tab nameOfClass={activeTab === 'TargetBehavior' ? componentStyles.activeTab : ''} placeholder="Target Behavior" onClick={() => setActiveTab('TargetBehavior')}/></li>
                                     {/* <li><Tab nameOfClass={activeTab === 'SkillAquisition' ? componentStyles.activeTab : ''} placeholder="Skill Aquisition" onClick={() => setActiveTab('SkillAquisition')}/></li> */}

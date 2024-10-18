@@ -362,6 +362,7 @@
         margin: 0 auto;
         width: 90%;
         border: .012em solid $color5;
+        min-height: 26em;
 
         .pageHeader {
             font-size: 1.75em;
@@ -377,6 +378,36 @@
             flex-direction: row;
             float: right;
             margin: 2em 3em 2em 0;
+            color: $font-color;
+
+            button {
+                display: inline;
+                background-color: $color6;
+                color: $button-font-color;
+                border: 0.15em solid $color1;
+                width: 5em;
+                margin: 0;
+                font-size: 1em;
+                font-weight: bold;
+            }
+        
+            button:hover {
+                background-color: $color1;
+                color: $buttonHover-font-color;
+                border-color: $color5;
+                cursor: pointer;
+            }
+            
+            button:first-child {
+                margin-right: 1em;
+            }
+        }
+
+        .tbGraphButtons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin: 2em auto;
             color: $font-color;
 
             button {
@@ -427,6 +458,7 @@
 
         .statusMessage {
             color: $color1;
+            margin: 1em auto;
         }
 
         .innerTab {
@@ -551,6 +583,50 @@
                     white-space: normal; /* Ensure the text can wrap to multiple lines */
                     overflow-wrap: break-word; /* Ensures text inside div wraps */
                 }
+            }
+        }
+
+        .tbGraphTable {
+            width: 100%;
+            table-layout: fixed; /* Ensures the columns are evenly distributed */
+    
+            //Boarder
+            tr td {
+                border-bottom: .012em solid black;
+            }
+
+            //Row hover settings
+            tr:hover td{
+                background-color: $color2;
+                color: $color5;
+                cursor: pointer;
+            }
+            
+            th {
+                margin: 0; 
+                padding: 0 1em;
+                background-color: lightgray;
+                border: .012em solid black;
+            }
+
+            td {
+                text-align: left;
+                div {
+                    min-height: 2.50em;
+                }
+            }
+
+            th:first-child, td:first-child {
+                width: 3em;
+            }
+
+            th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) {
+                text-align: center;
+                width: 8em;
+            }
+    
+            th:not(:first-child), td:not(:first-child) {
+                width: calc(100% / auto); /* Distribute other columns evenly */
             }
         }
     }

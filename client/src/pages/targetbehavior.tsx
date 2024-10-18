@@ -105,11 +105,11 @@ const TargetBehavior: React.FC = () => {
     };
 
     const addBehaviorDetail = () => {
-        navigate(`/TargetBehavior/Add`);
+        navigate(`/TargetBehavior/Add/${selectedClientID}`);
     }
 
     const graphBehaviorDetail = () => {
-        navigate(`/TargetBehavior/Graph`);
+        navigate(`/TargetBehavior/Graph/${selectedClientID}`);
     }
 
     const openBehaviorDetail = (id: string | number) => {
