@@ -103,8 +103,8 @@ const Graph: React.FC = () => {
                             <h1 className={componentStyles.pageHeader}>Graph Target Behavior</h1>
                             <div className={componentStyles.innerBlock}>
                                 <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-                                <Button nameOfClass='tbGraphButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                                 <GraphDataProcessor fetchedData={fetchedData} />
+                                <Button nameOfClass='tbGraphButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                             </div>
                         </div>
                     }
