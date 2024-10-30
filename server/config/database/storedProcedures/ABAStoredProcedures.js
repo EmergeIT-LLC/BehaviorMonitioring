@@ -110,7 +110,6 @@ async function abaGetBehaviorOrSkill(cID, BorS) {
     });
 }
 
-
 async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
         db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered], function (err) {
@@ -147,6 +146,19 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
     });
 }
 
+async function abaGetBehaviorDataById(bsID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ?', [bsID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+
 module.exports = {
     abaClientExistByID,
     abaAddClientData,
@@ -154,6 +166,7 @@ module.exports = {
     abaUpdateClientData,
     abaGetAllClientData,
     behaviorSkillExistByID,
+    abaGetBehaviorDataById,
     abaAddBehaviorOrSkill,
     abaUpdateBehaviorOrSkill,
     abaGetBehaviorOrSkill,

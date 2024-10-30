@@ -48,6 +48,7 @@
     ]
   },
   "devDependencies": {
-    "@types/chart.js": "^2.9.41"
+    "@types/chart.js": "^2.9.41",
+    "react-chartjs-2": "^5.2.0"
   }
 }

@@ -40,6 +40,7 @@ const TargetBehavior: React.FC = () => {
             });
         } else {
             setIsLoading(true);
+            sessionStorage.removeItem('checkedBehaviorIds')
             getClientNames();
         }
     }, [userLoggedIn]);
@@ -172,12 +173,23 @@ const TargetBehavior: React.FC = () => {
         navigate(`/TargetBehavior/Detail/${id}`);
     }
 
-    const graphBehaviorCall = () => {
+    const graphBehaviorCall = (index: number | string) => {
+        const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
+        if (storedCheckedIds.length < 1) {
+            storedCheckedIds.push(index);
+            sessionStorage.setItem('checkedBehaviorIds', JSON.stringify(storedCheckedIds));
+        }
         navigate(`/TargetBehavior/graph`);
     }
 
     const mergeBehaviorCall = () => {
-        navigate(`/TargetBehavior/Edit`);
+        const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
+        if (storedCheckedIds.length < 2) {
+            setStatusMessage('You need to select two or more behaviors to merge')
+        }
+        else {
+            navigate(`/TargetBehavior/Edit`);
+        }
     }
 
     return (
@@ -221,7 +233,7 @@ const TargetBehavior: React.FC = () => {
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.definition}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.measurementType}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>0</div></td>
-                                                <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall()}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value)}}/></div></td>
                                                 <td><div><Button nameOfClass='tbHRSMergeButton' placeholder='Merge' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); mergeBehaviorCall()}}/></div></td>
                                             </tr>
                                         ))}
