@@ -38,7 +38,10 @@ const LineGraph: React.FC<{ data: ChartData }> = ({ data }) => {
         return <p>No data available for the selected behavior.</p>;
     }
 
-    return <Line data={chartData} options={options} />;
-}
+    return (
+        <div style={{ width: '1080px', height: '550px'}}>
+            <Line data={chartData} options={options} />
+        </div>
+    );}
 
 export default LineGraph;
