@@ -18,11 +18,15 @@ interface ChartData {
     datasets: Dataset[];
 }
 
-// Update the props interface
+// LineGraph.tsx
 const LineGraph: React.FC<{ data: ChartData }> = ({ data }) => {
     const chartData = {
         labels: data.labels,
-        datasets: data.datasets,
+        datasets: data.datasets.map(dataset => ({
+            ...dataset,
+            tension: 0,
+            fill: false,
+        })),
     };
 
     const options = {
@@ -31,17 +35,23 @@ const LineGraph: React.FC<{ data: ChartData }> = ({ data }) => {
             legend: { position: 'bottom' as const },
             title: { display: true, text: 'Behavior Over Last 3 Months' },
         },
+        scales: {
+            x: {
+                ticks: {
+                    maxRotation: 90,
+                    minRotation: 90,
+                },
+            },
+        },
     };
 
-    // Return a fallback message if no data is available
     if (!data.labels.length || !data.datasets.length) {
         return <p>No data available for the selected behavior.</p>;
     }
 
     return (
-        <div style={{ width: '1080px', height: '550px'}}>
-            <Line data={chartData} options={options} />
-        </div>
-    );}
+        <Line data={chartData} options={options} />
+    );
+};
 
 export default LineGraph;

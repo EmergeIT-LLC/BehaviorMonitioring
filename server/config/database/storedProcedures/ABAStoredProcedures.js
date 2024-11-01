@@ -148,7 +148,7 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
 
 async function abaGetBehaviorDataById(bsID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ?', [bsID], (err, rows) => {
+        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ?', [bsID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {

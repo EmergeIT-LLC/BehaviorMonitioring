@@ -26,9 +26,8 @@ const TargetBehavior: React.FC = () => {
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
+    const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
-    const [checkedCount, setCheckedCount] = useState<number>(0); // Track how many are checked
-    const [firstCheckedType, setFirstCheckedType] = useState<string | null>(null); // Track the first checked type
     const maxCheckedLimit = 4; // Define a limit for checkboxes
 
     useEffect(() => {
@@ -40,7 +39,7 @@ const TargetBehavior: React.FC = () => {
             });
         } else {
             setIsLoading(true);
-            sessionStorage.removeItem('checkedBehaviorIds')
+            sessionStorage.removeItem('checkedBehaviors')
             getClientNames();
         }
     }, [userLoggedIn]);
@@ -108,63 +107,43 @@ const TargetBehavior: React.FC = () => {
         setSelectedClient(value);
         const numericValue = value === '' ? NaN : parseFloat(value);
         setSelectedClientID(numericValue);
-        setFirstCheckedType(null); // Reset first checked type when client changes
         setCheckedState(new Array(targetOptions.length).fill(false)); // Reset checkboxes
-        setCheckedCount(0);
     };
 
     const handleCheckBoxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const updatedCheckedState = [...checkedState];
         const selectedBehavior = targetOptions[index];
-        const updatedCheckedState = checkedState.map((item, idx) => 
-            idx === index ? e.target.checked : item
-        );
-    
-        const totalChecked = updatedCheckedState.filter(Boolean).length;
-        const selectedBehaviorID = selectedBehavior.value; // Capture behavior ID
-    
-        if (totalChecked <= maxCheckedLimit) {
+
+        if (e.target.checked) {
+            // Check if we can add more checked behaviors (up to max limit)
+            const currentCheckedCount = updatedCheckedState.filter(Boolean).length;
+
+            if (currentCheckedCount < maxCheckedLimit) {
+                updatedCheckedState[index] = true;
+                setCheckedState(updatedCheckedState);
+                setCheckedBehaviors(prev => {
+                    const newCheckedBehaviors = [...prev, { id: String(selectedBehavior.value), name: selectedBehavior.label }];
+                    sessionStorage.setItem('checkedBehaviors', JSON.stringify(newCheckedBehaviors));
+                    return newCheckedBehaviors;
+                });
+            }
+        } else {
+            updatedCheckedState[index] = false;
             setCheckedState(updatedCheckedState);
-            setCheckedCount(totalChecked);
-            setStatusMessage('');
-    
-            if (totalChecked === maxCheckedLimit) {
-                setStatusMessage(`You can only select up to ${maxCheckedLimit} behaviors.`);
-            }
-    
-            // Set the first checked type if not already set
-            if (!firstCheckedType && e.target.checked) {
-                setFirstCheckedType(selectedBehavior.measurementType || '');
-            }
-    
-            // Manage sessionStorage for checked behavior IDs
-            const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
-    
-            if (e.target.checked) {
-                // Add the ID if checked and not already in sessionStorage
-                if (!storedCheckedIds.includes(selectedBehaviorID)) {
-                    storedCheckedIds.push(selectedBehaviorID);
-                    sessionStorage.setItem('checkedBehaviorIds', JSON.stringify(storedCheckedIds));
-                }
-            } else {
-                // Remove the ID if unchecked
-                const updatedCheckedIds = storedCheckedIds.filter((id: number) => id !== selectedBehaviorID);
-                sessionStorage.setItem('checkedBehaviorIds', JSON.stringify(updatedCheckedIds));
-    
-                // Reset firstCheckedType if no boxes remain checked
-                if (totalChecked === 0) {
-                    setFirstCheckedType(null);
-                }
-            }
+            setCheckedBehaviors(prev => {
+                const newCheckedBehaviors = prev.filter(behavior => behavior.id !== String(selectedBehavior.value));
+                sessionStorage.setItem('checkedBehaviors', JSON.stringify(newCheckedBehaviors));
+                return newCheckedBehaviors;
+            });
         }
-    
-        // Disable checkboxes that don’t match firstCheckedType
-        const updatedTargetOptions = targetOptions.map((option, idx) => ({
-            ...option,
-            isDisabled: firstCheckedType && option.measurementType !== firstCheckedType && !updatedCheckedState[idx]
-        }));
-        setTargetOptions(updatedTargetOptions);
     };
-    
+
+    const isCheckboxDisabled = (index: number) => {
+        const selectedMeasurementType = checkedBehaviors.length > 0 ? targetOptions.find(option => option.value === Number(checkedBehaviors[0].id))?.measurementType : null;
+        const currentBehaviorMeasurementType = targetOptions[index].measurementType;
+        return checkedBehaviors.length > 0 && currentBehaviorMeasurementType !== selectedMeasurementType && !checkedState[index];
+    };
+        
     const addBehaviorDetail = () => {
         navigate(`/TargetBehavior/Add/${selectedClientID}`);
     }
@@ -173,15 +152,19 @@ const TargetBehavior: React.FC = () => {
         navigate(`/TargetBehavior/Detail/${id}`);
     }
 
-    const graphBehaviorCall = (index: number | string) => {
-        const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
-        if (storedCheckedIds.length < 1) {
-            storedCheckedIds.push(index);
-            sessionStorage.setItem('checkedBehaviorIds', JSON.stringify(storedCheckedIds));
+    const graphBehaviorCall = (index: number | string, name: string) => {
+        const storedCheckedBehaviors = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
+    
+        const behaviorObject = { id: index, name: name };
+    
+        if (!storedCheckedBehaviors.some((behavior: { id: string }) => behavior.id === index)) {
+            storedCheckedBehaviors.push(behaviorObject);
+            sessionStorage.setItem('checkedBehaviors', JSON.stringify(storedCheckedBehaviors));
         }
+    
         navigate(`/TargetBehavior/graph`);
-    }
-
+    };
+            
     const mergeBehaviorCall = () => {
         const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
         if (storedCheckedIds.length < 2) {
@@ -228,12 +211,12 @@ const TargetBehavior: React.FC = () => {
                                     <tbody>
                                         {targetOptions.map((option, index) => (
                                             <tr key={index}>
-                                                <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={(firstCheckedType && option.measurementType !== firstCheckedType) || (!checkedState[index] && checkedCount >= maxCheckedLimit)} onClick={(e) => {e.stopPropagation()}}/></div></td>
+                                                <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.label}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.definition}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.measurementType}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>0</div></td>
-                                                <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value)}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value, option.label)}}/></div></td>
                                                 <td><div><Button nameOfClass='tbHRSMergeButton' placeholder='Merge' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); mergeBehaviorCall()}}/></div></td>
                                             </tr>
                                         ))}

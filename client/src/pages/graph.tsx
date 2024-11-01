@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import Loading from '../components/loading';
-import SelectDropdown from '../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
-import Axios, { all } from 'axios';
+import Axios from 'axios';
 import Button from '../components/Button';
-import GraphDataProcessor from '../function/GraphDataProcessor'; // Import the GraphDataProcessor
+import GraphDataProcessor from '../function/GraphDataProcessor';
+
+// Define an interface for the selected behavior items
+interface SelectedBehavior {
+    id: number;
+    name: string;
+}
 
 const Graph: React.FC = () => {
     useEffect(() => {
@@ -22,9 +27,9 @@ const Graph: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientName, setClientName] = useState<string>('');
-    const [selectedData, setSelectedData] = useState<number[]>([]);
+    const [selectedData, setSelectedData] = useState<{ id: number; name: string }[]>([]);
     const [fetchedData, setFetchedData] = useState<any[]>([]);
+    const [behaviorNames, setBehaviorNames] = useState<Record<number, string>>({}); // New state for behavior names
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -39,14 +44,20 @@ const Graph: React.FC = () => {
             setIsLoading(false);
         }
     }, [userLoggedIn]);
-        
-    const checkSelectedId = async () => {
+
+    const checkSelectedId = () => {
         try {
-            const selectedIDs = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
+            const selectedIDs: SelectedBehavior[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]'); // Specify the type here
             setSelectedData(selectedIDs);
-        }
-        catch (error) {
-            console.log("Selected id's are not found")
+            
+            // Create a mapping of behavior names based on selected IDs
+            const namesMap: Record<number, string> = {};
+            selectedIDs.forEach((item: SelectedBehavior) => { // Specify the type for item here
+                namesMap[item.id] = item.name; // Use the item.id and item.name
+            });
+            setBehaviorNames(namesMap); // Update the state with the behavior names
+        } catch (error) {
+            setStatusMessage("Selected IDs are not found");
         }
     }
 
@@ -67,14 +78,21 @@ const Graph: React.FC = () => {
             console.error(error);
             return null;
         }
-    }
+    };
 
     useEffect(() => {
-        if (selectedData) {
-            // Fetch data for each ID in selectedData and wait for all to complete
-            Promise.all(selectedData.map(id => getTargetData(id)))
+        setStatusMessage(null);
+
+        if (selectedData.length > 0) { // Ensure there's data to fetch
+            setIsLoading(true);
+    
+            // Create a mapping of behavior names based on selectedData
+            const behaviorNames = Object.fromEntries(selectedData.map(item => [item.id, item.name]));
+    
+            Promise.all(selectedData.map(item => getTargetData(item.id)))
                 .then((allData) => {
-                    setFetchedData(allData);  // Store all fetched data
+                    const flattenedData = allData.flat().filter(entry => entry !== null);
+                    setFetchedData(flattenedData);
                     setIsLoading(false);
                 })
                 .catch(error => {
@@ -86,10 +104,10 @@ const Graph: React.FC = () => {
             setStatusMessage('Unable to locate selected data');
         }
     }, [selectedData]);
-
+    
     const backButtonFuctionality = () => {
         navigate(-1);
-    }
+    };
 
     return (
         <>
@@ -103,7 +121,7 @@ const Graph: React.FC = () => {
                             <h1 className={componentStyles.pageHeader}>Graph Target Behavior</h1>
                             <div className={componentStyles.innerBlock}>
                                 <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-                                <GraphDataProcessor fetchedData={fetchedData} />
+                                <div className={componentStyles.tbGraphShell}><GraphDataProcessor fetchedData={fetchedData} behaviorNames={behaviorNames} /></div>
                                 <Button nameOfClass='tbGraphButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                             </div>
                         </div>
