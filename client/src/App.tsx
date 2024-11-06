@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.scss';
+import ProtectedRoute from './function/ProtectedRoute';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Login from './pages/login';
 import Logout from './pages/logout';
@@ -22,16 +23,18 @@ function App() {
       <Routes>
         <Route path = "/Login" element = {<Login />} Component={Login}/>
         <Route path = "/Logout" element = { <Logout />} Component={Logout}/>
-        <Route path = "/" element = {<Home />} Component={Home}/>
-        <Route path='/Admin' element = {<Admin />} Component={Admin}/>
-        <Route path = "/AboutUs" element = {<About />} Component={About}/>
-        <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>
-        <Route path = "/TargetBehavior" element = {<TargetBehavior />} Component={TargetBehavior}/>
-        <Route path = "/TargetBehavior/Add/:selectedClientID" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
-        <Route path = "/TargetBehavior/Graph" element = {<Graph />} Component={Graph} />
-        {/* <Route path = "/SkillAquisition" element = {<SkillAquisition />} Component={SkillAquisition}/> */}
-        {/* <Route path = "/SkillAquisition-Add" element = {<AddSkillAquisition />} Component={AddSkillAquisition} /> */}
-        <Route path = "/DataEntry" element = {<DataEntry />} Component={DataEntry}/>
+        <Route element={<ProtectedRoute />}>
+          <Route path = "/" element = {<Home />} Component={Home}/>
+          <Route path='/Admin' element = {<Admin />} Component={Admin}/>
+          <Route path = "/AboutUs" element = {<About />} Component={About}/>
+          <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>
+          <Route path = "/TargetBehavior" element = {<TargetBehavior />} Component={TargetBehavior}/>
+          <Route path = "/TargetBehavior/Add/:selectedClientID" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
+          <Route path = "/TargetBehavior/Graph" element = {<Graph />} Component={Graph} />
+          {/* <Route path = "/SkillAquisition" element = {<SkillAquisition />} Component={SkillAquisition}/> */}
+          {/* <Route path = "/SkillAquisition-Add" element = {<AddSkillAquisition />} Component={AddSkillAquisition} /> */}
+          <Route path = "/DataEntry" element = {<DataEntry />} Component={DataEntry}/>
+        </Route>
         <Route path = "/*" element = {<Pagenotfound />} Component={Pagenotfound}/>
       </Routes>
     </BrowserRouter>

@@ -63,6 +63,8 @@ export const DeleteCookies = (name: string, expirationTime: string, path: string
     Cookies.remove(name, cookieOptions);
 };
 
+export const isAuthenticated = () => isCookieValid();
+
 export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
     if (loginSuccessful) {
         localStorage.setItem('bmLoggedInStatus', "true");
