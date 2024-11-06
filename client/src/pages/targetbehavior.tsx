@@ -27,6 +27,7 @@ const TargetBehavior: React.FC = () => {
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
     const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string }[]>([]);
+    const [checkedMeasurementType, setCheckedMeasurementType] = useState<string>('');
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
 
@@ -49,6 +50,17 @@ const TargetBehavior: React.FC = () => {
             getClientTargetBehaviors();
         }
     }, [selectedClientID]);
+
+    useEffect(() => {
+        if (checkedBehaviors.length > 0) {
+            const firstCheckedBehaviorID = checkedBehaviors[0].id;
+            const firstCheckedBehavior = targetOptions.find(option => option.value === Number(firstCheckedBehaviorID));
+    
+            if (firstCheckedBehavior && firstCheckedBehavior.measurementType !== checkedMeasurementType) {
+                setCheckedMeasurementType(firstCheckedBehavior.measurementType || '');
+            }
+        }
+    }, [checkedBehaviors, targetOptions, checkedMeasurementType]);
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -113,16 +125,25 @@ const TargetBehavior: React.FC = () => {
     const handleCheckBoxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const updatedCheckedState = [...checkedState];
         const selectedBehavior = targetOptions[index];
-
+        
         if (e.target.checked) {
-            // Check if we can add more checked behaviors (up to max limit)
             const currentCheckedCount = updatedCheckedState.filter(Boolean).length;
-
+        
             if (currentCheckedCount < maxCheckedLimit) {
                 updatedCheckedState[index] = true;
                 setCheckedState(updatedCheckedState);
+                
+                // Add clientName and measurementType to the checked behavior data
                 setCheckedBehaviors(prev => {
-                    const newCheckedBehaviors = [...prev, { id: String(selectedBehavior.value), name: selectedBehavior.label }];
+                    const newCheckedBehaviors = [
+                        ...prev, 
+                        {
+                            id: String(selectedBehavior.value),
+                            name: selectedBehavior.label,
+                            clientName: selectedClient,  // Add clientName
+                            measurementType: selectedBehavior.measurementType,  // Add measurementType
+                        }
+                    ];
                     sessionStorage.setItem('checkedBehaviors', JSON.stringify(newCheckedBehaviors));
                     return newCheckedBehaviors;
                 });
@@ -137,7 +158,7 @@ const TargetBehavior: React.FC = () => {
             });
         }
     };
-
+        
     const isCheckboxDisabled = (index: number) => {
         const selectedMeasurementType = checkedBehaviors.length > 0 ? targetOptions.find(option => option.value === Number(checkedBehaviors[0].id))?.measurementType : null;
         const currentBehaviorMeasurementType = targetOptions[index].measurementType;
@@ -154,9 +175,21 @@ const TargetBehavior: React.FC = () => {
 
     const graphBehaviorCall = (index: number | string, name: string) => {
         const storedCheckedBehaviors = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
+        
+        // Find the corresponding behavior object in targetOptions to get its measurementType
+        const selectedBehavior = targetOptions.find(option => option.value === index);
+        
+        if (!selectedBehavior) return; // If no behavior is found, exit
     
-        const behaviorObject = { id: index, name: name };
-    
+        // Create the behavior object with additional clientName and measurementType
+        const behaviorObject = { 
+            id: index, 
+            name: name,
+            clientName: selectedClient,  // Add clientName
+            measurementType: selectedBehavior.measurementType,  // Add measurementType
+        };
+        
+        // Check if the behavior is already in the storedCheckedBehaviors array
         if (!storedCheckedBehaviors.some((behavior: { id: string }) => behavior.id === index)) {
             storedCheckedBehaviors.push(behaviorObject);
             sessionStorage.setItem('checkedBehaviors', JSON.stringify(storedCheckedBehaviors));
@@ -164,7 +197,7 @@ const TargetBehavior: React.FC = () => {
     
         navigate(`/TargetBehavior/graph`);
     };
-            
+                
     const mergeBehaviorCall = () => {
         const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
         if (storedCheckedIds.length < 2) {

@@ -14,41 +14,64 @@ interface Dataset {
 }
 
 interface ChartData {
-    labels: string[];
+    labels: string[];  // Session dates
     datasets: Dataset[];
+    title: string;
+    measurementType: string;  // 'Rate', 'Duration', or 'Count'
 }
 
-// LineGraph.tsx
 const LineGraph: React.FC<{ data: ChartData }> = ({ data }) => {
+    // Setup chart data with labels (session dates) and datasets
     const chartData = {
-        labels: data.labels,
+        labels: data.labels,  // X-axis will represent session dates or time
         datasets: data.datasets.map(dataset => ({
             ...dataset,
-            tension: 0,
-            fill: false,
+            tension: 0, // Straight lines, no curve
+            fill: false, // No fill under the line
         })),
     };
+
+    // Set axis labels based on measurement type
+    const yAxisLabel = data.measurementType === 'Rate'
+        ? 'Rate (behaviors per minute)' 
+        : (data.measurementType === 'Duration' ? 'Duration (mins)' : 'Count');
+
+    const xAxisLabel = data.measurementType === 'Rate' 
+        ? 'Date' // For Rate, X-axis is session date
+        : 'Date'; // For Duration/Count, X-axis is also session date (no need for duration here)
 
     const options = {
         responsive: true,
         plugins: {
             legend: { position: 'bottom' as const },
-            title: { display: true, text: 'Behavior Over Last 3 Months' },
+            title: { display: true, text: data.title },
         },
         scales: {
             x: {
+                title: {
+                    display: true,
+                    text: xAxisLabel, // X-axis will always be Date (session date)
+                },
                 ticks: {
                     maxRotation: 90,
                     minRotation: 90,
                 },
             },
+            y: {
+                title: {
+                    display: true,
+                    text: yAxisLabel, // Y-axis depends on measurementType
+                },
+            },
         },
     };
 
+    // If no data, display message
     if (!data.labels.length || !data.datasets.length) {
         return <p>No data available for the selected behavior.</p>;
     }
 
+    // Render the Line chart with chartData and options
     return (
         <Line data={chartData} options={options} />
     );

@@ -362,7 +362,7 @@
         margin: 0 auto;
         width: 90%;
         border: .012em solid $color5;
-        min-height: 26em;
+        min-height: 28em;
 
         .pageHeader {
             font-size: 1.75em;
@@ -586,8 +586,18 @@
             }
         }
 
+        .dateDropdown {
+            display: flex;
+            margin: 1em 2em;
+            
+            Select {
+                display: flex;
+                margin: 0 1em;    
+            }
+        }
+
         .tbGraphShell {
-            margin: 0 auto 2em;
+            margin: 2em auto;
             display: flex;
             justify-content: space-between;
             align-items: center;

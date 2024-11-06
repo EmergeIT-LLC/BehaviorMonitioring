@@ -23,11 +23,11 @@ function App() {
       <Routes>
         <Route path = "/Login" element = {<Login />} Component={Login}/>
         <Route path = "/Logout" element = { <Logout />} Component={Logout}/>
+        <Route path = "/AboutUs" element = {<About />} Component={About}/>
+          <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>
         <Route element={<ProtectedRoute />}>
           <Route path = "/" element = {<Home />} Component={Home}/>
           <Route path='/Admin' element = {<Admin />} Component={Admin}/>
-          <Route path = "/AboutUs" element = {<About />} Component={About}/>
-          <Route path = "/ContactUs" element = {<Contact />} Component={Contact}/>
           <Route path = "/TargetBehavior" element = {<TargetBehavior />} Component={TargetBehavior}/>
           <Route path = "/TargetBehavior/Add/:selectedClientID" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
           <Route path = "/TargetBehavior/Graph" element = {<Graph />} Component={Graph} />
