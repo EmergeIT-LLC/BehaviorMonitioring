@@ -29,26 +29,40 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
     const generateDateRange = () => {
         const dates = [];
         const now = new Date();
-        const pastDate = new Date();
-        pastDate.setDate(now.getDate() - dateRange);
-
-        let currentDate = pastDate;
-        while (currentDate <= now) {
-            dates.push(dateRange >= 90 
-                ? new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(currentDate)
-                : currentDate.toISOString().split('T')[0]
-            );
-            currentDate.setDate(currentDate.getDate() + (dateRange >= 90 ? 30 : 1));
+    
+        if (dateRange >= 30) {
+            const monthOffset = Math.floor(dateRange / 30); // Calculate the number of months to include (rounded down)
+            
+            // Adjust the range to include the last `monthOffset` months
+            for (let i = monthOffset; i >= 0; i--) {
+                const monthDate = new Date(now);
+                monthDate.setMonth(now.getMonth() - i);
+                // Formatting the date as "Month Year" (e.g., "Nov 2024")
+                dates.push(new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(monthDate));
+            }
+        } else {
+            // For daily range, include days from pastDate to now
+            const pastDate = new Date();
+            pastDate.setDate(now.getDate() - dateRange);
+            let currentDate = new Date(pastDate);
+    
+            while (currentDate <= now) {
+                dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
+    
         return dates;
     };
-
+                        
     const formattedDateRange = generateDateRange();
 
     // Function to format date based on the range
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
-        return dateRange >= 90 ? new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(date) : dateStr;
+        return dateRange >= 30 ? new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(date) 
+        : 
+        date.toISOString().split('T')[0];
     };
 
     // Step 1: Aggregate data by behaviorID and formatted date
@@ -82,20 +96,31 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
     }, {} as Record<number, Record<string, number>>);
 
     // Step 3: Prepare datasets and fill in missing dates with zero
-    const datasets = Object.entries(groupedByBehavior).map(([behaviorID, dateData], index) => ({
-        label: behaviorNames[Number(behaviorID)] || `Behavior ${behaviorID}`,
-        data: formattedDateRange.map((label) => dateData[label] || 0), // Fill missing dates with 0
-        backgroundColor: colors[index % colors.length],
-        borderColor: colors[index % colors.length],
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4,
-    }));
-
+    const datasets = Object.entries(groupedByBehavior).map(([behaviorID, dateData], index) => {
+        const data = formattedDateRange.map((label) => {
+            return label in dateData ? dateData[label] : 0; // Fill missing data with zero
+        });
+    
+        return {
+            label: behaviorNames[Number(behaviorID)] || `Behavior ${behaviorID}`,
+            data,
+            backgroundColor: colors[index % colors.length],
+            borderColor: colors[index % colors.length],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+        };
+    });
+    
     // Step 4: Prepare the graphData object to pass to GraphComponent
     const graphData = { labels: formattedDateRange, datasets, title, measurementType };
 
+    console.log('Aggregated Data:', aggregatedData);
+console.log('Grouped by Behavior:', groupedByBehavior);
+console.log('Datasets:', datasets);
+
     return <GraphComponent data={graphData} />;
+    
 };
 
 export default GraphDataProcessor;
