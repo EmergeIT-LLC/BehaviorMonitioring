@@ -31,30 +31,41 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
         const now = new Date();
     
         if (dateRange >= 30) {
-            const monthOffset = Math.floor(dateRange / 30); // Calculate the number of months to include (rounded down)
-            
-            // Adjust the range to include the last `monthOffset` months
-            for (let i = monthOffset; i >= 0; i--) {
-                const monthDate = new Date(now);
-                monthDate.setMonth(now.getMonth() - i);
-                // Formatting the date as "Month Year" (e.g., "Nov 2024")
-                dates.push(new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(monthDate));
+            const monthOffset = Math.min(12, Math.ceil(dateRange / 30)); // Calculate the number of months to include
+    
+            if (dateRange === 30) {
+                // Special case: Include the current and last months for "Last Month"
+                for (let i = monthOffset; i >= 0; i--) {
+                    const monthDate = new Date(now);
+                    monthDate.setMonth(now.getMonth() - i);
+                    // Format as 'MMM YYYY' for display
+                    dates.push(new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(monthDate));
+                }
+            } else {
+                // General case: Include the correct range of months for other views
+                for (let i = monthOffset - 1; i >= 0; i--) {
+                    const monthDate = new Date(now);
+                    monthDate.setMonth(now.getMonth() - i);
+                    // Format as 'MMM YYYY' for display
+                    dates.push(new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short' }).format(monthDate));
+                }
             }
         } else {
-            // For daily range, include days from pastDate to now
+            // Daily range: Include pastDate to now
             const pastDate = new Date();
             pastDate.setDate(now.getDate() - dateRange);
             let currentDate = new Date(pastDate);
     
             while (currentDate <= now) {
-                dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+                // Use ISO format for internal use
+                dates.push(currentDate.toISOString().split('T')[0]);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
         }
     
         return dates;
     };
-                        
+                            
     const formattedDateRange = generateDateRange();
 
     // Function to format date based on the range
@@ -69,36 +80,70 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
     const aggregatedData = fetchedData.reduce((acc, entry) => {
         const { bsID, sessionDate, count, duration } = entry;
         const formattedDate = formatDate(sessionDate);
-
+    
         let rate = 0;
+        let totalDuration = 0;
+
         if (measurementType === 'Rate' && duration && count) {
-            rate = parseFloat(duration) > 0 ? count / parseFloat(duration) : 0;
+            const [hours, minutes, seconds] = duration.split(':').map(Number);
+            const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+            const totalMinutes = totalSeconds / 60; // Total minutes
+            rate = totalMinutes > 0 ? count / totalMinutes : 0;
         }
 
+        if (measurementType === 'Duration' && duration) {
+            const [hours, minutes, seconds] = duration.split(':').map(Number);
+            totalDuration = (hours * 3600) + (minutes * 60) + seconds;
+        }
+    
         const key = `${bsID}-${formattedDate}`;
         if (!acc[key]) {
             acc[key] = { behaviorID: bsID, sessionDate: formattedDate, rate: 0, count: 0, duration: 0 };
         }
         acc[key].rate += rate;
         acc[key].count += count;
-        acc[key].duration += duration ? parseFloat(duration) : 0;
-
+        acc[key].duration += totalDuration;
+    
         return acc;
     }, {} as Record<string, { behaviorID: number, sessionDate: string, rate: number, count: number, duration: number }>);
 
+    const convertSecondsToHHMMSS = (seconds: number) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+    
     // Step 2: Group aggregated data by behaviorID
     const groupedByBehavior = Object.values(aggregatedData).reduce((acc, { behaviorID, sessionDate, rate, count, duration }) => {
         if (!acc[behaviorID]) acc[behaviorID] = {};
-
-        acc[behaviorID][sessionDate] = measurementType === 'Rate' ? rate : (measurementType === 'Duration' ? duration : count);
-
+    
+        acc[behaviorID][sessionDate] = measurementType === 'Rate' 
+            ? rate 
+            : (measurementType === 'Duration' 
+            ? convertSecondsToHHMMSS(duration)
+            : count);
+    
         return acc;
-    }, {} as Record<number, Record<string, number>>);
-
+    }, {} as Record<number, Record<string, string | number>>);
+    
     // Step 3: Prepare datasets and fill in missing dates with zero
     const datasets = Object.entries(groupedByBehavior).map(([behaviorID, dateData], index) => {
         const data = formattedDateRange.map((label) => {
-            return label in dateData ? dateData[label] : 0; // Fill missing data with zero
+            let value = label in dateData ? dateData[label] : 0; // Default to 0 if missing
+    
+            if (measurementType === 'Duration') {
+                if (typeof value === 'string') {
+                    const [hours, minutes, seconds] = value.split(':').map((part) => parseInt(part, 10));
+                    value = (hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0); // Convert to seconds
+                } else {
+                    value = Number(value); // Ensure it's a number, though it's already a number here
+                }
+            } else {
+                value = Number(value);
+            }
+
+            return value; // Return the value, now confirmed to be a number
         });
     
         return {
@@ -111,13 +156,9 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
             tension: 0.4,
         };
     });
-    
+                            
     // Step 4: Prepare the graphData object to pass to GraphComponent
     const graphData = { labels: formattedDateRange, datasets, title, measurementType };
-
-    console.log('Aggregated Data:', aggregatedData);
-console.log('Grouped by Behavior:', groupedByBehavior);
-console.log('Datasets:', datasets);
 
     return <GraphComponent data={graphData} />;
     
