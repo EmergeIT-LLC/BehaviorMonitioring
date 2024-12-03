@@ -153,15 +153,16 @@ const GraphDataProcessor: React.FC<GraphDataProcessorProps> = ({ fetchedData, be
             borderColor: colors[index % colors.length],
             borderWidth: 2,
             fill: false,
-            tension: 0.4,
+            tension: 0,
         };
     });
                             
     // Step 4: Prepare the graphData object to pass to GraphComponent
+    const average = datasets.reduce((sum, ds) => sum + ds.data.reduce((a, b) => a + b, 0), 0) / (datasets.length * formattedDateRange.length || 1);
+
     const graphData = { labels: formattedDateRange, datasets, title, measurementType };
 
-    return <GraphComponent data={graphData} />;
-    
+    return <GraphComponent data={graphData} average={average} />;    
 };
 
 export default GraphDataProcessor;
