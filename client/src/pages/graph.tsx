@@ -61,6 +61,12 @@ const Graph: React.FC = () => {
         }
     }, [userLoggedIn]);
 
+    onkeydown = (e) => {
+        if (e.key === 'Escape') {
+            backButtonFuctionality();
+        }
+    }
+
     const handleDateRangeChange = (range: number) => {
         const selectedRange = dateRanges.find(r => r.value === range);
         setDateRange(range);
