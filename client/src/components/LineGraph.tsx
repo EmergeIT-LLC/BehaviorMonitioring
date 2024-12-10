@@ -28,28 +28,22 @@ const LineGraph: React.FC<{ data: ChartData; average: number }> = ({ data, avera
     // Create a dataset for the average line with a single marker in the middle
     const avgDataset = averages.map((avg, index) => {
         const midIndex = Math.floor(data.labels.length / 2); // Find the middle index
-        const avgData = new Array(data.labels.length).fill(avg); // Fill the array with the average value
-
-        // Add a single marker at the middle index
-        avgData[midIndex] = avg;
-
+        const avgData = new Array(data.labels.length).fill(null); // Fill the array with null values
+        avgData[midIndex] = avg; // Set the average value only at the middle index
+    
         return {
-            label: `${data.datasets[index].label} Avg`,
-            data: avgData, // Data for the average line with a marker at the center
-            borderColor: data.datasets[index].borderColor || 'gray',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            borderDash: [6, 6], // Optional dashed line style
-            pointRadius: 5, // Make the points a bit larger
-            pointBackgroundColor: 'transparent', // Make the points transparent
-            pointBorderColor: data.datasets[index].borderColor || 'gray', // Make the point border color visible
-            // Hides the legend for the average line
-            legend: {
-                display: false,
-            },
+            label: `${data.datasets[index].label} Avg Marker`,
+            data: avgData, // Only one value in the middle
+            borderColor: 'transparent', // No line
+            backgroundColor: data.datasets[index].borderColor || 'gray', // Marker color
+            borderWidth: 0,
+            pointRadius: 6, // Highlight the point
+            pointBackgroundColor: data.datasets[index].borderColor || 'gray',
+            pointBorderColor: data.datasets[index].borderColor || 'gray',
+            pointHoverRadius: 8,
         };
     });
-
+    
     const annotations = averages.reduce((acc, avg, index) => {
         acc[`averageLine-${index}`] = {
             type: 'line',
