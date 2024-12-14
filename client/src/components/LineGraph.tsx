@@ -3,7 +3,40 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TooltipItem, LegendItem } from 'chart.js';
 import annotationPlugin, { AnnotationOptions } from 'chartjs-plugin-annotation';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, annotationPlugin);
+const backgroundPlugin = {
+    id: 'backgroundColor',
+    beforeDraw: (chart: Chart) => {
+        const ctx = chart.ctx ?? 0;
+        const chartArea = chart.chartArea;
+
+        if (ctx) {
+            ctx.save();
+            ctx.fillStyle = 'white';
+            ctx.fillRect(
+                chartArea.left,
+                chartArea.top,
+                chartArea.right - chartArea.left,
+                chartArea.bottom - chartArea.top
+            );
+
+            // Draw background for title
+            const titleOptions = chart.options.plugins?.title;
+            if (titleOptions?.display) {
+                const titleHeight = 30; // Approximation of title height
+                ctx.fillRect(
+                    chartArea.left,
+                    chartArea.top - titleHeight,
+                    chartArea.right - chartArea.left,
+                    titleHeight
+                );
+            }
+
+            ctx.restore();
+        }
+    },
+};
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, annotationPlugin, backgroundPlugin);
 
 interface Dataset {
     label: string;
@@ -43,7 +76,7 @@ const LineGraph: React.FC<{ data: ChartData; average: number }> = ({ data, avera
             pointHoverRadius: 8,
         };
     });
-    
+
     const annotations = averages.reduce((acc, avg, index) => {
         acc[`averageLine-${index}`] = {
             type: 'line',
@@ -83,7 +116,10 @@ const LineGraph: React.FC<{ data: ChartData; average: number }> = ({ data, avera
                     filter: (legendItem: LegendItem) => !legendItem.text.includes('Avg'),
                 },
             },
-            title: { display: true, text: data.title },
+            title: { 
+                display: true, 
+                text: data.title 
+            },
             annotation: {
                 annotations,
             },
