@@ -30,6 +30,7 @@ const TargetBehavior: React.FC = () => {
     const [checkedMeasurementType, setCheckedMeasurementType] = useState<string>('');
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
+    const [activeMenu, setActiveMenu] = useState<number | null>(null);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -56,12 +57,12 @@ const TargetBehavior: React.FC = () => {
             const firstCheckedBehaviorID = checkedBehaviors[0].id;
             const firstCheckedBehavior = targetOptions.find(option => option.value === Number(firstCheckedBehaviorID));
     
-            if (firstCheckedBehavior && firstCheckedBehavior.measurementType !== checkedMeasurementType) {
-                setCheckedMeasurementType(firstCheckedBehavior.measurementType || '');
-            }
+            setCheckedMeasurementType(firstCheckedBehavior?.measurementType || '');
+        } else {
+            setCheckedMeasurementType(''); // Reset measurement type
         }
-    }, [checkedBehaviors, targetOptions, checkedMeasurementType]);
-
+    }, [checkedBehaviors, targetOptions]);
+    
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
@@ -162,9 +163,14 @@ const TargetBehavior: React.FC = () => {
     const isCheckboxDisabled = (index: number) => {
         const selectedMeasurementType = checkedBehaviors.length > 0 ? targetOptions.find(option => option.value === Number(checkedBehaviors[0].id))?.measurementType : null;
         const currentBehaviorMeasurementType = targetOptions[index].measurementType;
-        return checkedBehaviors.length > 0 && currentBehaviorMeasurementType !== selectedMeasurementType && !checkedState[index];
+        const currentCheckedCount = checkedState.filter(Boolean).length;
+    
+        return (
+            (checkedBehaviors.length > 0 && currentBehaviorMeasurementType !== selectedMeasurementType && !checkedState[index]) ||
+            (!checkedState[index] && currentCheckedCount >= maxCheckedLimit)
+        );
     };
-        
+            
     const addBehaviorDetail = () => {
         navigate(`/TargetBehavior/Add/${selectedClientID}`);
     }
@@ -175,38 +181,53 @@ const TargetBehavior: React.FC = () => {
 
     const graphBehaviorCall = (index: number | string, name: string) => {
         const storedCheckedBehaviors = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
-        
-        // Find the corresponding behavior object in targetOptions to get its measurementType
         const selectedBehavior = targetOptions.find(option => option.value === index);
-        
-        if (!selectedBehavior) return; // If no behavior is found, exit
     
-        // Create the behavior object with additional clientName and measurementType
+        if (!selectedBehavior) return;
+    
         const behaviorObject = { 
             id: index, 
-            name: name,
-            clientName: selectedClient,  // Add clientName
-            measurementType: selectedBehavior.measurementType,  // Add measurementType
+            name, 
+            clientName: selectedClient,
+            measurementType: selectedBehavior.measurementType,
         };
-        
-        // Check if the behavior is already in the storedCheckedBehaviors array
-        if (!storedCheckedBehaviors.some((behavior: { id: string }) => behavior.id === index)) {
-            storedCheckedBehaviors.push(behaviorObject);
-            sessionStorage.setItem('checkedBehaviors', JSON.stringify(storedCheckedBehaviors));
-        }
+    
+        const updatedBehaviors = [...storedCheckedBehaviors.filter((b: any) => b.id !== index), behaviorObject];
+        sessionStorage.setItem('checkedBehaviors', JSON.stringify(updatedBehaviors));
     
         navigate(`/TargetBehavior/graph`);
     };
+
+    const handleEllipsisClick = (index: number) => {
+        console.log("Ellipsis clicked, activeMenu:", activeMenu, "index:", index); // Debugging line
+        if (activeMenu === index) {
+            setActiveMenu(null); // Close if clicked again
+        } else {
+            setActiveMenu(index); // Open for the clicked row
+        }
+    };
+    
+    const getMenuPosition = (index: number) => {
+        // You might want to adjust this logic to make sure the popout is positioned correctly
+        const rowHeight = 50; // Adjust this value depending on your table row height
+        return { top: `${index * rowHeight}px`, left: '90%' }; // Example, adjust based on layout
+    };
+        
+    const closeMenu = () => setActiveMenu(null); // Close the menu    
                 
     const mergeBehaviorCall = () => {
-        const storedCheckedIds = JSON.parse(sessionStorage.getItem('checkedBehaviorIds') || '[]');
-        if (storedCheckedIds.length < 2) {
+        if (checkedBehaviors.length < 2) {
             setStatusMessage('You need to select two or more behaviors to merge')
         }
         else {
             navigate(`/TargetBehavior/Edit`);
         }
     }
+
+    const archiveBehaviorCall = () => {
+        setStatusMessage('You need to select two or more behaviors to merge')
+    }
+
 
     return (
         <>
@@ -250,11 +271,20 @@ const TargetBehavior: React.FC = () => {
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.measurementType}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>0</div></td>
                                                 <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value, option.label)}}/></div></td>
-                                                <td><div><Button nameOfClass='tbHRSMergeButton' placeholder='Merge' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); mergeBehaviorCall()}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSEllipsesButton' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
+                                {activeMenu !== null && (
+                                    <div className={componentStyles.popoutMenu} style={getMenuPosition(activeMenu)}>
+                                        <ul>
+                                            <li onClick={() => { closeMenu(); mergeBehaviorCall(); }}>Merge</li>
+                                            <li onClick={() => { closeMenu(); archiveBehaviorCall(); }}>Archive</li>
+                                            <li onClick={closeMenu}>Cancel</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     }

@@ -433,6 +433,23 @@
             }
         }
 
+        .tbHRSEllipsesButton {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        
+            &:hover {
+                color: #555;
+            }
+        
+            &:disabled {
+                color: #ccc;
+                cursor: not-allowed;
+            }
+        }
+
         /* Clear float to avoid layout issues */
         &:after {
             content: '';
