@@ -207,12 +207,20 @@ const TargetBehavior: React.FC = () => {
         }
     };
     
-    const getMenuPosition = (index: number) => {
-        // You might want to adjust this logic to make sure the popout is positioned correctly
-        const rowHeight = 50; // Adjust this value depending on your table row height
-        return { top: `${index * rowHeight}px`, left: '90%' }; // Example, adjust based on layout
+    const getMenuPosition = (menuIndex: number) => {
+        const ellipsisButton = document.querySelectorAll('.tbHRSEllipsesButton')[menuIndex];
+        if (ellipsisButton) {
+            const buttonRect = ellipsisButton.getBoundingClientRect();
+            const menuTop = buttonRect.top + window.scrollY; // Account for scrolling
+            const menuLeft = buttonRect.left + window.scrollX + buttonRect.width; // Offset for width
+            return {
+                top: `${menuTop}px`,
+                left: `${menuLeft}px`,
+            };
+        }
+        return { top: '0px', left: '0px' };
     };
-        
+            
     const closeMenu = () => setActiveMenu(null); // Close the menu    
                 
     const mergeBehaviorCall = () => {

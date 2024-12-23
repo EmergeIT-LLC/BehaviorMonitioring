@@ -231,11 +231,12 @@
 }
 
 .pageBody {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    min-height: 70.5vh; /* Ensures the entire viewport height is filled */
     background-color: $page-background;
     margin: 0 auto;
     width: 100%;
-    height: auto;
     border: .012em solid $color5;
 
     h1 {
@@ -457,6 +458,34 @@
             clear: both;
         }
     }
+
+    .popoutMenu {
+        position: absolute; // Ensures positioning relative to the parent
+        background-color: $color3;
+        border: 1px solid $color4;
+        box-shadow: 0 4px 6px $color6;
+        z-index: 1000;
+        padding: 10px;
+        min-width: 150px; // Adjust for the menu width
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .popoutMenu ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .popoutMenu li {
+        padding: 8px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        &:hover {
+            background-color: $color4;
+            color: $color5;
+        }
+    }
     
     .innerForm {
         clear: both;
@@ -531,6 +560,10 @@
         .tbHRSTable {
             width: 100%;
             table-layout: fixed; /* Ensures the columns are evenly distributed */
+
+            tr: {
+                position: relative;
+            }
     
             //Boarder
             tr:not(:last-child) td {
