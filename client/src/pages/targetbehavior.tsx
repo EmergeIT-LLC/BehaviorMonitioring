@@ -26,8 +26,7 @@ const TargetBehavior: React.FC = () => {
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
-    const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string }[]>([]);
-    const [checkedMeasurementType, setCheckedMeasurementType] = useState<string>('');
+    const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string; measurementType: string | undefined }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
@@ -52,17 +51,6 @@ const TargetBehavior: React.FC = () => {
         }
     }, [selectedClientID]);
 
-    useEffect(() => {
-        if (checkedBehaviors.length > 0) {
-            const firstCheckedBehaviorID = checkedBehaviors[0].id;
-            const firstCheckedBehavior = targetOptions.find(option => option.value === Number(firstCheckedBehaviorID));
-    
-            setCheckedMeasurementType(firstCheckedBehavior?.measurementType || '');
-        } else {
-            setCheckedMeasurementType(''); // Reset measurement type
-        }
-    }, [checkedBehaviors, targetOptions]);
-    
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
@@ -199,9 +187,8 @@ const TargetBehavior: React.FC = () => {
     };
 
     const handleEllipsisClick = (index: number) => {
-        console.log("Ellipsis clicked, activeMenu:", activeMenu, "index:", index); // Debugging line
         if (activeMenu === index) {
-            setActiveMenu(null); // Close if clicked again
+            closeMenu(); // Close if clicked again
         } else {
             setActiveMenu(index); // Open for the clicked row
         }
@@ -228,7 +215,12 @@ const TargetBehavior: React.FC = () => {
             setStatusMessage('You need to select two or more behaviors to merge')
         }
         else {
-            navigate(`/TargetBehavior/Edit`);
+            for (let i = 0; i < checkedBehaviors.length; i++) {
+                if (checkedBehaviors[i].measurementType) {
+                    //Add conditions
+                }
+            }
+            //navigate(`/TargetBehavior/Edit`);
         }
     }
 
@@ -267,7 +259,7 @@ const TargetBehavior: React.FC = () => {
                                             <th>Measurement</th>
                                             <th>Data Today</th>
                                             <th>Graph</th>
-                                            <th>Merge</th>
+                                            <th>More Options</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -279,7 +271,7 @@ const TargetBehavior: React.FC = () => {
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>{option.measurementType}</div></td>
                                                 <td onClick={() => openBehaviorDetail(option.value)}><div>0</div></td>
                                                 <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value, option.label)}}/></div></td>
-                                                <td><div><Button nameOfClass='tbHRSEllipsesButton' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
+                                                <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -289,7 +281,7 @@ const TargetBehavior: React.FC = () => {
                                         <ul>
                                             <li onClick={() => { closeMenu(); mergeBehaviorCall(); }}>Merge</li>
                                             <li onClick={() => { closeMenu(); archiveBehaviorCall(); }}>Archive</li>
-                                            <li onClick={closeMenu}>Cancel</li>
+                                            <li onClick={closeMenu}>Close Menu</li>
                                         </ul>
                                     </div>
                                 )}
