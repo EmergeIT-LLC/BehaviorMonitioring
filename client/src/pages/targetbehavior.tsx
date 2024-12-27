@@ -9,6 +9,7 @@ import Checkbox from '../components/Checkbox';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
 import Button from '../components/Button';
+import PromptForBehavior from '../components/PromptForBehavior'
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
@@ -30,6 +31,8 @@ const TargetBehavior: React.FC = () => {
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
+    const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
+    const [mergeBehaviorList, setMergeBehaviorList] = useState<{ id: string; name: string }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -212,18 +215,51 @@ const TargetBehavior: React.FC = () => {
                 
     const mergeBehaviorCall = () => {
         if (checkedBehaviors.length < 2) {
-            setStatusMessage('You need to select two or more behaviors to merge')
+            setStatusMessage('You need to select two or more behaviors to merge');
+            return;
         }
-        else {
-            for (let i = 0; i < checkedBehaviors.length; i++) {
-                if (checkedBehaviors[i].measurementType) {
-                    //Add conditions
-                }
-            }
-            //navigate(`/TargetBehavior/Edit`);
+    
+        const measurementType = checkedBehaviors[0].measurementType;
+        const allSameType = checkedBehaviors.every(
+            (behavior) => behavior.measurementType === measurementType
+        );
+    
+        if (!allSameType) {
+            setStatusMessage('An error occurred during the merge: mismatched measurement types');
+            return;
         }
-    }
+    
+        setMergeBehaviorList(checkedBehaviors.map(({ id, name }) => ({ id, name })));
+        setIsPopupVisible(true);
+    };
 
+    const handleMergeConfirm = async (targetBehaviorId: string) => {
+        setIsPopupVisible(false);
+        try {
+            const url = `${process.env.REACT_APP_Backend_URL}/aba/mergeBehaviors`;
+            const response = await Axios.post(url, {
+                targetBehaviorId,
+                mergeBehaviorIds: checkedBehaviors
+                    .filter((behavior) => behavior.id !== targetBehaviorId)
+                    .map((behavior) => behavior.id),
+            });
+    
+            if (response.data.statusCode === 200) {
+                setStatusMessage('Behaviors merged successfully');
+                getClientTargetBehaviors(); // Refresh the list
+            } else {
+                setStatusMessage(response.data.serverMessage || 'Merge failed');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMessage('An error occurred while merging behaviors');
+        }
+    };
+    
+    const handleMergeCancel = () => {
+        setIsPopupVisible(false);
+    };
+    
     const archiveBehaviorCall = () => {
         setStatusMessage('You need to select two or more behaviors to merge')
     }
@@ -285,6 +321,7 @@ const TargetBehavior: React.FC = () => {
                                         </ul>
                                     </div>
                                 )}
+                                <PromptForBehavior isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={handleMergeConfirm} onCancel={handleMergeCancel} />
                             </div>
                         </div>
                     }
