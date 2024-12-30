@@ -220,9 +220,7 @@ const TargetBehavior: React.FC = () => {
         }
     
         const measurementType = checkedBehaviors[0].measurementType;
-        const allSameType = checkedBehaviors.every(
-            (behavior) => behavior.measurementType === measurementType
-        );
+        const allSameType = checkedBehaviors.every((behavior) => behavior.measurementType === measurementType);
     
         if (!allSameType) {
             setStatusMessage('An error occurred during the merge: mismatched measurement types');
@@ -236,7 +234,7 @@ const TargetBehavior: React.FC = () => {
     const handleMergeConfirm = async (targetBehaviorId: string) => {
         setIsPopupVisible(false);
         try {
-            const url = `${process.env.REACT_APP_Backend_URL}/aba/mergeBehaviors`;
+            const url = process.env.REACT_APP_Backend_URL + '/aba/mergeBehaviors';
             const response = await Axios.post(url, {
                 targetBehaviorId,
                 mergeBehaviorIds: checkedBehaviors
@@ -246,7 +244,7 @@ const TargetBehavior: React.FC = () => {
     
             if (response.data.statusCode === 200) {
                 setStatusMessage('Behaviors merged successfully');
-                getClientTargetBehaviors(); // Refresh the list
+                getClientTargetBehaviors();
             } else {
                 setStatusMessage(response.data.serverMessage || 'Merge failed');
             }
@@ -260,10 +258,39 @@ const TargetBehavior: React.FC = () => {
         setIsPopupVisible(false);
     };
     
-    const archiveBehaviorCall = () => {
-        setStatusMessage('You need to select two or more behaviors to merge')
-    }
+    const archiveBehaviorCall = async (id: string | number) => {
+        try {
+            const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
+            const response = await Axios.post(url, { id });
+            
+            if (response.data.statusCode === 200) {
+                setStatusMessage('Behavior archived successfully');
+                getClientTargetBehaviors();
+            } else {
+                setStatusMessage(response.data.serverMessage || 'Archiving failed');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMessage('An error occurred while archiving the behavior');
+        }
+    };
 
+    const deleteBehaviorCall = async (id: string | number) => {
+        try {
+            const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehavior';
+            const response = await Axios.post(url, { id });
+            
+            if (response.data.statusCode === 200) {
+                setStatusMessage('Behavior deleted successfully');
+                getClientTargetBehaviors();
+            } else {
+                setStatusMessage(response.data.serverMessage || 'Deletion failed');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMessage('An error occurred while deleting the behavior');
+        }
+    };
 
     return (
         <>
@@ -316,7 +343,8 @@ const TargetBehavior: React.FC = () => {
                                     <div className={componentStyles.popoutMenu} style={getMenuPosition(activeMenu)}>
                                         <ul>
                                             <li onClick={() => { closeMenu(); mergeBehaviorCall(); }}>Merge</li>
-                                            <li onClick={() => { closeMenu(); archiveBehaviorCall(); }}>Archive</li>
+                                            <li onClick={() => { closeMenu(); archiveBehaviorCall(targetOptions[activeMenu]?.value); }}>Archive</li>
+                                            <li onClick={() => { closeMenu(); deleteBehaviorCall(targetOptions[activeMenu]?.value); }}>Delete</li>
                                             <li onClick={closeMenu}>Close Menu</li>
                                         </ul>
                                     </div>
