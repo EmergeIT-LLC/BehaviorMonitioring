@@ -9,7 +9,8 @@ import Checkbox from '../components/Checkbox';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
 import Button from '../components/Button';
-import PromptForBehavior from '../components/PromptForMerge'
+import PromptForMerge from '../components/PromptForMerge';
+import PopoutPrompt from '../components/PopoutPrompt';
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
@@ -32,7 +33,11 @@ const TargetBehavior: React.FC = () => {
     const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
+    const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
     const [mergeBehaviorList, setMergeBehaviorList] = useState<{ id: string; name: string }[]>([]);
+    const [popupAction, setPopupAction] = useState<string>('');
+    const [behaviorNameToActOn, setBehaviorNameToActOn] = useState<string>('');
+    const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -254,42 +259,55 @@ const TargetBehavior: React.FC = () => {
         }
     };
     
-    const handleMergeCancel = () => {
-        setIsPopupVisible(false);
+    const handleArchiveDelete = async () => {
+        if (popupAction === 'Archive') {
+            await archiveBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
+        } else if (popupAction === 'Delete') {
+            await deleteBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
+        }
+        setIsPopoutVisible(false); // Close the popout after action
     };
-    
-    const archiveBehaviorCall = async (id: string | number) => {
+
+    const archiveBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
-            const response = await Axios.post(url, { id });
-            
+            const response = await Axios.post(url, { behaviorId });
             if (response.data.statusCode === 200) {
-                setStatusMessage('Behavior archived successfully');
-                getClientTargetBehaviors();
+                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.`);
             } else {
-                setStatusMessage(response.data.serverMessage || 'Archiving failed');
+                setStatusMessage(`Failed to archive "${behaviorName}".`);
             }
         } catch (error) {
             console.error(error);
-            setStatusMessage('An error occurred while archiving the behavior');
+            setStatusMessage('An error occurred while archiving.');
         }
     };
 
-    const deleteBehaviorCall = async (id: string | number) => {
+    const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { id });
-            
+            const response = await Axios.post(url, { behaviorId });
             if (response.data.statusCode === 200) {
-                setStatusMessage('Behavior deleted successfully');
-                getClientTargetBehaviors();
+                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
             } else {
-                setStatusMessage(response.data.serverMessage || 'Deletion failed');
+                setStatusMessage(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
             console.error(error);
-            setStatusMessage('An error occurred while deleting the behavior');
+            setStatusMessage('An error occurred while deleting.');
         }
+    };
+
+    const openPopout = (action: string, behaviorId: string, behaviorName: string) => {
+        setPopupAction(action);
+        setBehaviorNameToActOn(behaviorName);
+        setBehaviorIdToActOn(behaviorId);
+        setIsPopoutVisible(true);
+    };
+
+    const handleArchiveMergeDeleteCancel = () => {
+        setIsPopupVisible(false);
+        setIsPopoutVisible(false);
     };
 
     return (
@@ -343,13 +361,16 @@ const TargetBehavior: React.FC = () => {
                                     <div className={componentStyles.popoutMenu} style={getMenuPosition(activeMenu)}>
                                         <ul>
                                             <li onClick={() => { closeMenu(); mergeBehaviorCall(); }}>Merge</li>
-                                            <li onClick={() => { closeMenu(); archiveBehaviorCall(targetOptions[activeMenu]?.value); }}>Archive</li>
-                                            <li onClick={() => { closeMenu(); deleteBehaviorCall(targetOptions[activeMenu]?.value); }}>Delete</li>
+                                            <li onClick={() => { const selectedBehavior = targetOptions[activeMenu]; closeMenu(); openPopout('Archive', String(selectedBehavior.value), selectedBehavior.label); }}>Archive</li>
+                                            <li onClick={() => { const selectedBehavior = targetOptions[activeMenu]; closeMenu(); openPopout('Delete', String(selectedBehavior.value), selectedBehavior.label); }}>Delete</li>
                                             <li onClick={closeMenu}>Close Menu</li>
                                         </ul>
                                     </div>
                                 )}
-                                <PromptForBehavior isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={handleMergeConfirm} onCancel={handleMergeCancel} />
+                                <PromptForMerge isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={handleMergeConfirm} onCancel={handleArchiveMergeDeleteCancel} />
+                                {isPopoutVisible && (
+                                    <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${behaviorNameToActOn}"?`} onConfirm={handleArchiveDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={behaviorNameToActOn} />
+                                )}
                             </div>
                         </div>
                     }
