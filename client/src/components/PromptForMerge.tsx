@@ -1,14 +1,14 @@
 import React from 'react';
 import componentStyles from '../styles/components.module.scss';
 
-interface PromptForBehaviorProps {
+interface PromptForMergeProps {
   isVisible: boolean;
   behaviors: { id: string; name: string }[];
   onConfirm: (selectedBehaviorId: string) => void;
   onCancel: () => void;
 }
 
-const PromptForBehavior: React.FC<PromptForBehaviorProps> = ({ isVisible, behaviors, onConfirm, onCancel }) => {
+const PromptForMerge: React.FC<PromptForMergeProps> = ({ isVisible, behaviors, onConfirm, onCancel }) => {
   const [selectedBehaviorId, setSelectedBehaviorId] = React.useState<string>('');
 
   if (!isVisible) return null;
@@ -42,4 +42,4 @@ const PromptForBehavior: React.FC<PromptForBehaviorProps> = ({ isVisible, behavi
   );
 };
 
-export default PromptForBehavior;
+export default PromptForMerge;

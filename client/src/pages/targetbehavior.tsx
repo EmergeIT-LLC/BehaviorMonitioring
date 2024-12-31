@@ -9,7 +9,7 @@ import Checkbox from '../components/Checkbox';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
 import Button from '../components/Button';
-import PromptForBehavior from '../components/PromptForBehavior'
+import PromptForBehavior from '../components/PromptForMerge'
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
