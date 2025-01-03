@@ -245,6 +245,8 @@ const TargetBehavior: React.FC = () => {
                 mergeBehaviorIds: checkedBehaviors
                     .filter((behavior) => behavior.id !== targetBehaviorId)
                     .map((behavior) => behavior.id),
+                "employeeUsername": loggedInUser
+
             });
     
             if (response.data.statusCode === 200) {
@@ -271,7 +273,7 @@ const TargetBehavior: React.FC = () => {
     const archiveBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
-            const response = await Axios.post(url, { behaviorId });
+            const response = await Axios.post(url, { behaviorId, "employeeUsername": loggedInUser});
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.`);
             } else {

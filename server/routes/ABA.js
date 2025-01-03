@@ -435,7 +435,7 @@ router.post('/submitTargetBehavior', async (req, res) => {
                         } //Skip if behavior does not exist...
                     }
                     //Return statement for when forloop finishes with no fail points
-                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All target behavior data added' });
+                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All behavior data added' });
                 }
                 else {
                     return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Client does not exist' });
@@ -450,6 +450,66 @@ router.post('/submitTargetBehavior', async (req, res) => {
         }
     }
     catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/mergeBehaviors', async (req, res) => {
+    try {
+        const targetBehaviorId = req.body.targetBehaviorId;
+        const mergeBehaviorIds = req.body.mergeBehaviorIds;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+
+                if (await abaQueries.behaviorSkillExistByID(targetBehaviorId)) {
+                    const targetBehaviorData = await abaQueries.abaGetBehaviorOrSkill(targetBehaviorId);
+
+                    for (let i = 0; i < mergeBehaviorIds.length; i++) {
+                        let mergeBehaviorData = await abaQueries.abaGetBehaviorOrSkill(mergeBehaviorIds[i]); 
+
+                        if (mergeBehaviorData.measurment === targetBehaviorData.measurment) {
+                            if (!await abaQueries.abaMergeBehaviorDataById(targetBehaviorId, mergeBehaviorIds[i])) {
+                                throw new Error("An error occured while merging " + mergeBehaviorData.name);
+                            }
+                            else {
+                                if (!await abaQueries.abaDeleteBehaviorOrSkillByID(mergeBehaviorIds[i])) {
+                                    throw new Error("An error occured while merging " + mergeBehaviorData.name);
+                                }
+                            }
+                        }
+                    }
+                //Behaviors merged successfully
+                return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All behavior data merged successfully' });       
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/archiveBehavior', async (req, res) => {
+    try {
+        
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/deleteBehavior', async (req, res) => {
+    try {
+        
+    } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
 });

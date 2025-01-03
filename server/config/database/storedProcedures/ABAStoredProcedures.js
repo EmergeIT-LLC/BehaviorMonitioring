@@ -158,6 +158,41 @@ async function abaGetBehaviorDataById(bsID) {
     });
 }
 
+async function abaMergeBehaviorDataById(tBSID, mBsID) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorData SET bsID = ? WHERE bsID = ?', [tBSID, mBsID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteBehaviorDataByID(bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE * FROM BehaviorData WHERE bsID = ?', [bsID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteBehaviorOrSkillByID(bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE * FROM BehaviorAndSkill WHERE bsID = ?', [bsID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
 
 module.exports = {
     abaClientExistByID,
@@ -172,5 +207,8 @@ module.exports = {
     abaGetBehaviorOrSkill,
     abaAddFrequencyBehaviorData,
     abaAddRateBehaviorData,
-    abaAddDurationBehaviorData
+    abaAddDurationBehaviorData,
+    abaMergeBehaviorDataById,
+    abaDeleteBehaviorDataByID,
+    abaDeleteBehaviorOrSkillByID
 }
