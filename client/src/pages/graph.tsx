@@ -94,6 +94,7 @@ const Graph: React.FC = () => {
 
         try {
             const response = await Axios.post(url, {
+                "clientID": sessionStorage.getItem('clientID'),
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });

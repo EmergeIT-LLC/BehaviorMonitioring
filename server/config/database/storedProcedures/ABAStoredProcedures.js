@@ -146,9 +146,9 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
     });
 }
 
-async function abaGetBehaviorDataById(bsID) {
+async function abaGetBehaviorDataById(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ?', [bsID], (err, rows) => {
+        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ? and clientID = ?', [bsID, cID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -158,9 +158,9 @@ async function abaGetBehaviorDataById(bsID) {
     });
 }
 
-async function abaMergeBehaviorDataById(tBSID, mBsID) {
+async function abaMergeBehaviorDataById(cID, tBSID, mBsID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET bsID = ? WHERE bsID = ?', [tBSID, mBsID], function (err) {
+        db.run('UPDATE BehaviorData SET bsID = ? WHERE bsID = ? and clientID = ?', [tBSID, mBsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -170,9 +170,9 @@ async function abaMergeBehaviorDataById(tBSID, mBsID) {
     });
 }
 
-async function abaDeleteBehaviorDataByID(bsID) {
+async function abaDeleteBehaviorDataByID(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM BehaviorData WHERE bsID = ?', [bsID], function (err) {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -182,9 +182,9 @@ async function abaDeleteBehaviorDataByID(bsID) {
     });
 }
 
-async function abaDeleteBehaviorOrSkillByID(bsID) {
+async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM BehaviorAndSkill WHERE bsID = ?', [bsID], function (err) {
+        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {

@@ -63,7 +63,7 @@ async function adminAddNewEmployee(fName, lName, username, email, phone_number, 
 
 async function adminDeleteAnEmployeeByID(eID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM Employee WHERE employeeID = ?', [eID], function (err) {
+        db.run('DELETE FROM Employee WHERE employeeID = ?', [eID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -75,7 +75,7 @@ async function adminDeleteAnEmployeeByID(eID) {
 
 async function adminDeleteAnEmployeeByUsername(uName) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM Employee WHERE username = ?', [uName], function (err) {
+        db.run('DELETE FROM Employee WHERE username = ?', [uName], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -196,7 +196,7 @@ async function adminAddNewHome(name, streetAddress, city, state, zipCode, entere
 
 async function adminDeleteAHomeByID(hID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM Home WHERE homeID = ?', [hID], function (err) {
+        db.run('DELETE FROM Home WHERE homeID = ?', [hID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -208,7 +208,7 @@ async function adminDeleteAHomeByID(hID) {
 
 async function adminDeleteAHomeByName(name) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE * FROM Home WHERE name = ?', [name], function (err) {
+        db.run('DELETE FROM Home WHERE name = ?', [name], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
