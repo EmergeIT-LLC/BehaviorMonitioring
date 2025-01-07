@@ -43,7 +43,6 @@ const DataEntry: React.FC = () => {
     const [headers, setHeaders] = useState<JSX.Element[]>([]);
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<(string | null)[]>([]);
-    const [submitted, setSubmitted] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
@@ -395,7 +394,6 @@ const DataEntry: React.FC = () => {
                 });
                 if (response.data.statusCode === 201) {
                     setIsLoading(false);
-                    setSubmitted(true);
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
@@ -418,7 +416,6 @@ const DataEntry: React.FC = () => {
                 });
                 if (response.data.statusCode === 201) {
                     setIsLoading(false);
-                    setSubmitted(true);
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
@@ -517,7 +514,7 @@ const DataEntry: React.FC = () => {
                                     </tbody>
                                 </table>
                                 )}
-                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={submitted} onClick={submitDataEntryForm}/>
+                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={isLoading} onClick={submitDataEntryForm}/>
                             </div>
                         </div>
                     }
