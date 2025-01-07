@@ -39,7 +39,7 @@ const TargetBehavior: React.FC = () => {
     const [behaviorNameToActOn, setBehaviorNameToActOn] = useState<string>('');
     const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
     const [timerCount, setTimerCount] = useState<number>(0);
-    const [reloadStatus, setReloadStatus] = useState<boolean>(false);
+    const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -67,15 +67,11 @@ const TargetBehavior: React.FC = () => {
             const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
             return () => clearTimeout(timer);
         }
-        if (timerCount === 0 && reloadStatus) {
-            setReloadStatus(false);
-            refreshPage();
+        if (timerCount === 0 && clearMessageStatus) {
+            setClearMessageStatus(false);
+            setStatusMessage('')
         }
-    }, [timerCount, reloadStatus]);
-
-    const refreshPage = () => {
-        window.location.reload();
-    }
+    }, [timerCount, clearMessageStatus]);
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -110,7 +106,8 @@ const TargetBehavior: React.FC = () => {
             if (response.data.statusCode === 200) {
                 setTargetOptions([]);
                 setCheckedState([]);
-
+                setCheckedBehaviors([]);
+                sessionStorage.removeItem('checkedBehaviors');
 
                 const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string }) => ({
                     value: behavior.bsID,
@@ -276,6 +273,8 @@ const TargetBehavior: React.FC = () => {
             if (response.data.statusCode === 200) {
                 setStatusMessage('Behaviors merged successfully.');
                 getClientTargetBehaviors();
+                setTimerCount(3);
+                setClearMessageStatus(true);                                   
             } else {
                 setStatusMessage(response.data.serverMessage || 'Merge failed');
             }
@@ -300,6 +299,8 @@ const TargetBehavior: React.FC = () => {
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.`);
+                setTimerCount(3);
+                setClearMessageStatus(true);                                   
             } else {
                 setStatusMessage(`Failed to archive "${behaviorName}".`);
             }
@@ -316,7 +317,9 @@ const TargetBehavior: React.FC = () => {
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 getClientTargetBehaviors();
-            } else {
+                setTimerCount(3);
+                setClearMessageStatus(true);                                   
+        } else {
                 setStatusMessage(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
