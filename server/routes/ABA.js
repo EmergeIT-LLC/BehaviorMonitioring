@@ -517,7 +517,7 @@ router.post('/mergeBehaviors', async (req, res) => {
 router.post('/archiveBehavior', async (req, res) => {
     try {
         const cID = req.body.clientID;
-        const behaviorIds = req.body.behaviorIds;
+        const behaviorIds = req.body.behaviorId;
         const employeeUsername = req.body.employeeUsername;
 
     } catch (error) {
@@ -528,36 +528,34 @@ router.post('/archiveBehavior', async (req, res) => {
 router.post('/deleteBehavior', async (req, res) => {
     try {
         const cID = req.body.clientID;
-        const behaviorIds = req.body.behaviorIds;
+        const behaviorId = req.body.behaviorId;
         const employeeUsername = req.body.employeeUsername;
 
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                for (let i = 0; i < behaviorIds.length; i++) {
-                    let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorIds[i]); 
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior"); 
 
-                    if (await abaQueries.abaGetBehaviorDataById(cID, behaviorIds[i]) > 0) {
-                        if (!await abaQueries.abaDeleteBehaviorDataByID(behaviorIds[i])) {
-                            throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
-                        }
-                        else {
-                            if (!await abaQueries.abaDeleteBehaviorOrSkillByID(behaviorIds[i])) {
-                                console.log("An error occured while deleting " + behaviorData.name)
-                                throw new Error("An error occured while deleting " + behaviorData.name);
-                            }
-                        }
+                if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
+                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId)) {
+                        throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
                     }
                     else {
-                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(behaviorIds[i])) {
+                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
                             console.log("An error occured while deleting " + behaviorData.name)
                             throw new Error("An error occured while deleting " + behaviorData.name);
                         }
                     }
                 }
+                else {
+                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                        console.log("An error occured while deleting " + behaviorData.name)
+                        throw new Error("An error occured while deleting " + behaviorData.name);
+                    }
+                }
             //Behaviors deleted successfully
-            return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All behavior data merged successfully' });       
+            return res.json({ statusCode: 200, behaviorAdded: true, serverMessage: 'All behavior data merged successfully' });       
             }
             else {
                 return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });

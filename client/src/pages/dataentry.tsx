@@ -46,7 +46,7 @@ const DataEntry: React.FC = () => {
     const [submitted, setSubmitted] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
-    const [reloadStatus, setReloadStatus] = useState<boolean>(false);
+    const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
     useEffect(() => {
         const storedData = sessionStorage.getItem('dataEntryState');
@@ -101,16 +101,12 @@ const DataEntry: React.FC = () => {
             const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
             return () => clearTimeout(timer);
         }
-        if (timerCount === 0 && reloadStatus) {
+        if (timerCount === 0 && clearMessageStatus) {
             sessionStorage.removeItem('dataEntryState');
-            setReloadStatus(false);
-            refreshPage();
+            setClearMessageStatus(false);
+            setStatusMessage('');
         }
-    }, [timerCount, reloadStatus]);
-
-    const refreshPage = () => {
-        window.location.reload();
-    }
+    }, [timerCount, clearMessageStatus]);
 
     const getClientNames = async () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
@@ -400,9 +396,14 @@ const DataEntry: React.FC = () => {
                 if (response.data.statusCode === 201) {
                     setIsLoading(false);
                     setSubmitted(true);
-                    setStatusMessage(<>{response.data.serverMessage} <br /> Refreshing in 3 seconds...</>);
+                    setStatusMessage(<>{response.data.serverMessage}</>);
+                    setTargetAmt(1);
+                    setSkillAmt(1);
+                    setSelectedTargets([]);
+                    setSelectedSkills([]);
+                    setSelectedMeasurementTypes([]);
                     setTimerCount(3);
-                    setReloadStatus(true);                                   
+                    setClearMessageStatus(true);                                   
                 } else {
                     setIsLoading(false);
                     setStatusMessage(response.data.serverMessage);
@@ -418,9 +419,14 @@ const DataEntry: React.FC = () => {
                 if (response.data.statusCode === 201) {
                     setIsLoading(false);
                     setSubmitted(true);
-                    setStatusMessage(<>{response.data.serverMessage} + <br /> + Refreshing in 3 seconds...</>);
+                    setStatusMessage(<>{response.data.serverMessage}</>);
+                    setTargetAmt(1);
+                    setSkillAmt(1);
+                    setSelectedTargets([]);
+                    setSelectedSkills([]);
+                    setSelectedMeasurementTypes([]);
                     setTimerCount(3);
-                    setReloadStatus(true);                                   
+                    setClearMessageStatus(true);                                   
                 } else {
                     setIsLoading(false);
                     setStatusMessage(response.data.serverMessage);

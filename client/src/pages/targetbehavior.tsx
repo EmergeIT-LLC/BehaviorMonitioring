@@ -108,6 +108,10 @@ const TargetBehavior: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
+                setTargetOptions([]);
+                setCheckedState([]);
+
+
                 const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string }) => ({
                     value: behavior.bsID,
                     label: behavior.name,
@@ -270,9 +274,8 @@ const TargetBehavior: React.FC = () => {
             });
     
             if (response.data.statusCode === 200) {
-                setStatusMessage('Behaviors merged successfully... Refreshing in 3 seconds...');
-                setTimerCount(3);
-                setReloadStatus(true);                                   
+                setStatusMessage('Behaviors merged successfully.');
+                getClientTargetBehaviors();
             } else {
                 setStatusMessage(response.data.serverMessage || 'Merge failed');
             }
@@ -296,7 +299,7 @@ const TargetBehavior: React.FC = () => {
             const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully. Refreshing in 3 seconds...`);
+                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.`);
             } else {
                 setStatusMessage(`Failed to archive "${behaviorName}".`);
             }
@@ -311,7 +314,8 @@ const TargetBehavior: React.FC = () => {
             const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehavior';
             const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully. Refreshing in 3 seconds...`);
+                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
+                getClientTargetBehaviors();
             } else {
                 setStatusMessage(`Failed to delete "${behaviorName}".`);
             }
