@@ -4,6 +4,7 @@ const router = express.Router();
 const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
 const emailHandler = require('../config/email/emailTemplate');
 const currentDateTime = require('../functions/basic/currentDateTime');
+const { formatDateString } = require('../functions/basic/dateTimeFormat');
 const cookieMonster = require('../config/cookies/cookieHandler');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
@@ -204,14 +205,14 @@ router.post('/addBehaviorData', async (req, res) => {
                 if (await employeeQueries.behaviorSkillExistByID(bsID)) {
                     if (count > 0) {
                         if (duration > 0) { //If Count and Duration
-                            if (await employeeQueries.employeeAddRateBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, count, duration, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                            if (await employeeQueries.employeeAddRateBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, count, duration, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                 return res.json({statusCode: 200, behaviorAdded: true});
                             }
                             else { //Error adding duration behavior
                                 return res.json({statusCode: 500, behaviorAdded: false});
                             }
                         } //If count only
-                        else if (await employeeQueries.employeeAddFrequencyBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, count, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                        else if (await employeeQueries.employeeAddFrequencyBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, count, employeeData.fName + " " + employeeData.lName, await formatDateString(await formatDateString(await currentDateTime.getCurrentDate())), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({statusCode: 200, behaviorAdded: true});
                         }
                         else { //Error adding frequency behavior
@@ -219,7 +220,7 @@ router.post('/addBehaviorData', async (req, res) => {
                         }
                     }
                     else if (trial > 0) { //If trial behavior
-                        if (await employeeQueries.employeeAddDurationBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, trial, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST"))  {
+                        if (await employeeQueries.employeeAddDurationBehaviorData(bsID, clientID, clientName, sessionDate, sessionTime, trial, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST"))  {
                             return res.json({statusCode: 200, behaviorAdded: true});
                         }
                         else { //Error adding trial behavior

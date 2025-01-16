@@ -28,7 +28,7 @@ router.post('/addNewClient', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (!behaviorProvided) {
-                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                         return res.json({ statusCode: 200, clientAdded: true });
                     }
                     else {
@@ -37,7 +37,7 @@ router.post('/addNewClient', async (req, res) => {
                 }
                 else {
                     behaviorPlanDueDate = await formatDateString(await addYears(intakeDate, 1));
-                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                         return res.json({ statusCode: 200, clientAdded: true });
                     }
                     else {
@@ -188,7 +188,7 @@ router.post('/addNewTargetBehavior', async (req, res) => {
                     const clientData = await abaQueries.abaGetClientDataByID(cID);
 
                     if (clientData){
-                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({ statusCode: 200, clientAdded: true });
                         }
                         else {
@@ -232,7 +232,7 @@ router.post('/updateTargetBehavior', async (req, res) => {
                     const clientData = await abaQueries.abaGetClientDataByID(cID);
 
                     if (clientData){
-                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({ statusCode: 200, clientAdded: true });
                         }
                         else {
@@ -415,17 +415,17 @@ router.post('/submitTargetBehavior', async (req, res) => {
 
                             switch (selectedMeasurementTypes[i]) {
                                 case "Frequency":
-                                    if (!await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break;    
                                 case "Duration":
-                                    if (!await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break;
                                 case "Rate":
-                                    if (!await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break; 
@@ -528,20 +528,20 @@ router.post('/archiveBehavior', async (req, res) => {
                 if (await abaQueries.abaClientExistByID(cID)) {
                     if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
                         const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
-                        const archiveDeletionDate = await formatDateString(await addYears(await currentDateTime.getCurrentDate(), 7));
+                        const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
     
                         if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
                             if (!await abaQueries.abaArchiveBehaviorDataByID(cID, behaviorId)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
                             }
                             else {
-                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await currentDateTime.getCurrentDate(), archiveDeletionDate)) {
+                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
                                     throw new Error("An error occured while archiving " + behaviorData.name);
                                 }
                             }
                         }
                         else {
-                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await currentDateTime.getCurrentDate(), archiveDeletionDate)) {
+                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name);
                             }
                         }
