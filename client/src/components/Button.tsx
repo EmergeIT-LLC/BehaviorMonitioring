@@ -5,7 +5,7 @@ interface ButtonProps {
     placeholder: string;
     btnName? : string;
     btnType: 'submit' | 'reset' | 'button';
-    isLoading: boolean;
+    isLoading?: boolean;
     onClick: (e: React.FormEvent) => void;
 }
 

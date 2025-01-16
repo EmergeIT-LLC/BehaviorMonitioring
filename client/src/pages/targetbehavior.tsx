@@ -248,7 +248,7 @@ const TargetBehavior: React.FC = () => {
         const allSameType = checkedBehaviors.every((behavior) => behavior.measurementType === measurementType);
     
         if (!allSameType) {
-            setStatusMessage('An error occurred during the merge: mismatched measurement types');
+            setStatusMessage('An error occurred during the merge');
             return;
         }
     
@@ -298,7 +298,7 @@ const TargetBehavior: React.FC = () => {
             const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.`);
+                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.` + <br/> + `"${behaviorName}" will be archived for 7 years before deletion.`);
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
@@ -398,9 +398,7 @@ const TargetBehavior: React.FC = () => {
                                     </div>
                                 )}
                                 <PromptForMerge isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={handleMergeConfirm} onCancel={handleArchiveMergeDeleteCancel} />
-                                {isPopoutVisible && (
-                                    <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${behaviorNameToActOn}"?`} onConfirm={handleArchiveDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={behaviorNameToActOn} />
-                                )}
+                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${behaviorNameToActOn}"?`} onConfirm={handleArchiveDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={behaviorNameToActOn} />
                             </div>
                         </div>
                     }

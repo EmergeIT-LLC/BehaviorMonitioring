@@ -14,7 +14,6 @@ const Header: React.FC = () => {
     const [buttonLabel, setButtonLabel] = useState<string>('Login');
     const [links, setLinks] = useState<JSX.Element[]>([]);
     const [showMenu, setShowMenu] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     
     useEffect(() => {
         if (userIsLoggedIn) {
@@ -71,7 +70,7 @@ const Header: React.FC = () => {
             {/* <a href='/'><img src={companyLogo} alt ="EmergeIT Logo" /></a> */}
             <h1 className={componentStyles.companyName}>BMetrics <span className={componentStyles.trade}>&trade;</span></h1>
             <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
-            <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' isLoading={isLoading} onClick={routeChange}/>
+            <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' onClick={routeChange}/>
             {phoneMenu}
             <nav>
                 <ul>

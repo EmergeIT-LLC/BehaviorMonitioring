@@ -7,7 +7,8 @@ const employeeQueries = require('../config/database/storedProcedures/EmployeeSto
 const emailHandler = require('../config/email/emailTemplate');
 const currentDateTime = require('../functions/basic/currentDateTime');
 const cookieMonster = require('../config/cookies/cookieHandler');
-const { addDays, addYears } = require('date-fns');
+const { addDays, addYears } = require('../functions/basic/addDayYear');
+const { formatDateString } = require('../functions/basic/dateTimeFormat');
 
 /*-----------------------------------------------ABA-----------------------------------------------*/
 router.post('/addNewClient', async (req, res) => {
@@ -19,7 +20,7 @@ router.post('/addNewClient', async (req, res) => {
         const ghName = req.body.ghName;
         const medicadeNum = req.body.medicadeNum;
         const behaviorProvided = req.body.behaviorProvided;
-        let behaviorPlanDueDate = addDays(intakeDate, 90);
+        let behaviorPlanDueDate = await formatDateString(await addDays(intakeDate, 90));
         const employeeUsername = req.body.employeeUsername;
 
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
@@ -35,7 +36,7 @@ router.post('/addNewClient', async (req, res) => {
                     }
                 }
                 else {
-                    behaviorPlanDueDate = addYears(intakeDate, 1);
+                    behaviorPlanDueDate = await formatDateString(await addYears(intakeDate, 1));
                     if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await currentDateTime.getCurrentDate(), await currentDateTime.getCurrentTime() + " EST")) {
                         return res.json({ statusCode: 200, clientAdded: true });
                     }
@@ -517,9 +518,49 @@ router.post('/mergeBehaviors', async (req, res) => {
 router.post('/archiveBehavior', async (req, res) => {
     try {
         const cID = req.body.clientID;
-        const behaviorIds = req.body.behaviorId;
+        const behaviorId = req.body.behaviorId;
         const employeeUsername = req.body.employeeUsername;
 
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
+                        const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
+                        const archiveDeletionDate = await formatDateString(await addYears(await currentDateTime.getCurrentDate(), 7));
+    
+                        if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
+                            if (!await abaQueries.abaArchiveBehaviorDataByID(cID, behaviorId)) {
+                                throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
+                            }
+                            else {
+                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await currentDateTime.getCurrentDate(), archiveDeletionDate)) {
+                                    throw new Error("An error occured while archiving " + behaviorData.name);
+                                }
+                            }
+                        }
+                        else {
+                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await currentDateTime.getCurrentDate(), archiveDeletionDate)) {
+                                throw new Error("An error occured while archiving " + behaviorData.name);
+                            }
+                        }
+                    //Behaviors merged successfully
+                    return res.json({ statusCode: 200, behaviorMerged: true, serverMessage: 'All behavior data archived successfully' });       
+                    }
+
+                }
+                else {
+                    return res.json({ statusCode: 400, behaviorMerged: false, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, behaviorMerged: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, behaviorMerged: false, serverMessage: 'Unauthorized user' });
+        }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
@@ -543,14 +584,12 @@ router.post('/deleteBehavior', async (req, res) => {
                     }
                     else {
                         if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
-                            console.log("An error occured while deleting " + behaviorData.name)
                             throw new Error("An error occured while deleting " + behaviorData.name);
                         }
                     }
                 }
                 else {
                     if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
-                        console.log("An error occured while deleting " + behaviorData.name)
                         throw new Error("An error occured while deleting " + behaviorData.name);
                     }
                 }

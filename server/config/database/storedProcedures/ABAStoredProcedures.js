@@ -76,7 +76,7 @@ async function behaviorSkillExistByID(bsID) {
 
 async function abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorAndSkill (name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorAndSkill (name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -100,7 +100,7 @@ async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, 
 
 async function abaGetBehaviorOrSkill(cID, BorS) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered FROM BehaviorAndSkill WHERE clientID = ? and type=?', [cID, BorS], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and status = ?', [cID, BorS, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -112,7 +112,7 @@ async function abaGetBehaviorOrSkill(cID, BorS) {
 
 async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -124,7 +124,7 @@ async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count
 
 async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -136,7 +136,7 @@ async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, dur
 
 async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -148,7 +148,7 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
 
 async function abaGetBehaviorDataById(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered FROM BehaviorData WHERE bsID = ? and clientID = ?', [bsID, cID], (err, rows) => {
+        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -194,6 +194,30 @@ async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
+async function abaArchiveBehaviorDataByID(cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
 module.exports = {
     abaClientExistByID,
     abaAddClientData,
@@ -210,5 +234,7 @@ module.exports = {
     abaAddDurationBehaviorData,
     abaMergeBehaviorDataById,
     abaDeleteBehaviorDataByID,
-    abaDeleteBehaviorOrSkillByID
+    abaDeleteBehaviorOrSkillByID,
+    abaArchiveBehaviorDataByID,
+    abaArchiveBehaviorOrSkillByID
 }
