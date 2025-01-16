@@ -52,9 +52,7 @@ const Login: React.FC = () => {
             return setStatusMessage('Password is incorrect')  
         }
 
-        const url = process.env.REACT_APP_Backend_URL + '/employee/verifyEmployeeLogin';
-
-        Axios.post(url, {
+        Axios.post(process.env.REACT_APP_Backend_URL + '/employee/verifyEmployeeLogin', {
             username: uName,
             password: pWord
         })

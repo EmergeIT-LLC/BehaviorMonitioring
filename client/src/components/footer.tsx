@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
     return (
         <div className={componentStyles.footerBody}>
             <h1 className={componentStyles.companyName}>
-                Behavior Monitoring <span className={componentStyles.trade}>&trade;</span>
+                BMetrics <span className={componentStyles.trade}>&trade;</span>
             </h1>
             <div className={componentStyles.rightSide}>
                 <Link href="https://emerge-it.net" hrefType='link' placeholder="EmergeIT LLC"/>

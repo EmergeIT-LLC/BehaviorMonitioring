@@ -69,7 +69,7 @@ const Header: React.FC = () => {
     return (
         <div className={componentStyles.headerBody}>
             {/* <a href='/'><img src={companyLogo} alt ="EmergeIT Logo" /></a> */}
-            <h1 className={componentStyles.companyName}>Behavior Monitoring <span className={componentStyles.trade}>&trade;</span></h1>
+            <h1 className={componentStyles.companyName}>BMetrics <span className={componentStyles.trade}>&trade;</span></h1>
             <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
             <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' isLoading={isLoading} onClick={routeChange}/>
             {phoneMenu}
