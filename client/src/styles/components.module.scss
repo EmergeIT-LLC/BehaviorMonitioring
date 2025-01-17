@@ -386,7 +386,7 @@
                 background-color: $color6;
                 color: $button-font-color;
                 border: 0.15em solid $color1;
-                width: 5em;
+                width: 8em;
                 margin: 0;
                 font-size: 1em;
                 font-weight: bold;
@@ -401,6 +401,26 @@
             
             button:first-child {
                 margin-right: 1em;
+            }
+
+            a {
+                display: inline;
+                background-color: $color6;
+                color: $button-font-color;
+                border: 0.15em solid $color1;
+                width: 10em;
+                margin: 0 auto;
+                padding: 0.2em;
+                font-size: 1em;
+                font-weight: bold;
+                text-decoration: none;
+                text-align: center;        
+            }
+        
+            a:hover {
+                background-color: $color1;
+                color: $buttonHover-font-color;
+                border-color: $color5;
             }
         }
 

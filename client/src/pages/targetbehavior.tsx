@@ -6,6 +6,7 @@ import Footer from '../components/footer';
 import Loading from '../components/loading';
 import SelectDropdown from '../components/Selectdropdown';
 import Checkbox from '../components/Checkbox';
+import Link from '../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
 import Button from '../components/Button';
@@ -340,6 +341,10 @@ const TargetBehavior: React.FC = () => {
         setIsPopoutVisible(false);
     };
 
+    const redirectToArchivePage = () => {
+        navigate('/TargetBehavior/Archive');
+    }
+
     return (
         <>
             <Header />
@@ -351,7 +356,8 @@ const TargetBehavior: React.FC = () => {
                         <div className={componentStyles.bodyBlock}>
                             <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
                             <div className={componentStyles.tbHRSButtons}>
-                                <Button nameOfClass='tbHRSAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehaviorDetail}/>
+                                <Button nameOfClass='tbHRSAddButton' placeholder='Add Behavior' btnType='button' isLoading={isLoading} onClick={addBehaviorDetail}/>
+                                <Link href='/TargetBehavior/Archive' hrefType='link' placeholder="Archived Behavior" />
                             </div>
                             <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                             <div className={componentStyles.innerBlock}>
