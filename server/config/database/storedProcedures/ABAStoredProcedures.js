@@ -194,6 +194,20 @@ async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
+/*-------------------------------------------------ABA ARCHIVE--------------------------------------------------*/
+
+async function archiveBehaviorSkillExistByID(bsID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ? and status = ?', [bsID, 'Archived'], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
 async function abaArchiveBehaviorDataByID(cID, bsID) {
     return new Promise((resolve, reject) => {
         db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
@@ -209,6 +223,54 @@ async function abaArchiveBehaviorDataByID(cID, bsID) {
 async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
     return new Promise((resolve, reject) => {
         db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaGetArchivedBehaviorDataById(cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Archived"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaGetArchivedBehaviorOrSkill(cID, BorS) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and status = ?', [cID, BorS, "Archived"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteArchivedBehaviorDataByID(cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, 'Archived'], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteArchivedBehaviorOrSkillByID(cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, 'Archived'], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -235,6 +297,11 @@ module.exports = {
     abaMergeBehaviorDataById,
     abaDeleteBehaviorDataByID,
     abaDeleteBehaviorOrSkillByID,
+    archiveBehaviorSkillExistByID,
     abaArchiveBehaviorDataByID,
-    abaArchiveBehaviorOrSkillByID
+    abaArchiveBehaviorOrSkillByID,
+    abaGetArchivedBehaviorDataById,
+    abaGetArchivedBehaviorOrSkill,
+    abaDeleteArchivedBehaviorDataByID,
+    abaDeleteArchivedBehaviorOrSkillByID
 }

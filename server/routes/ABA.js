@@ -353,7 +353,43 @@ router.post('/getClientTargetBehavior', async (req, res) => {
     }
 });
 
-router.post('/getClientSkillAquisition', async (req, res) => {
+router.post('/getArchivedBehavior', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const bID = req.body.behaviorID;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.behaviorSkillExistByID(bID)) {
+                    const behaviorSkillData = await abaQueries.abaGetArchivedBehaviorDataById(cID, bID);
+
+                    if (behaviorSkillData.length > 0){
+                        return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
+                    }
+                    else {
+                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate behavior data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Behavior does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/getClientArchivedBehavior', async (req, res) => {
     try {
         const cID = req.body.clientID;
         const employeeUsername = req.body.employeeUsername;
@@ -363,7 +399,7 @@ router.post('/getClientSkillAquisition', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Skill');
+                    const behaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior');
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
@@ -602,6 +638,135 @@ router.post('/deleteBehavior', async (req, res) => {
         }
         else {
             return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+
+router.post('/activateBehavior', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const behaviorId = req.body.behaviorId;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
+                        const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
+                        const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
+    
+                        if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
+                            if (!await abaQueries.abaArchiveBehaviorDataByID(cID, behaviorId)) {
+                                throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
+                            }
+                            else {
+                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
+                                    throw new Error("An error occured while archiving " + behaviorData.name);
+                                }
+                            }
+                        }
+                        else {
+                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
+                                throw new Error("An error occured while archiving " + behaviorData.name);
+                            }
+                        }
+                    //Behaviors merged successfully
+                    return res.json({ statusCode: 200, behaviorMerged: true, serverMessage: 'All behavior data archived successfully' });       
+                    }
+
+                }
+                else {
+                    return res.json({ statusCode: 400, behaviorMerged: false, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, behaviorMerged: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, behaviorMerged: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/deleteArchivedBehavior', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const behaviorId = req.body.behaviorId;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior"); 
+
+                if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
+                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId)) {
+                        throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
+                    }
+                    else {
+                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                            throw new Error("An error occured while deleting " + behaviorData.name);
+                        }
+                    }
+                }
+                else {
+                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                        throw new Error("An error occured while deleting " + behaviorData.name);
+                    }
+                }
+            //Behaviors deleted successfully
+            return res.json({ statusCode: 200, behaviorAdded: true, serverMessage: 'All behavior data merged successfully' });       
+            }
+            else {
+                return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/getClientSkillAquisition', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Skill');
+
+                    if (behaviorSkillData.length > 0){
+                        return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
+                    }
+                    else {
+                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
         }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });

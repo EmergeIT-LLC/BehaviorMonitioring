@@ -93,7 +93,7 @@ const Archive: React.FC = () => {
 
     const getClientArchivedBehaviors = async () => {
         setIsLoading(true);
-        const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
+        const url = process.env.REACT_APP_Backend_URL + '/aba/getClientArchivedBehavior';
         try {
             const response = await Axios.post(url, {
                 "clientID": selectedClientID,
