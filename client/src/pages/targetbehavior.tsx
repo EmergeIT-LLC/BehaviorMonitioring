@@ -341,10 +341,6 @@ const TargetBehavior: React.FC = () => {
         setIsPopoutVisible(false);
     };
 
-    const redirectToArchivePage = () => {
-        navigate('/TargetBehavior/Archive');
-    }
-
     return (
         <>
             <Header />
