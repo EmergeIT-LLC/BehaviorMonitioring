@@ -133,35 +133,7 @@ const Archive: React.FC = () => {
     const openBehaviorDetail = (id: string | number) => {
         navigate(`/TargetBehavior/Detail/${id}`);
     }
-
-    const reactivateBehavior = (id: string | number) => {
-        // Reactivate the behavior
-    }
-
-    const handleEllipsisClick = (index: number) => {
-        if (activeMenu === index) {
-            closeMenu(); // Close if clicked again
-        } else {
-            setActiveMenu(index); // Open for the clicked row
-        }
-    };
     
-    const getMenuPosition = (menuIndex: number) => {
-        const ellipsisButton = document.querySelectorAll('.tbHRSEllipsesButton')[menuIndex];
-        if (ellipsisButton) {
-            const buttonRect = ellipsisButton.getBoundingClientRect();
-            const menuTop = buttonRect.top + window.scrollY; // Account for scrolling
-            const menuLeft = buttonRect.left + window.scrollX + buttonRect.width; // Offset for width
-            return {
-                top: `${menuTop}px`,
-                left: `${menuLeft}px`,
-            };
-        }
-        return { top: '0px', left: '0px' };
-    };
-            
-    const closeMenu = () => setActiveMenu(null); // Close the menu
-
     const openPopout = (action: string, behaviorId: string, behaviorName: string) => {
         setPopupAction(action);
         setBehaviorNameToActOn(behaviorName);
@@ -180,10 +152,10 @@ const Archive: React.FC = () => {
 
     const reactivateBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         try {
-            const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
+            const url = process.env.REACT_APP_Backend_URL + '/aba/activateBehavior';
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.` + <br/> + `"${behaviorName}" will be archived for 7 years before deletion.`);
+                setStatusMessage(`Behavior "${behaviorName}" has been reactived successfully.`);
                 getClientArchivedBehaviors();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   

@@ -567,7 +567,7 @@ router.post('/archiveBehavior', async (req, res) => {
                         const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
     
                         if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
-                            if (!await abaQueries.abaArchiveBehaviorDataByID(cID, behaviorId)) {
+                            if (!await abaQueries.abaArchiveBehaviorDataByID('Archived', cID, behaviorId)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
                             }
                             else {
@@ -657,26 +657,25 @@ router.post('/activateBehavior', async (req, res) => {
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
                     if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
-                        const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
-                        const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
+                        const behaviorData = await abaQueries.abaGetArchivedBehaviorOrSkill(behaviorId, "Behavior");
     
-                        if (await abaQueries.abaGetBehaviorDataById(cID, behaviorId) > 0) {
-                            if (!await abaQueries.abaArchiveBehaviorDataByID(cID, behaviorId)) {
-                                throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
+                        if (await abaQueries.abaGetArchivedBehaviorDataById(cID, behaviorId) > 0) {
+                            if (!await abaQueries.abaReactivateBehaviorDataByID('Active', cID, behaviorId)) {
+                                throw new Error("An error occured while reactivating " + behaviorData.name + "'s data");
                             }
                             else {
-                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
-                                    throw new Error("An error occured while archiving " + behaviorData.name);
+                                if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null)) {
+                                    throw new Error("An error occured while reactivating " + behaviorData.name);
                                 }
                             }
                         }
                         else {
-                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
+                            if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name);
                             }
                         }
-                    //Behaviors merged successfully
-                    return res.json({ statusCode: 200, behaviorMerged: true, serverMessage: 'All behavior data archived successfully' });       
+                    //Behaviors reactivated successfully
+                    return res.json({ statusCode: 200, behaviorMerged: true, serverMessage: 'The behavior data reactivated successfully' });       
                     }
 
                 }

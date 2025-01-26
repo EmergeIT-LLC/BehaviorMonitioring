@@ -194,6 +194,30 @@ async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
+async function abaArchiveBehaviorDataByID(newStatus, cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
 /*-------------------------------------------------ABA ARCHIVE--------------------------------------------------*/
 
 async function archiveBehaviorSkillExistByID(bsID) {
@@ -208,9 +232,9 @@ async function archiveBehaviorSkillExistByID(bsID) {
     });
 }
 
-async function abaArchiveBehaviorDataByID(cID, bsID) {
+async function abaReactivateBehaviorDataByID(newStatus, cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
+        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -220,9 +244,9 @@ async function abaArchiveBehaviorDataByID(cID, bsID) {
     });
 }
 
-async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
+async function abaReactivateBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Active", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -299,6 +323,8 @@ module.exports = {
     abaDeleteBehaviorOrSkillByID,
     archiveBehaviorSkillExistByID,
     abaArchiveBehaviorDataByID,
+    abaReactivateBehaviorOrSkillByID,
+    abaReactivateBehaviorDataByID,
     abaArchiveBehaviorOrSkillByID,
     abaGetArchivedBehaviorDataById,
     abaGetArchivedBehaviorOrSkill,

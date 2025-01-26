@@ -300,6 +300,7 @@ const TargetBehavior: React.FC = () => {
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been archived successfully.` + <br/> + `"${behaviorName}" will be archived for 7 years before deletion.`);
+                getClientTargetBehaviors();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
