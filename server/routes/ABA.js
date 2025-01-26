@@ -399,10 +399,14 @@ router.post('/getClientArchivedBehavior', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID)) {
-                    const behaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior');
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior');
+                    const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior');
 
-                    if (behaviorSkillData.length > 0){
-                        return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
+                    if (archivedBehaviorSkillData.length > 0){
+                        return res.json({ statusCode: 200, behaviorSkillData: archivedBehaviorSkillData });
+                    }
+                    else if (behaviorSkillData.length > 0){
+                        return res.json({ statusCode: 200, behaviorSkillData: archivedBehaviorSkillData });
                     }
                     else {
                         return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
