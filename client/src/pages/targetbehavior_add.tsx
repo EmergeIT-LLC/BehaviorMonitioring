@@ -7,11 +7,14 @@ import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
-import { get } from 'node:https';
+import SelectDropdown from '../components/Selectdropdown';
+import Link from '../components/Link';
+import InputFields from '../components/Inputfield';
+import TextareaInput from '../components/TextareaInput';
 
 const AddTargetBehavior: React.FC = () => {
     useEffect(() => {
-        document.title = "Target Behavior - Behavior Monitoring";
+        document.title = "Add Target Behavior - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -26,6 +29,7 @@ const AddTargetBehavior: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
+    const [behaviorName, setBehaviorName] = useState<string>('');
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -64,17 +68,28 @@ const AddTargetBehavior: React.FC = () => {
         }
     };
 
-        useEffect(() => {
-            if (timerCount > 0) {
-                const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
-                return () => clearTimeout(timer);
-            }
-            if (timerCount === 0 && clearMessageStatus) {
-                setClearMessageStatus(false);
-                setStatusMessage('')
-            }
-        }, [timerCount, clearMessageStatus]);
-    
+    const handleClientChange = (value: any) => {
+        setStatusMessage('');
+        setSelectedClient(value);
+        const numericValue = value === '' ? NaN : parseFloat(value);
+        setSelectedClientID(numericValue);
+    };
+
+
+    useEffect(() => {
+        if (timerCount > 0) {
+            const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+        if (timerCount === 0 && clearMessageStatus) {
+            setClearMessageStatus(false);
+            setStatusMessage('')
+        }
+    }, [timerCount, clearMessageStatus]);
+
+    const backButtonFuctionality = () => {
+        navigate(-1);
+    };
 
   return (
     <>
@@ -84,8 +99,32 @@ const AddTargetBehavior: React.FC = () => {
                 {isLoading ? 
                     <Loading/> 
                     :
-                    <div className={componentStyles.tbaBody}>
-                        Target Behavior Add
+                    <div className={componentStyles.bodyBlock}>
+                        <h1 className={componentStyles.pageHeader}>Add Target Behavior</h1>
+                        <div className={componentStyles.tbHRSButtons}>
+                            <Button nameOfClass='tbGraphButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
+                        </div>
+                        <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                        <div className={componentStyles.innerBlock}>
+                            <div className={componentStyles.tbAddBehavior}>
+                                <label className={componentStyles.clientNameDropdown}>
+                                    Current Behavior for:
+                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                </label>
+                                <label>
+                                    Enter a behavior name:
+                                    <InputFields name="behaviorNameField" type="text" placeholder="Behavior Name" requiring={true} value={behaviorName} onChange={(e) => setBehaviorName(e.target.value)}/>
+                                </label>
+                                <label className={componentStyles.behaviorCategoryDropdown}>
+                                    Select a Behavior Category:
+                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                </label>
+                                <label className={componentStyles.behaviorCategoryDropdown}>
+                                    Enter a definition for the behavior:
+                                    <TextareaInput name="definitionTextField" placeholder="Behavior Definition" requiring={true} value={behaviorName} onChange={(e) => setBehaviorName(e.target.value)}/>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 }
             </main>
