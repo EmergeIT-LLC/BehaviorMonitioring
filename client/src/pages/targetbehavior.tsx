@@ -188,7 +188,7 @@ const TargetBehavior: React.FC = () => {
     };
             
     const addBehaviorDetail = () => {
-        navigate(`/TargetBehavior/Add/${selectedClientID}`);
+        navigate(`/TargetBehavior/Add`);
     }
 
     const openBehaviorDetail = (id: string | number) => {

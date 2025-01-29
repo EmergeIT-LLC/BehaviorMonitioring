@@ -30,7 +30,7 @@ function App() {
           <Route path = "/" element = {<Home />} Component={Home}/>
           <Route path='/Admin' element = {<Admin />} Component={Admin}/>
           <Route path = "/TargetBehavior" element = {<TargetBehavior />} Component={TargetBehavior}/>
-          <Route path = "/TargetBehavior/Add/:selectedClientID" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
+          <Route path = "/TargetBehavior/Add" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
           <Route path = "/TargetBehavior/Graph" element = {<Graph />} Component={Graph} />
           <Route path = "/TargetBehavior/Archive" element = {<Archive />} Component={Archive}/>
           {/* <Route path = "/SkillAquisition" element = {<SkillAquisition />} Component={SkillAquisition}/> */}

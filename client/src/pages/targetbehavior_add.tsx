@@ -30,6 +30,7 @@ const AddTargetBehavior: React.FC = () => {
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [behaviorName, setBehaviorName] = useState<string>('');
+    const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -108,20 +109,24 @@ const AddTargetBehavior: React.FC = () => {
                         <div className={componentStyles.innerBlock}>
                             <div className={componentStyles.tbAddBehavior}>
                                 <label className={componentStyles.clientNameDropdown}>
-                                    Current Behavior for:
+                                    <span>Current Behavior for:</span>
                                     <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                 </label>
                                 <label>
-                                    Enter a behavior name:
+                                    <span>Enter a behavior name:</span>
                                     <InputFields name="behaviorNameField" type="text" placeholder="Behavior Name" requiring={true} value={behaviorName} onChange={(e) => setBehaviorName(e.target.value)}/>
                                 </label>
-                                <label className={componentStyles.behaviorCategoryDropdown}>
-                                    Select a Behavior Category:
+                                <label>
+                                    <span>Select a Behavior Category:</span>
                                     <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                 </label>
-                                <label className={componentStyles.behaviorCategoryDropdown}>
-                                    Enter a definition for the behavior:
-                                    <TextareaInput name="definitionTextField" placeholder="Behavior Definition" requiring={true} value={behaviorName} onChange={(e) => setBehaviorName(e.target.value)}/>
+                                <label>
+                                    <span>Enter a definition for the behavior:</span>
+                                    <TextareaInput name="definitionTextField" placeholder="Behavior Definition" requiring={true} value={behaviorDefinition} onChange={(e) => setBehaviorDefinition(e.target.value)}/>
+                                </label>
+                                <label>
+                                    <span>Select a Behavior Type:</span>
+                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                 </label>
                             </div>
                         </div>
