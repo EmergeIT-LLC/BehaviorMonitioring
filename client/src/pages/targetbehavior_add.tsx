@@ -22,6 +22,8 @@ const AddTargetBehavior: React.FC = () => {
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
     const cookieIsValid = isCookieValid();
+    const behaviorCategories = ['Select a Behavior Category', 'Aggression', 'Dangerous Acts', 'Disrobing', 'Disruption', 'Elopement', 'Emotional Response', 'Feeding/Mealtime', 'Hyperactive/Inattentive', 'Inappropriate Social', 'Moto Stereotypy', 'Noncompliance/Refusal', 'Other', 'Property Destruction', 'Rituals/Compulsive/Habit/Tics', 'Self-Injury', 'Sexual Behavior', 'Sleep/Toileting', 'Verbal', 'Visual Stereotype', 'Vocal'].map((category) => ({ value: category, label: category }));
+    const behaviorMeasurements = ['Select a Measurement Type', 'Frequency', 'Duration', 'Rate'].map((measurement) => ({ value: measurement, label: measurement }));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
@@ -30,7 +32,11 @@ const AddTargetBehavior: React.FC = () => {
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [behaviorName, setBehaviorName] = useState<string>('');
+    const [behaviorCategorySelected, setBehaviorCategorySelected] = useState<string>('');
+    const [otherBehaviorCategories, setOtherBehaviorCategory] = useState<string>('');
     const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
+    const [behaviorMeasurementSelected, setBehaviorMeasurementSelected] = useState<string>('');
+    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -92,6 +98,47 @@ const AddTargetBehavior: React.FC = () => {
         navigate(-1);
     };
 
+    const addBehavior = () => {
+        if (behaviorName.length < 3 || behaviorCategorySelected === 'Select a Behavior Category' || behaviorDefinition.length < 3 || behaviorMeasurementSelected === 'Select a Measurement Type') {
+            setStatusMessage('Please fill out all fields');
+        } else {
+            const newBehavior = { behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected };
+            setBehaviorsToAdd([...behaviorsToAdd, newBehavior]);
+
+            setBehaviorName('');
+            setBehaviorCategorySelected('Select a Behavior Category');
+            setOtherBehaviorCategory('');
+            setBehaviorDefinition('');
+            setBehaviorMeasurementSelected('Select a Measurement Type');
+        }
+    }
+
+    const submitBehavior = async () => {
+        setIsLoading(true);
+        const url = process.env.REACT_APP_Backend_URL + '/aba/addTargetBehavior';
+        try {
+            const response = await Axios.post(url, {
+                "clientID": selectedClientID,
+                "behaviorName": behaviorName,
+                "behaviorCategory": behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected,
+                "behaviorDefinition": behaviorDefinition,
+                "behaviorMeasurement": behaviorMeasurementSelected,
+                "employeeUsername": loggedInUser
+            });
+            if (response.data.statusCode === 204) {
+                setStatusMessage(response.data.serverMessage);
+                setClearMessageStatus(true);
+                setTimerCount(5);
+            } else {
+                setStatusMessage(response.data.serverMessage);
+            }
+            setIsLoading(false);
+        } catch (error) {
+            console.error(error);
+            setIsLoading(false);
+        }
+    }
+
   return (
     <>
         <Header />
@@ -103,7 +150,7 @@ const AddTargetBehavior: React.FC = () => {
                     <div className={componentStyles.bodyBlock}>
                         <h1 className={componentStyles.pageHeader}>Add Target Behavior</h1>
                         <div className={componentStyles.tbHRSButtons}>
-                            <Button nameOfClass='tbGraphButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
+                            <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                         </div>
                         <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                         <div className={componentStyles.innerBlock}>
@@ -118,16 +165,23 @@ const AddTargetBehavior: React.FC = () => {
                                 </label>
                                 <label>
                                     <span>Select a Behavior Category:</span>
-                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                    <SelectDropdown name='behaviorCategoryDropdown' requiring={true} value={behaviorCategorySelected} options={behaviorCategories} onChange={(e) => setBehaviorCategorySelected(e.target.value)} />
                                 </label>
+                                { behaviorCategorySelected === 'Other' &&
+                                    <label>
+                                        <span>Enter a behavior Category:</span>
+                                        <InputFields name="behaviorCategoryField" type="text" placeholder="Behavior Category" requiring={true} value={otherBehaviorCategories} onChange={(e) => setOtherBehaviorCategory(e.target.value)}/>
+                                    </label>
+                                }
                                 <label>
                                     <span>Enter a definition for the behavior:</span>
                                     <TextareaInput name="definitionTextField" placeholder="Behavior Definition" requiring={true} value={behaviorDefinition} onChange={(e) => setBehaviorDefinition(e.target.value)}/>
                                 </label>
                                 <label>
-                                    <span>Select a Behavior Type:</span>
-                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                    <span>Select a Measurement Type:</span>
+                                    <SelectDropdown name='behaviorMeasurementDropdown' requiring={true} value={behaviorMeasurementSelected} options={behaviorMeasurements} onChange={(e) => setBehaviorMeasurementSelected(e.target.value)} />
                                 </label>
+                                <Button nameOfClass='tbAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                             </div>
                         </div>
                     </div>
