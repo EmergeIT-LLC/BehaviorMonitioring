@@ -22,7 +22,7 @@ const AddTargetBehavior: React.FC = () => {
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
     const cookieIsValid = isCookieValid();
-    const behaviorCategories = ['Select a Behavior Category', 'Aggression', 'Dangerous Acts', 'Disrobing', 'Disruption', 'Elopement', 'Emotional Response', 'Feeding/Mealtime', 'Hyperactive/Inattentive', 'Inappropriate Social', 'Moto Stereotypy', 'Noncompliance/Refusal', 'Other', 'Property Destruction', 'Rituals/Compulsive/Habit/Tics', 'Self-Injury', 'Sexual Behavior', 'Sleep/Toileting', 'Verbal', 'Visual Stereotype', 'Vocal'].map((category) => ({ value: category, label: category }));
+    const behaviorCategories = ['Select a Behavior Category', 'Aggression', 'Dangerous Acts', 'Disrobing', 'Disruption', 'Elopement', 'Feeding/Mealtime', 'Inappropriate Social', 'Moto Stereotypy', 'Noncompliance/Refusal', 'Other', 'Property Destruction', 'Rituals/Compulsive/Habit/Tics', 'Self-Injury', 'Sexual Behavior', 'Sleep/Toileting', 'Verbal', 'Visual Stereotype', 'Vocal'].map((category) => ({ value: category, label: category }));
     const behaviorMeasurements = ['Select a Measurement Type', 'Frequency', 'Duration', 'Rate'].map((measurement) => ({ value: measurement, label: measurement }));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
@@ -104,10 +104,11 @@ const AddTargetBehavior: React.FC = () => {
         } else {
             const newBehavior = { behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected };
             setBehaviorsToAdd([...behaviorsToAdd, newBehavior]);
-
             setBehaviorName('');
             setBehaviorCategorySelected('Select a Behavior Category');
-            setOtherBehaviorCategory('');
+            if (otherBehaviorCategories.length > 0) {
+                setOtherBehaviorCategory('');
+            }
             setBehaviorDefinition('');
             setBehaviorMeasurementSelected('Select a Measurement Type');
         }
@@ -118,12 +119,8 @@ const AddTargetBehavior: React.FC = () => {
         const url = process.env.REACT_APP_Backend_URL + '/aba/addTargetBehavior';
         try {
             const response = await Axios.post(url, {
-                "clientID": selectedClientID,
-                "behaviorName": behaviorName,
-                "behaviorCategory": behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected,
-                "behaviorDefinition": behaviorDefinition,
-                "behaviorMeasurement": behaviorMeasurementSelected,
-                "employeeUsername": loggedInUser
+                "employeeUsername": loggedInUser,
+                "behaviors": behaviorsToAdd
             });
             if (response.data.statusCode === 204) {
                 setStatusMessage(response.data.serverMessage);
@@ -181,7 +178,7 @@ const AddTargetBehavior: React.FC = () => {
                                     <span>Select a Measurement Type:</span>
                                     <SelectDropdown name='behaviorMeasurementDropdown' requiring={true} value={behaviorMeasurementSelected} options={behaviorMeasurements} onChange={(e) => setBehaviorMeasurementSelected(e.target.value)} />
                                 </label>
-                                <Button nameOfClass='tbAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
+                                <Button nameOfClass='tbAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehavior}/>
                             </div>
                         </div>
                     </div>
