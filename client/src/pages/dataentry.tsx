@@ -244,9 +244,11 @@ const DataEntry: React.FC = () => {
 
     useEffect(() => {
         if (activeTab === 'TargetBehavior') {
+            setTargetOptions([{ value: 'null', label: 'Select Target Behavior' }]);
             getClientTargetBehaviors();
         }
         else if (activeTab === 'SkillAquisition') {
+            setSkillOptions([{ value: 'null', label: 'Select Skill Aquisition' }]);
             getClientSkillAquisitions();
         }
     }, [selectedClientID]);    

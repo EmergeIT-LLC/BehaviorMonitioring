@@ -133,8 +133,8 @@ const TargetBehavior: React.FC = () => {
     const handleClientChange = (value: any) => {
         setStatusMessage('');
         setTargetOptions([]);
-        setSelectedClient(value);
-        const numericValue = value === '' ? NaN : parseFloat(value);
+        setSelectedClient(value.name);
+        const numericValue = value.id === '' ? NaN : parseFloat(value.id);
         setSelectedClientID(numericValue);
         setCheckedState(new Array(targetOptions.length).fill(false)); // Reset checkboxes
     };
@@ -361,7 +361,7 @@ const TargetBehavior: React.FC = () => {
                                 <div className={componentStyles.tbHRSTopBar}>
                                     <label className={componentStyles.clientNameDropdown}>
                                         Current Behavior for
-                                        <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                        <SelectDropdown name={`ClientName`} requiring={true} value={selectedClientID} options={clientLists} onChange={(e) => handleClientChange({ name: e.target.options[e.target.selectedIndex].text || '', id: e.target.value})} />
                                     </label>
                                 </div>    
                                 <table className={componentStyles.tbHRSTable}>

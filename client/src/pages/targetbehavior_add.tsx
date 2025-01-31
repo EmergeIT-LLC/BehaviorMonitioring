@@ -36,7 +36,7 @@ const AddTargetBehavior: React.FC = () => {
     const [otherBehaviorCategories, setOtherBehaviorCategory] = useState<string>('');
     const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
     const [behaviorMeasurementSelected, setBehaviorMeasurementSelected] = useState<string>('');
-    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string }[]>([]);
+    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -76,9 +76,8 @@ const AddTargetBehavior: React.FC = () => {
     };
 
     const handleClientChange = (value: any) => {
-        setStatusMessage('');
-        setSelectedClient(value);
-        const numericValue = value === '' ? NaN : parseFloat(value);
+        setSelectedClient(value.name);
+        const numericValue = value.id === '' ? NaN : parseFloat(value.id);
         setSelectedClientID(numericValue);
     };
 
@@ -102,7 +101,7 @@ const AddTargetBehavior: React.FC = () => {
         if (behaviorName.length < 3 || behaviorCategorySelected === 'Select a Behavior Category' || behaviorDefinition.length < 3 || behaviorMeasurementSelected === 'Select a Measurement Type') {
             setStatusMessage('Please fill out all fields');
         } else {
-            const newBehavior = { behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected };
+            const newBehavior = { clientName: selectedClient, clientID: selectedClientID, behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected };
             setBehaviorsToAdd([...behaviorsToAdd, newBehavior]);
             setBehaviorName('');
             setBehaviorCategorySelected('Select a Behavior Category');
@@ -154,7 +153,7 @@ const AddTargetBehavior: React.FC = () => {
                             <div className={componentStyles.tbAddBehavior}>
                                 <label className={componentStyles.clientNameDropdown}>
                                     <span>Current Behavior for:</span>
-                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                    <SelectDropdown name={`ClientName`} requiring={true} value={selectedClientID} options={clientLists} onChange={(e) => handleClientChange({ name: e.target.options[e.target.selectedIndex].text || '', id: e.target.value})} />
                                 </label>
                                 <label>
                                     <span>Enter a behavior name:</span>
@@ -180,6 +179,23 @@ const AddTargetBehavior: React.FC = () => {
                                 </label>
                                 <Button nameOfClass='tbAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehavior}/>
                             </div>
+                            { behaviorsToAdd.length > 0 &&
+                                <div className={componentStyles.tbAddedBehaviors}>
+                                    <h2>Behaviors to Add</h2>
+                                    <ul>
+                                        {behaviorsToAdd.map((behavior, index) => (
+                                            <li key={index}>
+                                                <h3>{behavior.behaviorName}</h3>
+                                                <p><b>Client:</b> {behavior.clientName}</p>
+                                                <p><b>Category:</b> {behavior.behaviorCategory}</p>
+                                                <p><b>Definition:</b> {behavior.behaviorDefinition}</p>
+                                                <p><b>Measurement:</b> {behavior.behaviorMeasurement}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <Button nameOfClass='tbSubmitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitBehavior}/>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
