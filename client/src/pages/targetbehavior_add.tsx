@@ -12,6 +12,16 @@ import Link from '../components/Link';
 import InputFields from '../components/Inputfield';
 import TextareaInput from '../components/TextareaInput';
 
+interface Behavior {
+    behaviorName: string;
+    behaviorDefinition: string;
+    behaviorMeasurement: string;
+    behaviorCategory: string;
+    type: string;
+    clientID: number;
+    clientName: string;
+}
+
 const AddTargetBehavior: React.FC = () => {
     useEffect(() => {
         document.title = "Add Target Behavior - Behavior Monitoring";
@@ -22,6 +32,7 @@ const AddTargetBehavior: React.FC = () => {
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
     const cookieIsValid = isCookieValid();
+    const behaviorOrSkill = 'Behavior';
     const behaviorCategories = ['Select a Behavior Category', 'Aggression', 'Dangerous Acts', 'Disrobing', 'Disruption', 'Elopement', 'Feeding/Mealtime', 'Inappropriate Social', 'Moto Stereotypy', 'Noncompliance/Refusal', 'Other', 'Property Destruction', 'Rituals/Compulsive/Habit/Tics', 'Self-Injury', 'Sexual Behavior', 'Sleep/Toileting', 'Verbal', 'Visual Stereotype', 'Vocal'].map((category) => ({ value: category, label: category }));
     const behaviorMeasurements = ['Select a Measurement Type', 'Frequency', 'Duration', 'Rate'].map((measurement) => ({ value: measurement, label: measurement }));
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,7 +47,7 @@ const AddTargetBehavior: React.FC = () => {
     const [otherBehaviorCategories, setOtherBehaviorCategory] = useState<string>('');
     const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
     const [behaviorMeasurementSelected, setBehaviorMeasurementSelected] = useState<string>('');
-    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string }[]>([]);
+    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string, type: string }[]>([]);
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
@@ -101,7 +112,7 @@ const AddTargetBehavior: React.FC = () => {
         if (behaviorName.length < 3 || behaviorCategorySelected === 'Select a Behavior Category' || behaviorDefinition.length < 3 || behaviorMeasurementSelected === 'Select a Measurement Type') {
             setStatusMessage('Please fill out all fields');
         } else {
-            const newBehavior = { clientName: selectedClient, clientID: selectedClientID, behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected };
+            const newBehavior = { clientName: selectedClient, clientID: selectedClientID, behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected, type: behaviorOrSkill };
             setBehaviorsToAdd([...behaviorsToAdd, newBehavior]);
             setBehaviorName('');
             setBehaviorCategorySelected('Select a Behavior Category');
@@ -115,7 +126,7 @@ const AddTargetBehavior: React.FC = () => {
 
     const submitBehavior = async () => {
         setIsLoading(true);
-        const url = process.env.REACT_APP_Backend_URL + '/aba/addTargetBehavior';
+        const url = process.env.REACT_APP_Backend_URL + '/aba/addNewTargetBehavior';
         try {
             const response = await Axios.post(url, {
                 "employeeUsername": loggedInUser,
@@ -123,8 +134,13 @@ const AddTargetBehavior: React.FC = () => {
             });
             if (response.data.statusCode === 204) {
                 setStatusMessage(response.data.serverMessage);
+                setBehaviorsToAdd([]);
                 setClearMessageStatus(true);
                 setTimerCount(5);
+            } else if (response.data.statusCode === 500 && response.data.failedBehaviors) {
+                setStatusMessage(response.data.serverMessage);
+                const failedBehaviors: Behavior[] = response.data.failedBehaviors;
+                setBehaviorsToAdd(failedBehaviors);
             } else {
                 setStatusMessage(response.data.serverMessage);
             }

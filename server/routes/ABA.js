@@ -172,43 +172,53 @@ router.post('/getAllClientInfo', async (req, res) => {
 /*-----------------------------------------------ABA-----------------------------------------------*/
 router.post('/addNewTargetBehavior', async (req, res) => {
     try {
-        const name = req.body.name;
-        const def = req.body.definition;
-        const meas = req.body.measurment;
-        const cat = req.body.category;
-        const type = req.body.type;
-        const cID = req.body.clientID;
+        const behaviors = req.body.behaviors;
         const employeeUsername = req.body.employeeUsername;
+        const failedBehaviors = [];
 
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
-                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                for (let i = 0; i < behaviors.length; i++) {
+                    const name = behaviors[i].behaviorName;
+                    const def = behaviors[i].behaviorDefinition;
+                    const meas = behaviors[i].behaviorMeasurement;
+                    const cat = behaviors[i].behaviorCategory;
+                    const type = behaviors[i].type;
+                    const cID = behaviors[i].clientID;
+                    const clientName = behaviors[i].clientName;
 
-                    if (clientData){
-                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
-                            return res.json({ statusCode: 200, clientAdded: true });
+                    if (await abaQueries.abaClientExistByID(cID)) {
+                        const clientData = await abaQueries.abaGetClientDataByID(cID);
+
+                        if (clientData){
+                            if (!await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                                failedBehaviors.push({ name, def, meas, cat, type, cID, clientName });
+                            }
                         }
                         else {
-                            return res.json({ statusCode: 500, clientAdded: false, serverMessage: 'Unable add a client' });
+                            return res.json({ statusCode: 500, behaviorsAdded: false, serverMessage: 'Unable to locate client data' });
                         }
                     }
                     else {
-                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
+                        return res.json({ statusCode: 400, behaviorsAdded: false, serverMessage: 'Client does not exist' });
                     }
                 }
+
+                if (failedBehaviors.length > 0) {
+                    return res.json({ statusCode: 500, behaviorsAdded: false, serverMessage: 'Some behaviors failed to add', failedBehaviors: failedBehaviors });
+                }
                 else {
-                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                    return res.json({ statusCode: 204, behaviorsAdded: true, serverMessage: 'All behaviors added successfully' });
                 }
             }
             else {
-                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+                return res.json({ statusCode: 401, behaviorsAdded: false, serverMessage: 'Unauthorized user' });
             }
         }
         else {
-            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            return res.json({ statusCode: 401, behaviorsAdded: false, serverMessage: 'Unauthorized user' });
         }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
