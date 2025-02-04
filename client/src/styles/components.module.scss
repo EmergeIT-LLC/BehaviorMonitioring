@@ -810,29 +810,52 @@
             margin: 1em auto;
             width: 50%;
             background-color: $color3;
-
+          
             h2 {
-                color: $color4;
+              color: $color4;
             }
-
+          
             ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
+              list-style: none;
+              padding: 0;
+              margin: 0;
+          
+                li {
+                    padding: 0.5em;
+                    margin: 0.5em;
+                    position: relative;
 
-            li {
-                display: block;
-                align-items: center;
-                padding: 0.5em;
-                margin: 0.5em;
-            }
-            p {
-                text-align: left;
+                    .tbTitleButton {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        color: $font-color;
+                        width: 100%;
+                        padding: 1em;
+                        box-sizing: border-box;
+                        
+                        h3 {
+                            margin: 0;
+                            flex-grow: 1;
+                            text-align: center;
+                        }
+                
+                        button {
+                            width: 2em;
+                            margin-top: 1em;
+                            margin-left: auto;
+                        }
+                    }
+
+                    p {
+                        text-align: left;
+                        margin: 0.5em 0;
+                    }
+                }
             }
         }
     }
-    
+              
     .dataEntryContainer {
         display: flex;
         justify-content: space-between;

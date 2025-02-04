@@ -151,6 +151,12 @@ const AddTargetBehavior: React.FC = () => {
         }
     }
 
+    const removeBehavior = (index: number) => {
+        const newBehaviors = [...behaviorsToAdd];
+        newBehaviors.splice(index, 1);
+        setBehaviorsToAdd(newBehaviors);
+    }
+
   return (
     <>
         <Header />
@@ -201,7 +207,10 @@ const AddTargetBehavior: React.FC = () => {
                                     <ul>
                                         {behaviorsToAdd.map((behavior, index) => (
                                             <li key={index}>
-                                                <h3>{behavior.behaviorName}</h3>
+                                                <div className={componentStyles.tbTitleButton}>
+                                                    <h3>{behavior.behaviorName}</h3>
+                                                    <Button nameOfClass='tbRemoveButton' placeholder='X' btnName='Remove' btnType='button' onClick={() => removeBehavior(index)}/>
+                                                </div>
                                                 <p><b>Client:</b> {behavior.clientName}</p>
                                                 <p><b>Category:</b> {behavior.behaviorCategory}</p>
                                                 <p><b>Definition:</b> {behavior.behaviorDefinition}</p>
