@@ -196,7 +196,7 @@ const TargetBehavior: React.FC = () => {
     }
 
     const graphBehaviorCall = (index: number | string, name: string) => {
-        sessionStorage.setItem('clientID', selectedClientID.toString());
+        sessionStorage.setItem('clientID', String(selectedClientID));
         const storedCheckedBehaviors = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
         const selectedBehavior = targetOptions.find(option => option.value === index);
     
