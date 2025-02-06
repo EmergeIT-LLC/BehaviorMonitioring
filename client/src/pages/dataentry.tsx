@@ -287,7 +287,7 @@ const DataEntry: React.FC = () => {
     
     useEffect(() => {
         const newSelectedMeasurements = selectedTargets.map(targetValue => {
-            const selectedOption = targetOptions.find(option => option.value.toString() === targetValue);
+            const selectedOption = targetOptions.find(option => String(option.value) === targetValue);
             return selectedOption ? selectedOption.measurementType || '' : '';
         });
         setSelectedMeasurementTypes(newSelectedMeasurements);
