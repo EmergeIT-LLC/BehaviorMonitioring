@@ -454,7 +454,7 @@ const DataEntry: React.FC = () => {
             setSelectedTargets(newSelectedTargets);
 
             if (index === 0 && targetOptions.length > 0) {
-                handleOptionChange(index, targetOptions[0].value.toString());
+                handleOptionChange(index, String(targetOptions[0].value));
             }
             handleTargetAMTChange(targetAmt - 1);
     
