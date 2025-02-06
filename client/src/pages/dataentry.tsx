@@ -192,13 +192,21 @@ const DataEntry: React.FC = () => {
         setTargetAmt(numericValue);
     };
     
-    const handleSkillAMTChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
-        let numericValue = value === '' ? NaN : parseFloat(value);
-        if (numericValue <= 0) {
+    const handleSkillAMTChange = (input: number | React.ChangeEvent<HTMLInputElement>) => {
+        let numericValue: number;
+
+        if (typeof input === 'number') {
+            numericValue = input;
+        } else {
+            let value = input.target.value;
+            numericValue = value === '' ? NaN : parseFloat(value);
+        }
+    
+        if (numericValue <= 0 || isNaN(numericValue)) {
             numericValue = 1;
         }
-        setSkillAmt(numericValue);
+    
+        setTargetAmt(numericValue);
     };
 
     useEffect(() => {
@@ -255,7 +263,7 @@ const DataEntry: React.FC = () => {
 
     const handleOptionChange = (index: number, value: string) => {
         if (!value) return; // Prevent empty strings from being set
-    
+
         const updatedTargets = [...selectedTargets];
         updatedTargets[index] = value;
         setSelectedTargets(updatedTargets);
@@ -312,6 +320,7 @@ const DataEntry: React.FC = () => {
 
         const generateTargetTableHeaders = () => {
             const newHeaders: JSX.Element[] = [
+                <th key="remove"></th>,
                 <th key="target">Target:</th>,
                 <th key="sessionDate">Session Date:</th>,
                 <th key="time">Time:</th>
@@ -332,26 +341,9 @@ const DataEntry: React.FC = () => {
         setHeaders(generateTargetTableHeaders());
     }, [selectedMeasurementTypes]);
 
-    const handleCountChange  = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        let numericValue = value === '' ? NaN : parseFloat(value);
-        if (numericValue <= -1) {
-            numericValue = 0;
-        }
-        const newCounts = [...count];
-        newCounts[index] = numericValue;
-        setCount(newCounts);
-    };
-
-    const handleDurationChange = (index: number, time: { hour: number; minute: number; second: number }) => {
-        const timeString = `${time.hour}:${time.minute}:${time.second}`;
-        const newDurations = [...duration];
-        newDurations[index] = timeString;
-        setDuration(newDurations);
-    };
-
     const renderTargetTableData = (index: number) => {
         const cells = [
+            <td key={`remove-${index}`}><Button nameOfClass='tbRemoveButton' placeholder='Remove' btnType='button' onClick={() => removeEntry(index)}/></td>,
             <td key={`target-${index}`}><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
             <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
             <td key={`time-${index}`}><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
@@ -375,6 +367,24 @@ const DataEntry: React.FC = () => {
             );
         }
         return cells;
+    };
+
+    const handleCountChange  = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        let numericValue = value === '' ? NaN : parseFloat(value);
+        if (numericValue <= -1) {
+            numericValue = 0;
+        }
+        const newCounts = [...count];
+        newCounts[index] = numericValue;
+        setCount(newCounts);
+    };
+
+    const handleDurationChange = (index: number, time: { hour: number; minute: number; second: number }) => {
+        const timeString = `${time.hour}:${time.minute}:${time.second}`;
+        const newDurations = [...duration];
+        newDurations[index] = timeString;
+        setDuration(newDurations);
     };
     
     const submitDataEntryForm = async () => {
@@ -437,6 +447,26 @@ const DataEntry: React.FC = () => {
         }
     }
 
+    const removeEntry = (index: number) => {
+        if (activeTab === 'TargetBehavior') {
+            const newSelectedTargets = [...selectedTargets];
+            newSelectedTargets.splice(index, 1);
+            setSelectedTargets(newSelectedTargets);
+
+            if (index === 0 && targetOptions.length > 0) {
+                handleOptionChange(index, targetOptions[0].value.toString());
+            }
+            handleTargetAMTChange(targetAmt - 1);
+    
+        }
+        else if (activeTab === 'SkillAquisition') {
+            const newSelectedSkills = [...selectedSkills];
+            newSelectedSkills.splice(index, 1);
+            setSelectedSkills(newSelectedSkills);
+            handleSkillAMTChange(skillAmt - 1);
+        }
+    }
+
     return (
         <>
             <Header />
@@ -464,7 +494,7 @@ const DataEntry: React.FC = () => {
                                     {activeTab === 'SkillAquisition' && (
                                             <label className={componentStyles.dataEntryInputAMT}>
                                                 Number of skill:
-                                                <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleSkillAMTChange} />
+                                                <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={skillAmt} onChange={handleSkillAMTChange} />
                                             </label>
                                     )}
                                     <label className={componentStyles.clientNameDropdown}>
@@ -492,6 +522,7 @@ const DataEntry: React.FC = () => {
                                     <table className={componentStyles.dataEntryTable}>
                                     <thead>
                                         <tr>
+                                            <th>Remove:</th>
                                             <th>Target:</th>
                                             <th>Session Date:</th>
                                             <th>Time:</th>
