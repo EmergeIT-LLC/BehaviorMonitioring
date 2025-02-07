@@ -40,16 +40,7 @@ const Archive: React.FC = () => {
     const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
-            navigate('/Login', {
-                state: {
-                    previousUrl: location.pathname,
-                }
-            });
-        } else {
-            setIsLoading(true);
-            getClientNames();
-        }
+        getClientNames();
     }, [userLoggedIn]);
 
         useEffect(() => {
@@ -70,6 +61,15 @@ const Archive: React.FC = () => {
     }, [timerCount, clearMessageStatus]);;
 
     const getClientNames = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
             const response = await Axios.post(url, { "employeeUsername": loggedInUser });
@@ -93,6 +93,14 @@ const Archive: React.FC = () => {
 
     const getClientArchivedBehaviors = async () => {
         setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientArchivedBehavior';
         try {
             const response = await Axios.post(url, {
@@ -151,6 +159,15 @@ const Archive: React.FC = () => {
     };
 
     const reactivateBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+        
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/activateBehavior';
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
