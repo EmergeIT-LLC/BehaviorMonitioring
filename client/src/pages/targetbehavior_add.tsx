@@ -50,6 +50,11 @@ const AddTargetBehavior: React.FC = () => {
     const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string, type: string }[]>([]);
 
     useEffect(() => {
+        getClientNames();
+    }, [userLoggedIn]);
+
+    const getClientNames = async () => {
+        setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
             navigate('/Login', {
                 state: {
@@ -57,14 +62,7 @@ const AddTargetBehavior: React.FC = () => {
                 }
             });
         }
-        else {
-            setIsLoading(true);
-            getClientNames();
-        }
-        setIsLoading(false);
-    }, [userLoggedIn]);
-
-    const getClientNames = async () => {
+        
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
             const response = await Axios.post(url, { "employeeUsername": loggedInUser });
@@ -79,9 +77,10 @@ const AddTargetBehavior: React.FC = () => {
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
-            setIsLoading(false);
         } catch (error) {
             console.error(error);
+        }
+        finally {
             setIsLoading(false);
         }
     };
@@ -126,6 +125,14 @@ const AddTargetBehavior: React.FC = () => {
 
     const submitBehavior = async () => {
         setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         const url = process.env.REACT_APP_Backend_URL + '/aba/addNewTargetBehavior';
         try {
             const response = await Axios.post(url, {
@@ -144,9 +151,10 @@ const AddTargetBehavior: React.FC = () => {
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
-            setIsLoading(false);
         } catch (error) {
             console.error(error);
+        }
+        finally {
             setIsLoading(false);
         }
     }

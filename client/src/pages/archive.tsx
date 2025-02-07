@@ -84,9 +84,10 @@ const Archive: React.FC = () => {
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
-            setIsLoading(false);
         } catch (error) {
             console.error(error);
+        }
+        finally {
             setIsLoading(false);
         }
     };
@@ -159,7 +160,7 @@ const Archive: React.FC = () => {
     };
 
     const reactivateBehaviorCall = async (behaviorId: string, behaviorName: string) => {
-        
+        setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
             navigate('/Login', {
                 state: {
@@ -183,9 +184,21 @@ const Archive: React.FC = () => {
             console.error(error);
             setStatusMessage('An error occurred while archiving.');
         }
+        finally {
+            setIsLoading(false);
+        }
     };
 
     const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehavior';
             const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
@@ -200,6 +213,9 @@ const Archive: React.FC = () => {
         } catch (error) {
             console.error(error);
             setStatusMessage('An error occurred while deleting.');
+        }
+        finally {
+            setIsLoading(false);
         }
     };
 

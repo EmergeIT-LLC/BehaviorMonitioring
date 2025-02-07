@@ -75,6 +75,15 @@ const TargetBehavior: React.FC = () => {
     }, [timerCount, clearMessageStatus]);
 
     const getClientNames = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
             const response = await Axios.post(url, { "employeeUsername": loggedInUser });
@@ -89,15 +98,24 @@ const TargetBehavior: React.FC = () => {
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
-            setIsLoading(false);
         } catch (error) {
             console.error(error);
+        }
+        finally {
             setIsLoading(false);
         }
     };
 
     const getClientTargetBehaviors = async () => {
         setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
         try {
             const response = await Axios.post(url, {
@@ -259,6 +277,15 @@ const TargetBehavior: React.FC = () => {
 
     const handleMergeConfirm = async (targetBehaviorId: string) => {
         setIsPopupVisible(false);
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/mergeBehaviors';
             const response = await Axios.post(url, {
@@ -283,18 +310,30 @@ const TargetBehavior: React.FC = () => {
             console.error(error);
             setStatusMessage('An error occurred while merging behaviors');
         }
+        finally {
+            setIsLoading(false);
+        }
     };
     
     const handleArchiveDelete = async () => {
+        setIsPopoutVisible(false);
         if (popupAction === 'Archive') {
             await archiveBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
         } else if (popupAction === 'Delete') {
             await deleteBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
         }
-        setIsPopoutVisible(false); // Close the popout after action
     };
 
     const archiveBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/archiveBehavior';
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
@@ -310,9 +349,21 @@ const TargetBehavior: React.FC = () => {
             console.error(error);
             setStatusMessage('An error occurred while archiving.');
         }
+        finally {
+            setIsLoading(false);
+        }
     };
 
     const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         try {
             const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehavior';
             const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
@@ -327,6 +378,9 @@ const TargetBehavior: React.FC = () => {
         } catch (error) {
             console.error(error);
             setStatusMessage('An error occurred while deleting.');
+        }
+        finally {
+            setIsLoading(false);
         }
     };
 

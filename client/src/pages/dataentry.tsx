@@ -18,6 +18,26 @@ import Axios from 'axios';
 const DataEntry: React.FC = () => {
     useEffect(() => {
         document.title = "Data Entry - Behavior Monitoring";
+
+        const storedData = sessionStorage.getItem('dataEntryState');
+        if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            setActiveTab(parsedData.activeTab);
+            setTargetAmt(parsedData.targetAmt);
+            setSkillAmt(parsedData.skillAmt);
+            setSelectedClient(parsedData.selectedClient);
+            setSelectedClientID(parsedData.selectedClientID);
+            setSelectedTargets(parsedData.selectedTargets);
+            setSelectedSkills(parsedData.selectedSkills);
+            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
+            if (selectedTargets.length > 1 || selectedSkills.length > 1) {
+                setDates(parsedData.dates);
+                setTimes(parsedData.times);
+            }
+            setCount(parsedData.count);
+            setDuration(parsedData.duration);
+        }
+        setIsInitialized(true);
     }, []);
 
     const navigate = useNavigate();
@@ -46,28 +66,6 @@ const DataEntry: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
-
-    useEffect(() => {
-        const storedData = sessionStorage.getItem('dataEntryState');
-        if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            setActiveTab(parsedData.activeTab);
-            setTargetAmt(parsedData.targetAmt);
-            setSkillAmt(parsedData.skillAmt);
-            setSelectedClient(parsedData.selectedClient);
-            setSelectedClientID(parsedData.selectedClientID);
-            setSelectedTargets(parsedData.selectedTargets);
-            setSelectedSkills(parsedData.selectedSkills);
-            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
-            if (selectedTargets.length > 1 || selectedSkills.length > 1) {
-                setDates(parsedData.dates);
-                setTimes(parsedData.times);
-            }
-            setCount(parsedData.count);
-            setDuration(parsedData.duration);
-        }
-        setIsInitialized(true);
-    }, []);
         
     // Update storage
     useEffect(() => {
@@ -82,17 +80,7 @@ const DataEntry: React.FC = () => {
     }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration, isInitialized]);
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
-            navigate('/Login', {
-                state: {
-                    previousUrl: location.pathname,
-                }
-            });
-        } else {
-            setIsLoading(true);
-            getClientNames();
-        }
-        setIsLoading(false);
+        getClientNames();
     }, [userLoggedIn]);
 
     useEffect(() => {
@@ -108,6 +96,15 @@ const DataEntry: React.FC = () => {
     }, [timerCount, clearMessageStatus]);
 
     const getClientNames = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         const url = process.env.REACT_APP_Backend_URL + '/aba/getAllClientInfo';
         try {
             const response = await Axios.post(url, { "employeeUsername": loggedInUser });
@@ -125,10 +122,20 @@ const DataEntry: React.FC = () => {
         } catch (error) {
             console.error(error);
         }
+        setIsLoading(false);
     };
 
     const getClientTargetBehaviors = async () => {
         if (selectedClientID === 0) return;
+
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
 
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientTargetBehavior';
         try {
@@ -149,10 +156,22 @@ const DataEntry: React.FC = () => {
         } catch (error) {
             console.error(error);
         }
+        finally {
+            setIsLoading(false);
+        }
     };
 
     const getClientSkillAquisitions = async () => {
         if (selectedClientID === 0) return;
+
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
 
         const url = process.env.REACT_APP_Backend_URL + '/aba/getClientSkillAquisition';
         try {
@@ -173,6 +192,7 @@ const DataEntry: React.FC = () => {
         } catch (error) {
             console.error(error);
         }
+        setIsLoading(false);
     };
 
     const handleTargetAMTChange = (input: number | React.ChangeEvent<HTMLInputElement>) => {
@@ -389,6 +409,14 @@ const DataEntry: React.FC = () => {
     
     const submitDataEntryForm = async () => {
         setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+
         try {
             if (activeTab === 'TargetBehavior') {
                 const url = process.env.REACT_APP_Backend_URL + '/aba/submitTargetBehavior';
@@ -405,7 +433,6 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
                 if (response.data.statusCode === 201) {
-                    setIsLoading(false);
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
@@ -415,7 +442,6 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    setIsLoading(false);
                     setStatusMessage(response.data.serverMessage);
                 }    
             }
@@ -427,7 +453,6 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
                 if (response.data.statusCode === 201) {
-                    setIsLoading(false);
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
@@ -437,12 +462,13 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    setIsLoading(false);
                     setStatusMessage(response.data.serverMessage);
                 }
             }    
         } catch (error) {
             console.error(error);
+        }
+        finally {
             setIsLoading(false);
         }
     }

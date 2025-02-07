@@ -48,17 +48,7 @@ const Graph: React.FC = () => {
     ];
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
-            navigate('/Login', {
-                state: {
-                    previousUrl: location.pathname,
-                }
-            });
-        } else {
-            setIsLoading(true);
-            checkSelectedId();
-            setIsLoading(false);
-        }
+        checkSelectedId();
     }, [userLoggedIn]);
 
     onkeydown = (e) => {
@@ -74,6 +64,15 @@ const Graph: React.FC = () => {
     };
 
     const checkSelectedId = () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         try {
             const selectedIDs: SelectedBehavior[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]'); // Specify the type here
             setSelectedData(selectedIDs);
@@ -87,9 +86,21 @@ const Graph: React.FC = () => {
         } catch (error) {
             setStatusMessage("Selected IDs are not found");
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     const getTargetData = async (bID: number) => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            navigate('/Login', {
+                state: {
+                    previousUrl: location.pathname,
+                }
+            });
+        }
+        
         const url = process.env.REACT_APP_Backend_URL + '/aba/getTargetBehavior';
 
         try {
@@ -106,6 +117,9 @@ const Graph: React.FC = () => {
         } catch (error) {
             console.error(error);
             return null;
+        }
+        finally {
+            setIsLoading(false);
         }
     };
 
