@@ -37,15 +37,7 @@ const Graph: React.FC = () => {
     const [behaviorNames, setBehaviorNames] = useState<Record<number, string>>({}); // New state for behavior names
     const [dateRangeLabel, setDateRangeLabel] = useState<string>("Last 7 Days"); // Default to 7 days
     const [dateRange, setDateRange] = useState<number>(7); // Default to 7 days
-    const dateRanges = [
-        { label: 'Last 7 Days', value: 7 },
-        { label: 'Last 2 Weeks', value: 14 },
-        { label: 'Last Month', value: 30 },
-        { label: 'Last 3 Months', value: 90 },
-        { label: 'Last 6 Months', value: 180 },
-        { label: 'Last 9 Months', value: 270 },
-        { label: 'Last Year', value: 365 }
-    ];
+    const dateRanges = [ { label: 'Last 7 Days', value: 7 }, { label: 'Last 2 Weeks', value: 14 }, { label: 'Last Month', value: 30 }, { label: 'Last 3 Months', value: 90 }, { label: 'Last 6 Months', value: 180 }, { label: 'Last 9 Months', value: 270 }, { label: 'Last Year', value: 365 } ];
 
     useEffect(() => {
         checkSelectedId();

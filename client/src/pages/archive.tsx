@@ -223,6 +223,12 @@ const Archive: React.FC = () => {
         navigate(-1);
     };
 
+    onkeydown = (e) => {
+        if (e.key === 'Escape') {
+            backButtonFuctionality();
+        }
+    }
+
     return (
         <>
         <Header />

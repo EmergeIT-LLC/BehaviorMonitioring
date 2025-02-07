@@ -43,18 +43,10 @@ const TargetBehavior: React.FC = () => {
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
-            navigate('/Login', {
-                state: {
-                    previousUrl: location.pathname,
-                }
-            });
-        } else {
-            setIsLoading(true);
-            sessionStorage.removeItem('clientID')
-            sessionStorage.removeItem('checkedBehaviors')
-            getClientNames();
-        }
+        sessionStorage.removeItem('clientID');
+        sessionStorage.removeItem('checkedBehaviors');
+        sessionStorage.removeItem('behaviorID');
+        getClientNames();
     }, [userLoggedIn]);
 
     useEffect(() => {
@@ -210,7 +202,9 @@ const TargetBehavior: React.FC = () => {
     }
 
     const openBehaviorDetail = (id: string | number) => {
-        navigate(`/TargetBehavior/Detail/${id}`);
+        sessionStorage.setItem('clientID', String(selectedClientID));
+        sessionStorage.setItem('behaviorID', String(id));
+        navigate(`/TargetBehavior/Detail`);
     }
 
     const graphBehaviorCall = (index: number | string, name: string) => {

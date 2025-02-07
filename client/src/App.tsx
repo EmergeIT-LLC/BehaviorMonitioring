@@ -16,6 +16,7 @@ import DataEntry from './pages/dataentry';
 import Pagenotfound from './pages/pagenotfound';
 import Graph from './pages/graph';
 import Archive from './pages/archive';
+import TargetbehaviorDetails from './pages/targetbehavior_details';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path = "/TargetBehavior/Add" element = {<AddTargetBehavior />} Component={AddTargetBehavior} />
           <Route path = "/TargetBehavior/Graph" element = {<Graph />} Component={Graph} />
           <Route path = "/TargetBehavior/Archive" element = {<Archive />} Component={Archive}/>
+          <Route path="/TargetBehavior/Detail" element={<TargetbehaviorDetails />} Component={TargetbehaviorDetails} />
           {/* <Route path = "/SkillAquisition" element = {<SkillAquisition />} Component={SkillAquisition}/> */}
           {/* <Route path = "/SkillAquisition-Add" element = {<AddSkillAquisition />} Component={AddSkillAquisition} /> */}
           <Route path = "/DataEntry" element = {<DataEntry />} Component={DataEntry}/>
