@@ -363,6 +363,42 @@ router.post('/getClientTargetBehavior', async (req, res) => {
     }
 });
 
+router.post('/getAClientTargetBehavior', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const bsID = req.body.behaviorID;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID)) {
+                    const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior');
+
+                    if (behaviorSkillData.length > 0){
+                        return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
+                    }
+                    else {
+                        return res.json({ statusCode: 500, serverMessage: 'Unable to locate client data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, clientAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
 router.post('/getArchivedBehavior', async (req, res) => {
     try {
         const cID = req.body.clientID;

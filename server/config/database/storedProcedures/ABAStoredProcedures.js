@@ -110,6 +110,18 @@ async function abaGetBehaviorOrSkill(cID, BorS) {
     });
 }
 
+async function abaGetABehaviorOrSkill(cID, bsID, BorS) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and status = ?', [cID, bsID, BorS, "Active"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
 async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
         db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
@@ -312,6 +324,7 @@ module.exports = {
     abaGetAllClientData,
     behaviorSkillExistByID,
     abaGetBehaviorDataById,
+    abaGetABehaviorOrSkill,
     abaAddBehaviorOrSkill,
     abaUpdateBehaviorOrSkill,
     abaGetBehaviorOrSkill,

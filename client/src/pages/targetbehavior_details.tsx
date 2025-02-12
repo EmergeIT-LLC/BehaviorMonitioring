@@ -22,10 +22,13 @@ const TargetbehaviorDetails: React.FC = () => {
         const loggedInUser = GetLoggedInUser();
         const cookieIsValid = isCookieValid();
         const clientID = sessionStorage.getItem('clientID');
+        const clientName = sessionStorage.getItem('clientName');
         const bID = sessionStorage.getItem('behaviorID');
         const [isLoading, setIsLoading] = useState<boolean>(false);
         const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-        const [targetBehaviorData, setTargetBehaviorData] = useState<[]>([]);
+        const [behaviorBase, setBehaviorBase] = useState<{  name: string; definition?: string; dateCreated?: string; measurement?: string; behaviorCat?: string; dataToday?: number; clientName: string; }[]>([]);
+        const [targetBehaviorData, setTargetBehaviorData] = useState<{ clientName: string; sessionDate: string; sessionTime: string; count: string | number; duration: string | number; trial: string; entered_by: string; date_entered: string; time_entered: string; }[]>([]);
+        const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
         const [activeMenu, setActiveMenu] = useState<number | null>(null);
         const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
         const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
@@ -37,12 +40,17 @@ const TargetbehaviorDetails: React.FC = () => {
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
         useEffect(() => {
-            if ((sessionStorage.getItem('clientID') === null && clientID === null) || (sessionStorage.getItem('behaviorID') === null && bID === null)) {
+            if ((sessionStorage.getItem('clientID') === null && clientID === null) 
+                || (sessionStorage.getItem('behaviorID') === null && bID === null)
+                || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
+                || (sessionStorage.getItem('behaviorID') === undefined && bID === undefined)
+            ) {
                 navigate('/TargetBehavior');
             }
 
             sessionStorage.removeItem('clientID');
             sessionStorage.removeItem('behaviorID');
+            getClientTargetBehaviorBaseData();
             getClientTargetBehaviorData();
         }, [userLoggedIn]);
 
@@ -55,6 +63,39 @@ const TargetbehaviorDetails: React.FC = () => {
         const backButtonFuctionality = () => {
             navigate(-1);
         };
+
+        const getClientTargetBehaviorBaseData = async () => {
+            setIsLoading(true);
+            if (!userLoggedIn || !cookieIsValid) {
+                navigate('/Login', {
+                    state: {
+                        previousUrl: location.pathname,
+                    }
+                });
+            }
+
+            const url = process.env.REACT_APP_Backend_URL + '/aba/getAClientTargetBehavior';
+
+            try {
+                const response = await Axios.post(url, {
+                    "clientID": clientID,
+                    "behaviorID": bID,
+                    "employeeUsername": loggedInUser
+                });
+                if (response.data.statusCode === 200) {
+                    setBehaviorBase(response.data.behaviorSkillData);
+                } else {
+                    setStatusMessage(response.data.serverMessage);
+                }    
+
+                console.log(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+            finally {
+                setIsLoading(false);
+            }
+        }
 
         const getClientTargetBehaviorData = async () => {
             setIsLoading(true);
@@ -76,6 +117,7 @@ const TargetbehaviorDetails: React.FC = () => {
                 });
                 if (response.data.statusCode === 200) {
                     setTargetBehaviorData(response.data.behaviorSkillData);
+
                 } else {
                     setStatusMessage(response.data.serverMessage);
                 }    
@@ -102,26 +144,34 @@ const TargetbehaviorDetails: React.FC = () => {
                                 </div>
                                 <div className={componentStyles.innerBlock}>
                                     <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-                                    <table className={componentStyles.tbHRSTable}>
+                                    { behaviorBase.length > 0 &&
+                                        <div className={componentStyles.tbHeaderDetails}>
+                                            <p><b>Client Name</b>: {behaviorBase[0].clientName}</p>
+                                            <p><b>Behavior Name</b>: {behaviorBase[0].name} </p>
+                                            <p><b>Measurement</b>: {behaviorBase[0].measurement}</p>
+                                            <p><b>Definition</b>: {behaviorBase[0].definition} </p>
+                                        </div>
+                                    }
+                                    <table className={componentStyles.tbHRSDetailTable}>
                                         <thead>
                                             <tr>
-                                                <th>Behavior Name</th>
-                                                <th>Definition</th>
-                                                <th>Measurement</th>
-                                                <th>Data Today</th>
-                                                <th>Graph</th>
-                                                <th>More Options</th>
+                                                <th>Count</th>
+                                                <th>Duration</th>
+                                                {/* <th>Trial</th> */}
+                                                <th>Session Date</th>
+                                                <th>Session Time</th>
+                                                <th>Entered By</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {targetBehaviorData.map((option, index) => (
                                                 <tr key={index}>
-                                                    <td onClick={() => openBehaviorDetail(option.value)}><div>{option.label}</div></td>
-                                                    <td onClick={() => openBehaviorDetail(option.value)}><div>{option.definition}</div></td>
-                                                    <td onClick={() => openBehaviorDetail(option.value)}><div>{option.measurementType}</div></td>
-                                                    <td onClick={() => openBehaviorDetail(option.value)}><div>0</div></td>
-                                                    <td><div><Button nameOfClass='tbHRSGraphButton' placeholder='Graph' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); graphBehaviorCall(option.value, option.label)}}/></div></td>
-                                                    <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
+                                                    <td><div>{option.count}</div></td>
+                                                    <td><div>{option.duration}</div></td>
+                                                    {/* <td><div>{option.trial}</div></td> */}
+                                                    <td><div>{option.sessionDate}</div></td>
+                                                    <td><div>{option.sessionTime}</div></td>
+                                                    <td><div>{option.entered_by}</div></td>
                                                 </tr>
                                             ))}
                                         </tbody>
