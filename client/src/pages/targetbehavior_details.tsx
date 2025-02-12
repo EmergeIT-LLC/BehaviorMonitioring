@@ -38,6 +38,10 @@ const TargetbehaviorDetails: React.FC = () => {
         const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
         const [timerCount, setTimerCount] = useState<number>(0);
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
+        const [currentPage, setCurrentPage] = useState(1);
+        const itemsPerPage = 10; // Number of items per page
+        const totalPages = Math.ceil(targetBehaviorData.length / itemsPerPage);
+        const paginatedData = targetBehaviorData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
         useEffect(() => {
             if ((sessionStorage.getItem('clientID') === null && clientID === null) 
@@ -116,7 +120,7 @@ const TargetbehaviorDetails: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
                 if (response.data.statusCode === 200) {
-                    setTargetBehaviorData(response.data.behaviorSkillData);
+                    setTargetBehaviorData(response.data.behaviorSkillData.reverse());
 
                 } else {
                     setStatusMessage(response.data.serverMessage);
@@ -128,6 +132,11 @@ const TargetbehaviorDetails: React.FC = () => {
                 setIsLoading(false);
             }
         }
+
+        // Function to handle page change
+        const handlePageChange = (page: number) => {
+            setCurrentPage(page);
+        };
 
     return (
         <>
@@ -164,7 +173,7 @@ const TargetbehaviorDetails: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {targetBehaviorData.map((option, index) => (
+                                            {paginatedData.map((option, index) => (
                                                 <tr key={index}>
                                                     <td><div>{option.count}</div></td>
                                                     <td><div>{option.duration}</div></td>
@@ -176,6 +185,17 @@ const TargetbehaviorDetails: React.FC = () => {
                                             ))}
                                         </tbody>
                                     </table>
+                                    <div className={componentStyles.pagination}>
+                                        {Array.from({ length: totalPages }, (_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => handlePageChange(index + 1)}
+                                                disabled={currentPage === index + 1}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         }
