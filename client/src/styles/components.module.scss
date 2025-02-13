@@ -914,6 +914,34 @@
                 margin: 1em;
             }
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1em auto;
+            width: 95%;
+            background-color: $color3;
+            padding: 1em;
+            border: .012em solid $color5;
+
+            button {
+                background-color: transparent;
+                border: none;
+                color: $color6;
+                width: 1.5em;
+                margin: 0 1em;
+                font-size: 1em;
+                font-weight: bold;
+            }
+        
+            button:hover {
+                background-color: $color1;
+                color: $buttonHover-font-color;
+                border-color: $color5;
+                cursor: pointer;
+            }
+        }
     }
               
     .dataEntryContainer {

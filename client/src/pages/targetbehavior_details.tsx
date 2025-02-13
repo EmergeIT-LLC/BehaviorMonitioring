@@ -39,7 +39,7 @@ const TargetbehaviorDetails: React.FC = () => {
         const [timerCount, setTimerCount] = useState<number>(0);
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
         const [currentPage, setCurrentPage] = useState(1);
-        const itemsPerPage = 10; // Number of items per page
+        const itemsPerPage = 25; // Number of items per page
         const totalPages = Math.ceil(targetBehaviorData.length / itemsPerPage);
         const paginatedData = targetBehaviorData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -133,6 +133,36 @@ const TargetbehaviorDetails: React.FC = () => {
             }
         }
 
+        const getPageNumbers = () => {
+            const totalNumbers = 5; // Number of page buttons to show
+            const totalBlocks = totalNumbers + 2; // Including the ellipses
+        
+            if (totalPages > totalBlocks) {
+                const startPage = Math.max(2, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, currentPage + 2);
+                let pages = [];
+        
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+        
+                if (currentPage > 3) {
+                    pages.unshift('...');
+                }
+        
+                if (currentPage < totalPages - 2) {
+                    pages.push('...');
+                }
+        
+                pages.unshift(1);
+                pages.push(totalPages);
+        
+                return pages;
+            }
+        
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        };
+
         // Function to handle page change
         const handlePageChange = (page: number) => {
             setCurrentPage(page);
@@ -186,15 +216,7 @@ const TargetbehaviorDetails: React.FC = () => {
                                         </tbody>
                                     </table>
                                     <div className={componentStyles.pagination}>
-                                        {Array.from({ length: totalPages }, (_, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => handlePageChange(index + 1)}
-                                                disabled={currentPage === index + 1}
-                                            >
-                                                {index + 1}
-                                            </button>
-                                        ))}
+                                        {getPageNumbers().map((page, index) => (<button key={index} onClick={() => typeof page === 'number' && handlePageChange(page)} disabled={currentPage === page}> {page} </button>))}
                                     </div>
                                 </div>
                             </div>
