@@ -231,7 +231,9 @@ const TargetbehaviorDetails: React.FC = () => {
                                         </tbody>
                                     </table>
                                     <div className={componentStyles.pagination}>
-                                        {getPageNumbers().map((page, index) => (<button key={index} onClick={() => typeof page === 'number' && handlePageChange(page)} disabled={currentPage === page}> {page} </button>))}
+                                        <Button nameOfClass='paginationLeftButton' placeholder='&lt;' btnType='button' onClick={() => handlePageChange(currentPage - 1)} disabled = {currentPage <= 1}/>
+                                        {getPageNumbers().map((page, index) => (<button key={index} onClick={() => typeof page === 'number' && handlePageChange(page)} className={`${componentStyles.paginationButton} ${currentPage === page ? componentStyles.active : ''}`} disabled={currentPage === page}> {page} </button>))}
+                                        <Button nameOfClass='paginationRightButton' placeholder='&gt;' btnType='button' onClick={() => handlePageChange(currentPage + 1)} disabled = {currentPage >= totalPages}/>
                                     </div>
                                 </div>
                             </div>

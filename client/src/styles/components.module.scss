@@ -935,6 +935,12 @@
                 cursor: pointer;
             }
         }
+
+        .paginationButton.active {
+            background-color: $color2;
+            color: $buttonHover-font-color;
+            border-color: $color5;
+        }
     }
               
     .dataEntryContainer {
