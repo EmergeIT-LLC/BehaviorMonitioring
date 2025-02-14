@@ -37,7 +37,6 @@ const TargetbehaviorDetails: React.FC = () => {
         const [timerCount, setTimerCount] = useState<number>(0);
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
         const [headers, setHeaders] = useState<JSX.Element[]>([]);
-        const [cells, setCells] = useState<JSX.Element[]>([]);
         const [currentPage, setCurrentPage] = useState(1);
         const itemsPerPage = 25; // Number of items per page
         const totalPages = Math.ceil(targetBehaviorData.length / itemsPerPage);
