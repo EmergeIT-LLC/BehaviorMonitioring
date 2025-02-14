@@ -28,16 +28,16 @@ const TargetbehaviorDetails: React.FC = () => {
         const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
         const [behaviorBase, setBehaviorBase] = useState<{  name: string; definition?: string; dateCreated?: string; measurement?: string; behaviorCat?: string; dataToday?: number; clientName: string; }[]>([]);
         const [targetBehaviorData, setTargetBehaviorData] = useState<{ clientName: string; sessionDate: string; sessionTime: string; count: string | number; duration: string | number; trial: string; entered_by: string; date_entered: string; time_entered: string; }[]>([]);
-        const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
         const [activeMenu, setActiveMenu] = useState<number | null>(null);
         const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
         const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
         const [mergeBehaviorList, setMergeBehaviorList] = useState<{ id: string; name: string }[]>([]);
         const [popupAction, setPopupAction] = useState<string>('');
-        const [behaviorNameToActOn, setBehaviorNameToActOn] = useState<string>('');
-        const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
+        const [dataIdToActOn, setDataIdToActOn] = useState<string>('');
         const [timerCount, setTimerCount] = useState<number>(0);
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
+        const [headers, setHeaders] = useState<JSX.Element[]>([]);
+        const [cells, setCells] = useState<JSX.Element[]>([]);
         const [currentPage, setCurrentPage] = useState(1);
         const itemsPerPage = 25; // Number of items per page
         const totalPages = Math.ceil(targetBehaviorData.length / itemsPerPage);
@@ -88,6 +88,7 @@ const TargetbehaviorDetails: React.FC = () => {
                 });
                 if (response.data.statusCode === 200) {
                     setBehaviorBase(response.data.behaviorSkillData);
+                    generateTargetTableHeaders(response.data.behaviorSkillData[0].measurement);
                 } else {
                     setStatusMessage(response.data.serverMessage);
                 }    
@@ -132,6 +133,34 @@ const TargetbehaviorDetails: React.FC = () => {
                 setIsLoading(false);
             }
         }
+
+        const generateTargetTableHeaders = (measurement: string) => {
+            const headers: JSX.Element[] = [];
+            if (measurement === 'Frequency' || measurement === 'Rate') {
+                headers.push(<th key="count">Count:</th>);
+            }
+            if (measurement === 'Duration' || measurement === 'Rate') {
+                headers.push(<th key="duration">Duration:</th>);
+            }
+
+            headers.push(<th key="sessionDate">Session Date</th>)
+            headers.push(<th key="sessionTime">Session Time</th>);
+            headers.push(<th key='enteredBy'>Entered By</th>);
+
+            setHeaders(headers);
+        }
+
+        const generateTargetTableData = (measurement: string) => {
+            return paginatedData.map((data, index) => (
+                <tr key={index}>
+                    {measurement === 'Frequency' || measurement === 'Rate' ? <td><div>{data.count}</div></td> : null}
+                    {measurement === 'Duration' || measurement === 'Rate' ? <td><div>{data.duration}</div></td> : null}
+                    <td><div>{data.sessionDate}</div></td>
+                    <td><div>{data.sessionTime}</div></td>
+                    <td><div>{data.entered_by}</div></td>
+                </tr>
+            ));
+        };
 
         const getPageNumbers = () => {
             const totalNumbers = 5; // Number of page buttons to show
@@ -194,25 +223,11 @@ const TargetbehaviorDetails: React.FC = () => {
                                     <table className={componentStyles.tbHRSDetailTable}>
                                         <thead>
                                             <tr>
-                                                <th>Count</th>
-                                                <th>Duration</th>
-                                                {/* <th>Trial</th> */}
-                                                <th>Session Date</th>
-                                                <th>Session Time</th>
-                                                <th>Entered By</th>
+                                                {headers}
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {paginatedData.map((option, index) => (
-                                                <tr key={index}>
-                                                    <td><div>{option.count}</div></td>
-                                                    <td><div>{option.duration}</div></td>
-                                                    {/* <td><div>{option.trial}</div></td> */}
-                                                    <td><div>{option.sessionDate}</div></td>
-                                                    <td><div>{option.sessionTime}</div></td>
-                                                    <td><div>{option.entered_by}</div></td>
-                                                </tr>
-                                            ))}
+                                            {behaviorBase.length > 0 && generateTargetTableData(String(behaviorBase[0].measurement))}
                                         </tbody>
                                     </table>
                                     <div className={componentStyles.pagination}>

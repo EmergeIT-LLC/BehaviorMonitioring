@@ -715,13 +715,6 @@
             tr:not(:last-child) td {
                 border-bottom: .012em solid black;
             }
-
-            //Row hover settings
-            tr:hover td{
-                background-color: $color2;
-                color: $color5;
-                cursor: pointer;
-            }
             
             th {
                 margin: 0; 
@@ -923,7 +916,7 @@
             width: 95%;
             background-color: $color3;
             padding: 1em;
-            border: .012em solid $color5;
+            border: none;
 
             button {
                 background-color: transparent;
