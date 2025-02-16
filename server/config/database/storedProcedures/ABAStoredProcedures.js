@@ -160,11 +160,23 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
 
 async function abaGetBehaviorDataById(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
                 resolve(rows); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaFoundBehaviorDataById(cID, bsID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows.length > 0); // Resolve with true if new user is added, false otherwise
             }
         });
     });
@@ -194,6 +206,30 @@ async function abaDeleteBehaviorDataByID(cID, bsID) {
     });
 }
 
+async function abaGetBehaviorDataByBehaviorId(cID, bsID, bdID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Active"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows.length > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteBehaviorDataByBehaviorID(cID, bsID, bdID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ?', [bsID, bdID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
 async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     return new Promise((resolve, reject) => {
         db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
@@ -208,7 +244,7 @@ async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
 
 async function abaArchiveBehaviorDataByID(newStatus, cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorData SET status = ? WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -270,7 +306,7 @@ async function abaReactivateBehaviorOrSkillByID(cID, bsID, dateArchived, dateToD
 
 async function abaGetArchivedBehaviorDataById(cID, bsID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Archived"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Archived"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -316,6 +352,42 @@ async function abaDeleteArchivedBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
+async function abaGetAArchivedBehaviorOrSkill(cID, bsID, BorS) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and status = ?', [cID, bsID, BorS, "Archived"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+async function abaGetArchivedBehaviorDataByBehaviorId(cID, bsID, bdID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Archived"], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows.length > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Archived"], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
 module.exports = {
     abaClientExistByID,
     abaAddClientData,
@@ -324,6 +396,7 @@ module.exports = {
     abaGetAllClientData,
     behaviorSkillExistByID,
     abaGetBehaviorDataById,
+    abaFoundBehaviorDataById,
     abaGetABehaviorOrSkill,
     abaAddBehaviorOrSkill,
     abaUpdateBehaviorOrSkill,
@@ -334,6 +407,8 @@ module.exports = {
     abaMergeBehaviorDataById,
     abaDeleteBehaviorDataByID,
     abaDeleteBehaviorOrSkillByID,
+    abaGetBehaviorDataByBehaviorId,
+    abaDeleteBehaviorDataByBehaviorID,
     archiveBehaviorSkillExistByID,
     abaArchiveBehaviorDataByID,
     abaReactivateBehaviorOrSkillByID,
@@ -342,5 +417,8 @@ module.exports = {
     abaGetArchivedBehaviorDataById,
     abaGetArchivedBehaviorOrSkill,
     abaDeleteArchivedBehaviorDataByID,
-    abaDeleteArchivedBehaviorOrSkillByID
+    abaDeleteArchivedBehaviorOrSkillByID,
+    abaGetArchivedBehaviorDataByBehaviorId,
+    abaGetAArchivedBehaviorOrSkill,
+    abaDeleteArchivedBehaviorDataByBehaviorID
 }

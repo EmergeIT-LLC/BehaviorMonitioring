@@ -736,11 +736,12 @@
                         width: 100%;
                         border: none;
                         background-color: $color2;
+                        color: $color5;
                     }
 
                     button:hover {
-                        background-color: $color3;
-                        color: $color6;
+                        background-color: $color1;
+                        color: $color5;
                     }
                 }
             }

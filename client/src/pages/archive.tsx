@@ -140,7 +140,9 @@ const Archive: React.FC = () => {
     };
 
     const openBehaviorDetail = (id: string | number) => {
-        navigate(`/TargetBehavior/Detail/${id}`);
+        sessionStorage.setItem('clientID', String(selectedClientID));
+        sessionStorage.setItem('archivedBehaviorID', String(id));
+        navigate(`/TargetBehavior/Archive/Detail`);
     }
     
     const openPopout = (action: string, behaviorId: string, behaviorName: string) => {

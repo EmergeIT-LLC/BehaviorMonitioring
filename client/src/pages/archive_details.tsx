@@ -9,9 +9,9 @@ import Axios from 'axios';
 import Button from '../components/Button';
 import PopoutPrompt from '../components/PopoutPrompt';
 
-const TargetbehaviorDetails: React.FC = () => {
+const ArchiveDetails: React.FC = () => {
     useEffect(() => {
-        document.title = "Target Behavior Details - Behavior Monitoring";
+        document.title = "Archived Behavior Details - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -20,7 +20,7 @@ const TargetbehaviorDetails: React.FC = () => {
     const loggedInUser = GetLoggedInUser();
     const cookieIsValid = isCookieValid();
     const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [bID, setBID] = useState<string | null>(sessionStorage.getItem('behaviorID'));
+    const [bID, setBID] = useState<string | null>(sessionStorage.getItem('archivedBehaviorID'));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [behaviorBase, setBehaviorBase] = useState<{  bsID: string | number; name: string; definition?: string; dateCreated?: string; measurement?: string; behaviorCat?: string; dataToday?: number; clientName: string; clientID: string | number; }[]>([]);
@@ -38,16 +38,16 @@ const TargetbehaviorDetails: React.FC = () => {
 
     useEffect(() => {
         if ((sessionStorage.getItem('clientID') === null && clientID === null) 
-            || (sessionStorage.getItem('behaviorID') === null && bID === null)
+            || (sessionStorage.getItem('archivedBehaviorID') === null && bID === null)
             || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
-            || (sessionStorage.getItem('behaviorID') === undefined && bID === undefined)
+            || (sessionStorage.getItem('archivedBehaviorID') === undefined && bID === undefined)
         ) {
             navigate('/TargetBehavior');
         }
 
         sessionStorage.removeItem('clientID');
-        sessionStorage.removeItem('behaviorID');
-        getClientTargetBehaviorBaseData();
+        sessionStorage.removeItem('archivedBehaviorID');
+        getClientArchivedBehaviorBaseData();
         getClientTargetBehaviorData();
     }, [userLoggedIn]);
 
@@ -72,7 +72,7 @@ const TargetbehaviorDetails: React.FC = () => {
         navigate(-1);
     };
 
-    const getClientTargetBehaviorBaseData = async () => {
+    const getClientArchivedBehaviorBaseData = async () => {
         setIsLoading(true);
         setBehaviorBase([]);
         if (!userLoggedIn || !cookieIsValid) {
@@ -83,7 +83,7 @@ const TargetbehaviorDetails: React.FC = () => {
             });
         }
 
-        const url = process.env.REACT_APP_Backend_URL + '/aba/getAClientTargetBehavior';
+        const url = process.env.REACT_APP_Backend_URL + '/aba/getAClientArchivedBehavior';
 
         try {
             const response = await Axios.post(url, {
@@ -98,7 +98,7 @@ const TargetbehaviorDetails: React.FC = () => {
                 setStatusMessage(response.data.serverMessage);
             }    
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
         finally {
             setIsLoading(false);
@@ -116,7 +116,7 @@ const TargetbehaviorDetails: React.FC = () => {
             });
         }
 
-        const url = process.env.REACT_APP_Backend_URL + '/aba/getTargetBehavior';
+        const url = process.env.REACT_APP_Backend_URL + '/aba/getAArchivedBehaviorData';
 
         try {
             const response = await Axios.post(url, {
@@ -130,7 +130,7 @@ const TargetbehaviorDetails: React.FC = () => {
                 setStatusMessage(response.data.serverMessage);
             }    
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
         finally {
             setIsLoading(false);
@@ -195,13 +195,13 @@ const TargetbehaviorDetails: React.FC = () => {
         }
         
         try {
-            const url = process.env.REACT_APP_Backend_URL + '/aba/deleteBehaviorData';
+            const url = process.env.REACT_APP_Backend_URL + '/aba/deleteArchivedBehaviorData';
             const response = await Axios.post(url, { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorDataId}" has been deleted successfully.`);
                 setClientID(String(behaviorBase[0].clientID));
                 setBID(String(behaviorBase[0].bsID));
-                await getClientTargetBehaviorBaseData();
+                await getClientArchivedBehaviorBaseData();
                 await getClientTargetBehaviorData();           
                 setTimerCount(3);
                 setClearMessageStatus(true);  
@@ -301,4 +301,4 @@ const TargetbehaviorDetails: React.FC = () => {
     );
 }
 
-export default TargetbehaviorDetails;
+export default ArchiveDetails;
