@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
+import companyLogo from '../Images/BMetrics-logo-removebg.png';
 import farBars from '../Images/naviconrww752.png';
 import Link from '../components/Link';
 import Button from './Button';
@@ -67,7 +68,7 @@ const Header: React.FC = () => {
 
     return (
         <div className={componentStyles.headerBody}>
-            {/* <a href='/'><img src={companyLogo} alt ="EmergeIT Logo" /></a> */}
+            <a href='/'><img src={companyLogo} alt ="BMetrics Logo" /></a>
             <h1 className={componentStyles.companyName}>BMetrics <span className={componentStyles.trade}>&trade;</span></h1>
             <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
             <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' onClick={routeChange}/>

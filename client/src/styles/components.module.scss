@@ -17,8 +17,9 @@
     a > img {
         float: left;
         display: flex;
-        height: 6em;
-        margin: 0em -7em 0em 2em;
+        height: 4em;
+        margin: 0 -7.5em 0em 1.5em;
+        transform: translateY(30%);
     }
 
     .companyName {
@@ -1059,6 +1060,7 @@
     .loadingBody {
         .loadingBodyForm {
             .lgLogo {
+                background-image: url('../Images/BMetrics-logo-removebg.png');
                 display: block;
                 margin: 3em auto;
                 background-repeat: no-repeat;
