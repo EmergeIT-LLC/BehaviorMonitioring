@@ -39,7 +39,7 @@
         float: right;
         display: flex;
         text-decoration: none;
-        background-color: $color7;
+        background-color: $button-background-color;
         color: $button-font-color;
         font-size: 1em;
         font-weight: bold;
@@ -49,7 +49,7 @@
     }
 
     button:hover {
-        background-color: $color1;
+        background-color: $button-background-color-hover;
         color: $buttonHover-font-color;
         border-color: $color6;
     }
@@ -83,7 +83,7 @@
 
                 a:hover {
                     color: $navHover-font-color;
-                    background-color: $color1;
+                    background-color: $nav-background-color-hover;
                 }
             }
         }
@@ -97,11 +97,16 @@
     @media (max-width: 950px) {
         width: 100%;
 
+        button {
+            display: none;
+        }
+
         a > img {
             float: left;
             display: flex;
             height: 4em;
-            margin: 1em -7em 0em 1em;
+            margin: 0 -7.5em 0em 1.5em;
+            transform: translateY(30%);
         }
 
         nav {
@@ -116,7 +121,8 @@
             float: right;
             display: flex;
             height: 3em;
-            margin: 1em 1em 0 -5em;
+            margin: 0.75em 1em 0 -5em;
+            transform: translateY(30%);
         }
 
         .mobileNav {
@@ -357,7 +363,7 @@
     }
 
     form {
-        background-color: $color4;
+        background-color: $form-background;
         margin: 0 auto;
         width: 75%;
         border: .012em solid $color6;
@@ -376,7 +382,7 @@
     }
 
     .bodyBlock {
-        background-color: $color4;
+        background-color: $form-background;
         margin: 0 auto;
         width: 90%;
         border: .012em solid $color6;
