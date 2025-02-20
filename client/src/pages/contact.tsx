@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
     const [reload, setReload] = useState<boolean>(false);
 
     useEffect(() => {
-        document.title = "Contact - Behavior Monitoring";
+        document.title = "Contact - BMetrics";
     }, []);
 
 

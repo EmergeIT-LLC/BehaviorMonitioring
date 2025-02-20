@@ -13,7 +13,7 @@ import Axios from 'axios';
 
 const Login: React.FC = () => {
     useEffect(() => {
-        document.title = "Login - Behavior Monitoring";
+        document.title = "Login - BMetrics";
     }, []);
 
     const navigate = useNavigate();

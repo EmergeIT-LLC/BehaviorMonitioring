@@ -9,7 +9,7 @@ import Axios from 'axios';
 
 const SkillAquisition: React.FC = () => {
     useEffect(() => {
-        document.title = "Skills - Behavior Monitoring";
+        document.title = "Skills - BMetrics";
     }, []);
 
     const navigate = useNavigate();

@@ -17,7 +17,7 @@ interface SelectedBehavior {
 
 const Graph: React.FC = () => {
     useEffect(() => {
-        document.title = "Behavior Graph - Behavior Monitoring";
+        document.title = "Behavior Graph - BMetrics";
     }, []);
 
     const foundData = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');

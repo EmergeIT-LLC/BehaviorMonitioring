@@ -7,7 +7,7 @@ import Logo from '../Images/BMetrics-logo-removebg.png'
 
 const Pagenotfound: React.FC = () => {
     useEffect(() => {
-        document.title = "404 Page Not Found - Behavior Monitoring";
+        document.title = "404 Page Not Found - BMetrics";
     }, []);
   
     return (

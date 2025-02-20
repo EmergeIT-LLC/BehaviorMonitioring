@@ -14,7 +14,7 @@ import PopoutPrompt from '../components/PopoutPrompt';
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
-        document.title = "Behaviors - Behavior Monitoring";
+        document.title = "Behaviors - BMetrics";
     }, []);
 
     const navigate = useNavigate();

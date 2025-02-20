@@ -11,7 +11,7 @@ import PopoutPrompt from '../components/PopoutPrompt';
 
 const ArchiveDetails: React.FC = () => {
     useEffect(() => {
-        document.title = "Archived Behavior Details - Behavior Monitoring";
+        document.title = "Archived Behavior Details - BMetrics";
     }, []);
 
     const navigate = useNavigate();

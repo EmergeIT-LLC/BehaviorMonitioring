@@ -23,7 +23,7 @@ interface Behavior {
 
 const AddTargetBehavior: React.FC = () => {
     useEffect(() => {
-        document.title = "Add Behavior - Behavior Monitoring";
+        document.title = "Add Behavior - BMetrics";
     }, []);
 
     const navigate = useNavigate();

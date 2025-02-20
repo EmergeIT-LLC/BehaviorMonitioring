@@ -16,7 +16,7 @@ import Axios from 'axios';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {
-        document.title = activeTab + " Data Entry - Behavior Monitoring";
+        document.title = activeTab + " Data Entry - BMetrics";
 
         const storedData = sessionStorage.getItem('dataEntryState');
         if (storedData) {

@@ -10,7 +10,7 @@ import Axios from 'axios';
 
 const Admin: React.FC = () => {
     useEffect(() => {
-        document.title = "Admin Portal - Behavior Monitoring";
+        document.title = "Admin Portal - BMetrics";
     }, []);
 
     const navigate = useNavigate();

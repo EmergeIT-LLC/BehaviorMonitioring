@@ -10,7 +10,7 @@ import Axios from 'axios';
 
 const Logout: React.FC = () => {
     useEffect(() => {
-        document.title = "Logout - Behavior Monitoring";
+        document.title = "Logout - BMetrics";
         executeLogout();
     }, []);
 
