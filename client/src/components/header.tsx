@@ -21,8 +21,8 @@ const Header: React.FC = () => {
             setButtonLabel('Logout');
             const userLinks = [
                 <li key="home"><Link href='/' hrefType='link' placeholder="Home" /></li>,
-                <li key="targetBehavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Target Behavior" /></li>,
-                // <li key="skillAquisition"><Link href='/SkillAquisition' hrefType='link' placeholder="Skill Aquisition" /></li>,
+                <li key="behavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Behaviors" /></li>,
+                // <li key="skill"><Link href='/SkillAquisition' hrefType='link' placeholder="Skills" /></li>,
                 <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry" /></li>,
             ];
             if (userIsAdmin) {
