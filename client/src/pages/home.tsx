@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import InputFields from '../components/Inputfield';
 import Button from '../components/Button';
 import Loading from '../components/loading';
@@ -45,7 +44,6 @@ const Home: React.FC = () => {
                 }
             </main>
         </div>
-        <Footer />
     </>
   );
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, isCookieValid } from '../function/VerificationCheck';
@@ -10,7 +9,7 @@ import Axios from 'axios';
 
 const SkillAquisition: React.FC = () => {
     useEffect(() => {
-        document.title = "Skill Aquisition - Behavior Monitoring";
+        document.title = "Skills - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -48,7 +47,6 @@ const SkillAquisition: React.FC = () => {
                 }
             </main>
         </div>
-        <Footer />
     </>
   );
 }

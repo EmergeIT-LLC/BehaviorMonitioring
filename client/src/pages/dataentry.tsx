@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import { getCurrentDate, getCurrentTime } from '../function/DateTimes';
 import InputFields from '../components/Inputfield';
 import SelectDropdown from '../components/Selectdropdown';
@@ -17,7 +16,7 @@ import Axios from 'axios';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {
-        document.title = "Data Entry - Behavior Monitoring";
+        document.title = activeTab + " Data Entry - Behavior Monitoring";
 
         const storedData = sessionStorage.getItem('dataEntryState');
         if (storedData) {
@@ -47,7 +46,7 @@ const DataEntry: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [activeTab, setActiveTab] = useState<string>('TargetBehavior');
+    const [activeTab, setActiveTab] = useState<string>('Behavior');
     const [targetAmt, setTargetAmt] = useState<number>(1);
     const [skillAmt, setSkillAmt] = useState<number>(1);
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
@@ -149,7 +148,7 @@ const DataEntry: React.FC = () => {
                     label: behavior.name,
                     measurementType: behavior.measurement
                 }));
-                setTargetOptions([{ value: 'null', label: 'Select Target Behavior' }, ...fetchedOptions]);
+                setTargetOptions([{ value: 'null', label: 'Select A Behavior' }, ...fetchedOptions]);
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
@@ -185,7 +184,7 @@ const DataEntry: React.FC = () => {
                     label: behavior.name,
                     measurementType: behavior.measurement
                 }));
-                setSkillOptions([{ value: 'null', label: 'Select Skill Aquisition' }, ...fetchedOptions]);
+                setSkillOptions([{ value: 'null', label: 'Select A Skill' }, ...fetchedOptions]);
             } else {
                 setStatusMessage(response.data.serverMessage);
             }
@@ -230,7 +229,7 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'TargetBehavior' && isInitialized) {
+        if (activeTab === 'Behavior' && isInitialized) {
             setSelectedTargets(prev => {
                 const newTargets = Array(targetAmt).fill(''); // Initialize with empty strings instead of null
                 return newTargets.map((_, i) => prev[i] || '');
@@ -245,7 +244,7 @@ const DataEntry: React.FC = () => {
                 const newTimes = Array(targetAmt).fill(getCurrentTime());
                 return newTimes.map((_, i) => prev[i] || getCurrentTime());
             });
-        } else if (activeTab === 'SkillAquisition' && isInitialized) {
+        } else if (activeTab === 'Skill' && isInitialized) {
             setSelectedSkills(prev => {
                 const newSkills = Array(skillAmt).fill(''); // Initialize with empty strings instead of null
                 return newSkills.map((_, i) => prev[i] || '');
@@ -271,12 +270,12 @@ const DataEntry: React.FC = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'TargetBehavior') {
-            setTargetOptions([{ value: 'null', label: 'Select Target Behavior' }]);
+        if (activeTab === 'Behavior') {
+            setTargetOptions([{ value: 'null', label: 'Select A Behavior' }]);
             getClientTargetBehaviors();
         }
-        else if (activeTab === 'SkillAquisition') {
-            setSkillOptions([{ value: 'null', label: 'Select Skill Aquisition' }]);
+        else if (activeTab === 'Skill') {
+            setSkillOptions([{ value: 'null', label: 'Select A Skill' }]);
             getClientSkillAquisitions();
         }
     }, [selectedClientID]);    
@@ -364,7 +363,7 @@ const DataEntry: React.FC = () => {
     const renderTargetTableData = (index: number) => {
         const cells = [
             <td key={`remove-${index}`}><Button nameOfClass='tbRemoveButton' placeholder='Remove' btnType='button' onClick={() => removeEntry(index)}/></td>,
-            <td key={`target-${index}`}><SelectDropdown name={`TargetBehavior-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
+            <td key={`target-${index}`}><SelectDropdown name={`Target-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
             <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
             <td key={`time-${index}`}><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
         ];
@@ -418,7 +417,7 @@ const DataEntry: React.FC = () => {
         }
 
         try {
-            if (activeTab === 'TargetBehavior') {
+            if (activeTab === 'Behavior') {
                 const url = process.env.REACT_APP_Backend_URL + '/aba/submitTargetBehavior';
 
                 const response = await Axios.post(url, {
@@ -445,7 +444,7 @@ const DataEntry: React.FC = () => {
                     setStatusMessage(response.data.serverMessage);
                 }    
             }
-            else if (activeTab === 'SkillAquisition') {
+            else if (activeTab === 'Skill') {
                 const url = process.env.REACT_APP_Backend_URL + '/aba/submitSkillAquisition';
 
                 const response = await Axios.post(url, {
@@ -474,7 +473,7 @@ const DataEntry: React.FC = () => {
     }
 
     const removeEntry = (index: number) => {
-        if (activeTab === 'TargetBehavior') {
+        if (activeTab === 'Behavior') {
             const newSelectedTargets = [...selectedTargets];
             newSelectedTargets.splice(index, 1);
             setSelectedTargets(newSelectedTargets);
@@ -485,7 +484,7 @@ const DataEntry: React.FC = () => {
             handleTargetAMTChange(targetAmt - 1);
     
         }
-        else if (activeTab === 'SkillAquisition') {
+        else if (activeTab === 'Skill') {
             const newSelectedSkills = [...selectedSkills];
             newSelectedSkills.splice(index, 1);
             setSelectedSkills(newSelectedSkills);
@@ -502,22 +501,22 @@ const DataEntry: React.FC = () => {
                         <Loading />
                         :
                         <div className={componentStyles.bodyBlock}>
-                            <h1 className={componentStyles.pageHeader}>Data Entry</h1>
+                            <h1 className={componentStyles.pageHeader}>Data Entry for {activeTab}(s)</h1>
                             <div className={componentStyles.innerBlock}>
                                 {statusMessage && <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>}
                                 <ul className={componentStyles.innerTab}>
-                                    <li><Tab nameOfClass={activeTab === 'TargetBehavior' ? componentStyles.activeTab : ''} placeholder="Target Behavior" onClick={() => setActiveTab('TargetBehavior')}/></li>
-                                    {/* <li><Tab nameOfClass={activeTab === 'SkillAquisition' ? componentStyles.activeTab : ''} placeholder="Skill Aquisition" onClick={() => setActiveTab('SkillAquisition')}/></li> */}
+                                    <li><Tab nameOfClass={activeTab === 'Behavior' ? componentStyles.activeTab : ''} placeholder="Behavior" onClick={() => setActiveTab('Behavior')}/></li>
+                                    {/* <li><Tab nameOfClass={activeTab === 'Skill' ? componentStyles.activeTab : ''} placeholder="Skill" onClick={() => setActiveTab('Skill')}/></li> */}
                                 </ul>
 
                                 <div className={componentStyles.dataEntryContainer}>
-                                    {activeTab === 'TargetBehavior' && (
+                                    {activeTab === 'Behavior' && (
                                         <label className={componentStyles.dataEntryInputAMT}>
                                             Number of target:
                                             <InputFields name="targetAmtField" type="number" placeholder="1" requiring={true} value={targetAmt} onChange={handleTargetAMTChange} />
                                         </label>
                                     )}
-                                    {activeTab === 'SkillAquisition' && (
+                                    {activeTab === 'Skill' && (
                                             <label className={componentStyles.dataEntryInputAMT}>
                                                 Number of skill:
                                                 <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={skillAmt} onChange={handleSkillAMTChange} />
@@ -528,7 +527,7 @@ const DataEntry: React.FC = () => {
                                         <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
                                     </label>
                                 </div>
-                                {activeTab === 'TargetBehavior' && (
+                                {activeTab === 'Behavior' && (
                                     <table className={componentStyles.dataEntryTable}>
                                         <thead>
                                             <tr>
@@ -544,7 +543,7 @@ const DataEntry: React.FC = () => {
                                         </tbody>
                                     </table>
                                 )}
-                                {activeTab === 'SkillAquisition' && (
+                                {activeTab === 'Skill' && (
                                     <table className={componentStyles.dataEntryTable}>
                                     <thead>
                                         <tr>
@@ -562,7 +561,7 @@ const DataEntry: React.FC = () => {
                                     <tbody>
                                         {skillAmt > 0 && dates.map((date, index) =>
                                             <tr key={index}>
-                                                <td><SelectDropdown name={`SkillAquisition-${index}`} requiring={true} value={selectedSkills[index]} options={skillOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
+                                                <td><SelectDropdown name={`Skill-${index}`} requiring={true} value={selectedSkills[index]} options={skillOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
                                                 <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
                                                 <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
                                                 {selectedMeasurementTypes.includes('frequency') && (
@@ -579,7 +578,6 @@ const DataEntry: React.FC = () => {
                     }
                 </main>
             </div>
-            <Footer />
         </>
     );
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Loading from '../components/loading';
 import SelectDropdown from '../components/Selectdropdown';
 import Checkbox from '../components/Checkbox';
@@ -15,7 +14,7 @@ import PopoutPrompt from '../components/PopoutPrompt';
 
 const TargetBehavior: React.FC = () => {
     useEffect(() => {
-        document.title = "Target Behavior - Behavior Monitoring";
+        document.title = "Behaviors - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -399,7 +398,6 @@ const TargetBehavior: React.FC = () => {
                         <Loading/> 
                         :
                         <div className={componentStyles.bodyBlock}>
-                            <h1 className={componentStyles.pageHeader}>Target Behavior</h1>
                             <div className={componentStyles.tbHRSButtons}>
                                 <Button nameOfClass='tbHRSAddButton' placeholder='Add Behavior' btnType='button' isLoading={isLoading} onClick={addBehaviorDetail}/>
                                 <Link href='/TargetBehavior/Archive' hrefType='link' placeholder="Archived Behavior" />
@@ -455,7 +453,6 @@ const TargetBehavior: React.FC = () => {
                     }
                 </main>
             </div>
-            <Footer />
         </>
     );
 }

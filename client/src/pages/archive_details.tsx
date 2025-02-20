@@ -261,7 +261,7 @@ const ArchiveDetails: React.FC = () => {
                             <Loading /> 
                             :
                             <div className={componentStyles.bodyBlock}>
-                                <h1 className={componentStyles.pageHeader}>Target Behavior Details</h1>
+                                <h1 className={componentStyles.pageHeader}>Archived Behavior Details</h1>
                                 <div className={componentStyles.tbHRSButtons}>
                                     <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                                 </div>
@@ -296,7 +296,6 @@ const ArchiveDetails: React.FC = () => {
                         }
                     </main>
                 </div>
-            <Footer />
         </>
     );
 }

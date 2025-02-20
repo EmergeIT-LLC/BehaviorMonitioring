@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
@@ -11,7 +10,7 @@ import PopoutPrompt from '../components/PopoutPrompt';
 
 const TargetbehaviorDetails: React.FC = () => {
     useEffect(() => {
-        document.title = "Target Behavior Details - Behavior Monitoring";
+        document.title = "Behavior Details - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -261,7 +260,7 @@ const TargetbehaviorDetails: React.FC = () => {
                             <Loading /> 
                             :
                             <div className={componentStyles.bodyBlock}>
-                                <h1 className={componentStyles.pageHeader}>Target Behavior Details</h1>
+                                <h1 className={componentStyles.pageHeader}>Behavior Details</h1>
                                 <div className={componentStyles.tbHRSButtons}>
                                     <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                                 </div>
@@ -296,7 +295,6 @@ const TargetbehaviorDetails: React.FC = () => {
                         }
                     </main>
                 </div>
-            <Footer />
         </>
     );
 }

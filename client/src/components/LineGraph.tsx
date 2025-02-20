@@ -1,6 +1,6 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TooltipItem, LegendItem } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TooltipItem, LegendItem, Colors } from 'chart.js';
 import annotationPlugin, { AnnotationOptions } from 'chartjs-plugin-annotation';
 
 const backgroundPlugin = {
@@ -11,13 +11,11 @@ const backgroundPlugin = {
 
         if (ctx) {
             ctx.save();
-            ctx.fillStyle = 'white';
-            ctx.fillRect(
-                chartArea.left,
-                chartArea.top,
-                chartArea.right - chartArea.left,
-                chartArea.bottom - chartArea.top
-            );
+            if (ctx && chart.width !== null && chart.height !== null) {
+                ctx.save();
+                ctx.fillStyle = '#F1FCFD';
+                ctx.fillRect(0, 0, chart.width!, chart.height!); // Ensure full coverage
+            }
 
             // Draw background for title
             const titleOptions = chart.options.plugins?.title;
@@ -114,11 +112,13 @@ const LineGraph: React.FC<{ data: ChartData; average: number }> = ({ data, avera
                 position: 'bottom' as const,
                 labels: {
                     filter: (legendItem: LegendItem) => !legendItem.text.includes('Avg'),
+                    color: 'black',
                 },
             },
             title: { 
                 display: true, 
-                text: data.title 
+                text: data.title,
+                color: 'black'
             },
             annotation: {
                 annotations,
@@ -142,12 +142,26 @@ const LineGraph: React.FC<{ data: ChartData; average: number }> = ({ data, avera
                 title: {
                     display: true,
                     text: data.measurementType,
+                    color: 'black',
                 },
+                ticks: {
+                    color: 'black',
+                },
+                grid: {
+                    color: 'gray',
+                }
             },
             x: {
                 title: {
                     display: true,
                     text: 'Date',
+                    color: 'black',
+                },
+                ticks: {
+                    color: 'black',
+                },
+                grid: {
+                    color: 'gray',
                 },
             },
         },

@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Loading from '../components/loading';
 import SelectDropdown from '../components/Selectdropdown';
-import Link from '../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
 import Button from '../components/Button';
@@ -278,7 +276,6 @@ const Archive: React.FC = () => {
                 }
             </main>
         </div>
-        <Footer />
         </>
     );
 }

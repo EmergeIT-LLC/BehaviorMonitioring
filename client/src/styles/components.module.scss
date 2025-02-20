@@ -277,7 +277,7 @@
 
     input::placeholder {
         text-align: center;
-        color: $color4;
+        color: $color1;
         font-weight: bold;
     }
 
@@ -406,7 +406,7 @@
 
             button {
                 display: inline;
-                background-color: $color7;
+                background-color: $button-background-color;
                 color: $button-font-color;
                 border: 0.15em solid $color1;
                 width: 8em;
@@ -416,7 +416,7 @@
             }
         
             button:hover {
-                background-color: $color1;
+                background-color: $button-background-color-hover;
                 color: $buttonHover-font-color;
                 border-color: $color6;
                 cursor: pointer;
@@ -428,7 +428,7 @@
 
             a {
                 display: inline;
-                background-color: $color7;
+                background-color: $nav-background-page-color;
                 color: $button-font-color;
                 border: 0.15em solid $color1;
                 width: 10em;
@@ -441,7 +441,7 @@
             }
         
             a:hover {
-                background-color: $color1;
+                background-color: $nav-background-page-color-hover;
                 color: $buttonHover-font-color;
                 border-color: $color6;
             }
@@ -456,7 +456,7 @@
 
             button {
                 display: inline;
-                background-color: $color7;
+                background-color: $nav-background-page-color;
                 color: $button-font-color;
                 border: 0.15em solid $color1;
                 width: 5em;
@@ -466,7 +466,7 @@
             }
         
             button:hover {
-                background-color: $color1;
+                background-color: $nav-background-page-color-hover;
                 color: $buttonHover-font-color;
                 border-color: $color6;
                 cursor: pointer;
@@ -482,14 +482,14 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #333;
+            color: $nav-background-page-color;
         
             &:hover {
-                color: #555;
+                color: $nav-background-page-color-hover;
             }
         
             &:disabled {
-                color: #ccc;
+                color: $color2;
                 cursor: not-allowed;
             }
         }
@@ -504,8 +504,8 @@
 
     .popoutMenu {
         position: absolute; // Ensures positioning relative to the parent
-        background-color: $color3;
-        border: 1px solid $color4;
+        background-color: $color1;
+        border: 1px solid $color2;
         box-shadow: 0 4px 6px $color7;
         z-index: 1000;
         padding: 10px;
@@ -524,9 +524,11 @@
         padding: 8px 12px;
         cursor: pointer;
         white-space: nowrap;
+        color: $button-font-color;
+
         &:hover {
-            background-color: $color4;
-            color: $color6;
+            background-color: $button-background-color-hover2;
+            color: $buttonHover-font-color;
         }
     }
 
@@ -571,7 +573,7 @@
 
     .innerBlock {
         clear: both;
-        background-color: $color3;
+        background-color: $page-background;
         margin: 5% auto;
         width: 85%;
         border: .012em solid $color6;
@@ -595,13 +597,14 @@
                     display: inline;
                     padding: 0;
                     margin: 0 1em 0 0;
-                    color: $color7;
+                    color: $button-font-color2;
                     font-size: 1em;
                     font-weight: bold;
                 }
             
                 button:hover {
-                    color: $color4;
+                    background-color: $button-background-color-hover;
+                    color: $buttonHover-font-color;
                     cursor: pointer;
                 }
 
@@ -617,7 +620,8 @@
             align-items: center;
             margin: 0;
             padding: 0;
-            background-color: #B1B2B5;
+            background-color: $color2;
+            color: $color6;
         
             .clientNameDropdown {
                 display: flex;
@@ -641,7 +645,7 @@
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid black;
+                border-bottom: .012em solid $color7;
             }
 
             //Row hover settings
@@ -654,8 +658,9 @@
             th {
                 margin: 0; 
                 padding: 0 1em;
-                background-color: lightgray;
-                border: .012em solid black;
+                color: $color6;
+                background-color: $color2;
+                border: .012em solid $color7;
             }
 
             td {
@@ -720,14 +725,15 @@
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid black;
+                border-bottom: .012em solid $color7;
             }
             
             th {
                 margin: 0; 
                 padding: 0 1em;
-                background-color: lightgray;
-                border: .012em solid black;
+                color: $color6;
+                background-color: $color2;
+                border: .012em solid $color7;
                 width: calc(100% / auto); /* Distribute other columns evenly */
             }
 
@@ -764,7 +770,7 @@
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid black;
+                border-bottom: .012em solid $color7;
             }
 
             //Row hover settings
@@ -777,8 +783,9 @@
             th {
                 margin: 0; 
                 padding: 0 1em;
-                background-color: lightgray;
-                border: .012em solid black;
+                color: $color6;
+                background-color: $color2;
+                border: .012em solid $color7;
             }
 
             td {
@@ -852,58 +859,7 @@
             justify-content: space-between;
             align-items: center;
             width: 85%;
-            background-color: rgba(255, 255, 255, 0.698);
-        }
-
-        .tbAddedBehaviors {
-            display: flex;
-            flex-direction: column;
-            margin: 1em auto;
-            width: 50%;
-            background-color: $color3;
-          
-            h2 {
-              color: $color4;
-            }
-          
-            ul {
-              list-style: none;
-              padding: 0;
-              margin: 0;
-          
-                li {
-                    padding: 0.5em;
-                    margin: 0.5em;
-                    position: relative;
-
-                    .tbTitleButton {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        color: $font-color;
-                        width: 100%;
-                        padding: 1em;
-                        box-sizing: border-box;
-                        
-                        h3 {
-                            margin: 0;
-                            flex-grow: 1;
-                            text-align: center;
-                        }
-                
-                        button {
-                            width: 2em;
-                            margin-top: 1em;
-                            margin-left: auto;
-                        }
-                    }
-
-                    p {
-                        text-align: left;
-                        margin: 0.5em 0;
-                    }
-                }
-            }
+            background-color: $form-background;
         }
 
         .tbHeaderDetails {
@@ -922,7 +878,7 @@
             align-items: center;
             margin: 1em auto;
             width: 95%;
-            background-color: $color3;
+            background-color: $page-background;
             padding: 1em;
             border: none;
 
@@ -992,6 +948,9 @@
     }
 
     .tbAddBehavior {
+        width: 50%;
+        background-color: $form-background;
+        margin: 0 auto;
 
         label {
             display: flex;
@@ -1028,6 +987,64 @@
                 min-width: 30em;
                 max-width: 30em;
             }
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+        .tbAddButton {
+            margin-bottom: 0;
+        }
+    }
+
+    .tbAddedBehaviors {
+        display: flex;
+        flex-direction: column;
+        margin: 0.50em auto;
+        width: 50%;
+        background-color: $form-background;
+      
+        h2 {
+          color: $color4;
+        }
+      
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+      
+            li {
+                padding: 0.5em;
+                margin: 0.5em;
+                position: relative;
+
+                .tbTitleButton {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    color: $font-color;
+                    width: 100%;
+                    padding: 1em;
+                    box-sizing: border-box;
+                    
+                    h3 {
+                        margin: 0;
+                        flex-grow: 1;
+                        text-align: center;
+                    }
+            
+                    button {
+                        width: 2em;
+                        margin-top: 1em;
+                        margin-left: auto;
+                    }
+                }
+
+                p {
+                    text-align: left;
+                    margin: 0.5em 0;
+                }
+            }
         }
     }
 
@@ -1039,27 +1056,27 @@
         }
     }
 
-    .loginForm {
-        background-color: $color4;
+    .loginForm, .logoutForm {
+        background-color: $color1;
+        color: $font-color2;
         margin: 5% auto;
         width: 25%;
         border: .25em solid $color2;
 
+        h2 {
+            color: $font-color2;
+        }
+
         .statusMessage {
             margin: 1em auto 1em;
-            color: $font-color;
+            color: $font-color2;
         }
-    }
 
-    .logoutForm {
-        background-color: $color4;
-        margin: 10% auto;
-        width: 25%;
-        border: .25em solid $color2;
-
-        p {
-            margin: 1em auto 2em;
-            color: $font-color;
+        .logoutForm {
+            p {
+                margin: 1em auto 2em;
+                color: $font-color2;
+            }
         }
     }
 

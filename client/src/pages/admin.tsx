@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss'
 import Header from '../components/header';
-import Footer from '../components/footer';
 import InputFields from '../components/Inputfield';
 import Link from '../components/Link';
 import Loading from '../components/loading';
@@ -11,7 +10,7 @@ import Axios from 'axios';
 
 const Admin: React.FC = () => {
     useEffect(() => {
-        document.title = "Admin - Behavior Monitoring";
+        document.title = "Admin Portal - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -48,7 +47,6 @@ const Admin: React.FC = () => {
                     <Loading/> 
                     :
                     <div className={componentStyles.bodyBlock}>
-                        <h1 className={componentStyles.pageHeader}>Admin Portal</h1>
                         <div className={componentStyles.innerBlock}>
                             <Link href='/admin/manageAdmins' hrefType='link' placeholder="Manage admins" />
                             <Link href='/admin/manageClients' hrefType='link' placeholder="Manage clients" />
@@ -58,7 +56,6 @@ const Admin: React.FC = () => {
                 }
             </main>
         </div>
-        <Footer/>
         </>
     );
 }

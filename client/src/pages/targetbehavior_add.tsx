@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Button from '../components/Button';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
@@ -24,7 +23,7 @@ interface Behavior {
 
 const AddTargetBehavior: React.FC = () => {
     useEffect(() => {
-        document.title = "Add Target Behavior - Behavior Monitoring";
+        document.title = "Add Behavior - Behavior Monitoring";
     }, []);
 
     const navigate = useNavigate();
@@ -174,7 +173,7 @@ const AddTargetBehavior: React.FC = () => {
                     <Loading/> 
                     :
                     <div className={componentStyles.bodyBlock}>
-                        <h1 className={componentStyles.pageHeader}>Add Target Behavior</h1>
+                        <h1 className={componentStyles.pageHeader}>Add Behavior</h1>
                         <div className={componentStyles.tbHRSButtons}>
                             <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
                         </div>
@@ -207,7 +206,7 @@ const AddTargetBehavior: React.FC = () => {
                                     <span>Select a Measurement Type:</span>
                                     <SelectDropdown name='behaviorMeasurementDropdown' requiring={true} value={behaviorMeasurementSelected} options={behaviorMeasurements} onChange={(e) => setBehaviorMeasurementSelected(e.target.value)} />
                                 </label>
-                                <Button nameOfClass='tbAddButton' placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehavior}/>
+                                <Button nameOfClass={componentStyles.tbAddButton} placeholder='Add' btnType='button' isLoading={isLoading} onClick={addBehavior}/>
                             </div>
                             { behaviorsToAdd.length > 0 &&
                                 <div className={componentStyles.tbAddedBehaviors}>
@@ -234,7 +233,6 @@ const AddTargetBehavior: React.FC = () => {
                 }
             </main>
         </div>
-        <Footer />
     </>
   );
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import componentStyles from '../styles/components.module.scss';
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
 import Axios from 'axios';
@@ -18,7 +17,7 @@ interface SelectedBehavior {
 
 const Graph: React.FC = () => {
     useEffect(() => {
-        document.title = "Target Behavior Graph - Behavior Monitoring";
+        document.title = "Behavior Graph - Behavior Monitoring";
     }, []);
 
     const foundData = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
@@ -171,7 +170,7 @@ const Graph: React.FC = () => {
                         <Loading/> 
                         :
                         <div className={componentStyles.bodyBlock}>
-                            <h1 className={componentStyles.pageHeader}>Graph Target Behavior</h1>
+                            <h1 className={componentStyles.pageHeader}>Behavior Graph</h1>
                             <div className={componentStyles.innerBlock}>
                                 <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                                 <label className={componentStyles.dateDropdown}>
@@ -185,7 +184,6 @@ const Graph: React.FC = () => {
                     }
                 </main>
             </div>
-            <Footer />
         </>
     );
 }
