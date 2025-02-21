@@ -5,12 +5,13 @@ interface TextareaInputProps {
     placeholder: string;
     requiring: boolean;
     value: string;
+    nameOfClass: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-const TextareaInput: React.FC<TextareaInputProps> = ({ name, placeholder, requiring, value, onChange }) => {
+const TextareaInput: React.FC<TextareaInputProps> = ({ name, nameOfClass, placeholder, requiring, value, onChange }) => {
     return (
-        <textarea name={name} placeholder={placeholder} aria-label={placeholder + ' text field'} required={requiring} autoComplete="off" value={value} onChange={onChange} />
+        <textarea name={name} className={nameOfClass} placeholder={placeholder} aria-label={placeholder + ' text field'} required={requiring} autoComplete="off" value={value} onChange={onChange} />
     );
 };
 

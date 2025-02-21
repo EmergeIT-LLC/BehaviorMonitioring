@@ -913,22 +913,46 @@
         align-items: center;
         width: 100%;
         margin: 1em auto 2em;
+
+        .dataEntryInputAMT {
+            display: flex;
+            align-items: center;
+            margin-left: 1em;
+    
+            input {
+                width: 5em;
+                margin: 0 auto 0 1em;
+                height: 1.5em;
+                text-align: center;
+            }
+            
+            input::placeholder {
+                text-align: center;
+            }
+    
+            .sessionNoteDate, .sessionNoteTime {
+                width: 8em;
+            }
+        }
+    
     }
 
-    .dataEntryInputAMT {
-        display: flex;
-        align-items: center;
-        margin-left: 1em;
-
-        input {
-            width: 5em;
-            margin: 0 auto 0 1em;
-            height: 1.5em;
-            text-align: center;
-        }
+    .sessionNotesContainer {
+        display: block;
+        margin: 0 auto;
         
-        input::placeholder {
-            text-align: center;
+        .span {
+            display: block;
+            margin: 1em auto;
+            text-align: left;
+        }
+
+        .sessionNotesTextField {
+            display: block;
+            min-height: 25em;
+            max-height: 25em;
+            min-width: 50em;
+            max-width: 50em;
         }
     }
 
@@ -948,8 +972,7 @@
     }
 
     .tbAddBehavior {
-        width: 50%;
-        background-color: $form-background;
+        width: 100%;
         margin: 0 auto;
 
         label {

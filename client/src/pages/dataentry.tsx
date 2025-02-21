@@ -9,6 +9,7 @@ import DateFields from '../components/Datefield';
 import TimeFields from '../components/Timefield';
 import TimerField from '../components/Timer';
 import Button from '../components/Button';
+import TextareaInput from '../components/TextareaInput';
 import Tab from '../components/Tab';
 import Loading from '../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../function/VerificationCheck';
@@ -59,6 +60,9 @@ const DataEntry: React.FC = () => {
     const [times, setTimes] = useState<string[]>([]);
     const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
     const [skillOptions, setSkillOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
+    const [sessionNoteDate, setSessionNoteDate] = useState<string>(getCurrentDate());
+    const [sessionNoteTime, setSessionNoteTime] = useState<string>(getCurrentTime());
+    const [sessionNotes, setSessionNotes] = useState<string>('');
     const [headers, setHeaders] = useState<JSX.Element[]>([]);
     const [count, setCount] = useState<number[]>([]);
     const [duration, setDuration] = useState<(string | null)[]>([]);
@@ -262,11 +266,11 @@ const DataEntry: React.FC = () => {
     }, [targetAmt, activeTab, isInitialized]);
     
 
-    const handleClientChange = (value: string) => {
-        let numericValue = value === '' ? NaN : parseFloat(value);
-        setSelectedClientID(numericValue);
-        setSelectedClient(value);
+    const handleClientChange = (value: any) => {
         setStatusMessage('')
+        setSelectedClient(value.name);
+        let numericValue = value.id === '' ? NaN : parseFloat(value.id);
+        setSelectedClientID(numericValue);
     };
 
     useEffect(() => {
@@ -463,7 +467,26 @@ const DataEntry: React.FC = () => {
                 } else {
                     setStatusMessage(response.data.serverMessage);
                 }
-            }    
+            }
+            else if (activeTab === 'Session Notes') {
+                const url = process.env.REACT_APP_Backend_URL + '/aba/submitSessionNotes';
+
+                const response = await Axios.post(url, {
+                    "clientID": selectedClientID,
+                    "sessionDate": sessionNoteDate,
+                    "sessionTime": sessionNoteTime,
+                    "sessionNotes": sessionNotes,
+                    "employeeUsername": loggedInUser
+                });
+                if (response.data.statusCode === 201) {
+                    setStatusMessage(<>{response.data.serverMessage}</>);
+                    setSessionNotes('');
+                    setTimerCount(3);
+                    setClearMessageStatus(true);                                   
+                } else {
+                    setStatusMessage(response.data.serverMessage);
+                }
+            }
         } catch (error) {
             console.error(error);
         }
@@ -501,12 +524,12 @@ const DataEntry: React.FC = () => {
                         <Loading />
                         :
                         <div className={componentStyles.bodyBlock}>
-                            <h1 className={componentStyles.pageHeader}>Data Entry for {activeTab}(s)</h1>
                             <div className={componentStyles.innerBlock}>
                                 {statusMessage && <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>}
                                 <ul className={componentStyles.innerTab}>
                                     <li><Tab nameOfClass={activeTab === 'Behavior' ? componentStyles.activeTab : ''} placeholder="Behavior" onClick={() => setActiveTab('Behavior')}/></li>
                                     {/* <li><Tab nameOfClass={activeTab === 'Skill' ? componentStyles.activeTab : ''} placeholder="Skill" onClick={() => setActiveTab('Skill')}/></li> */}
+                                    <li><Tab nameOfClass={activeTab === 'Session Notes' ? componentStyles.activeTab : ''} placeholder="Session Notes" onClick={() => setActiveTab('Session Notes')}/></li>
                                 </ul>
 
                                 <div className={componentStyles.dataEntryContainer}>
@@ -522,9 +545,16 @@ const DataEntry: React.FC = () => {
                                                 <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={skillAmt} onChange={handleSkillAMTChange} />
                                             </label>
                                     )}
+                                    {activeTab === 'Session Notes' && (
+                                        <label className={componentStyles.dataEntryInputAMT}>
+                                            Date and Time:
+                                            <DateFields name='sessionNoteDate' nameOfClass={componentStyles.sessionNoteDate} requiring={true} value={sessionNoteDate} onChange={(e) => setSessionNoteDate(e.target.value)} />
+                                            <TimeFields name='sessionNoteTime' nameOfClass={componentStyles.sessionNoteTime} requiring={true} value={sessionNoteTime} onChange={(e) => setSessionNoteTime(e.target.value)} />
+                                        </label>
+                                    )}
                                     <label className={componentStyles.clientNameDropdown}>
                                         Client:
-                                        <SelectDropdown name={`ClientName`} requiring={true} value={selectedClient} options={clientLists} onChange={(e) => handleClientChange(e.target.value)} />
+                                        <SelectDropdown name={`ClientName`} requiring={true} value={selectedClientID} options={clientLists} onChange={(e) => handleClientChange({ name: e.target.options[e.target.selectedIndex].text || '', id: e.target.value})} />
                                     </label>
                                 </div>
                                 {activeTab === 'Behavior' && (
@@ -571,6 +601,14 @@ const DataEntry: React.FC = () => {
                                         )}
                                     </tbody>
                                 </table>
+                                )}
+                                {activeTab === 'Session Notes' && (
+                                    <div className={componentStyles.sessionNotesContainer}>
+                                        <label>
+                                            <span>Enter session notes for <b>{selectedClient}</b></span>
+                                            <TextareaInput name='sessionNotesTextField' nameOfClass={componentStyles.sessionNotesTextField} placeholder="Enter session notes..." requiring={true} value={sessionNotes} onChange={(e) => setSessionNotes(e.target.value)}/>
+                                        </label>
+                                    </div>
                                 )}
                                 <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={isLoading} onClick={submitDataEntryForm}/>
                             </div>

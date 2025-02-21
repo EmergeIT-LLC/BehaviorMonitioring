@@ -200,7 +200,7 @@ const AddTargetBehavior: React.FC = () => {
                                 }
                                 <label>
                                     <span>Enter a definition for the behavior:</span>
-                                    <TextareaInput name="definitionTextField" placeholder="Behavior Definition" requiring={true} value={behaviorDefinition} onChange={(e) => setBehaviorDefinition(e.target.value)}/>
+                                    <TextareaInput name='definitionTextField' nameOfClass={componentStyles.definitionTextField} placeholder="Behavior Definition" requiring={true} value={behaviorDefinition} onChange={(e) => setBehaviorDefinition(e.target.value)}/>
                                 </label>
                                 <label>
                                     <span>Select a Measurement Type:</span>
