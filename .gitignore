@@ -1,6 +1,46 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Next dependencies
+/bmetrics-next/node_modules
+/bmetrics-next/.pnp
+/bmetrics-next/.pnp.*
+/bmetrics-next/.yarn/*
+/bmetrics-next/!.yarn/patches
+/bmetrics-next/!.yarn/plugins
+/bmetrics-next/!.yarn/releases
+/bmetrics-next/!.yarn/versions
+
+# testing
+/bmetrics-next/coverage
+
+# next.js
+/bmetrics-next/.next/
+/bmetrics-next/out/
+
+# production
+/bmetrics-next/build
+
+# misc
+/bmetrics-next/.DS_Store
+/bmetrics-next/*.pem
+
+# debug
+/bmetrics-next/npm-debug.log*
+/bmetrics-next/yarn-debug.log*
+/bmetrics-next/yarn-error.log*
+/bmetrics-next/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+/bmetrics-next/.env*
+
+# vercel
+/bmetrics-next/.vercel
+
+# typescript
+/bmetrics-next/*.tsbuildinfo
+/bmetrics-next/next-env.d.ts
+
+# CRA Dependencies
 /client/.pnp
 /client/.pnp.js
 
@@ -11,6 +51,7 @@
 /client/build
 
 # misc
+/client/.env
 /client/.env.local
 /client/.env.development.local
 /client/.env.test.local

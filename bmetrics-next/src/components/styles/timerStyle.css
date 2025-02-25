@@ -1,0 +1,25 @@
+.ng-timepicker {
+    text-align: center;
+
+    table {
+        margin: 0 auto;
+
+        td {
+            padding: 5px;
+
+            input {
+                width: 40px;
+                text-align: center;
+            }
+
+            .act {
+                cursor: pointer;
+                user-select: none;
+
+                i {
+                    font-size: 1.5rem;
+                }
+            }
+        }
+    }
+}
