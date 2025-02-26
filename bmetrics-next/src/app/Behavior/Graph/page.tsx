@@ -132,8 +132,6 @@ const Graph: React.FC = () => {
                     const flattenedData = allData.flat().filter(entry => entry !== null);
                     const filteredData = filterDataByDateRange(flattenedData); // Filter data based on date range
                     
-                    console.log("filteredData", filteredData);
-
                     const isEmptyData = filteredData.length === 0 || 
                         (filteredData.length === 1 && filteredData[0].count === 0 && !filteredData[0].behaviorDataID);
 
