@@ -109,11 +109,12 @@ const Graph: React.FC = () => {
     const filterDataByDateRange = (data: any[]) => {
         const now = new Date();
         const filtered = data.filter((entry: any) => {
+            if (!entry || !entry.sessionDate) return false; // Ensure valid data
             const entryDate = new Date(entry.sessionDate);
             const daysDifference = (now.getTime() - entryDate.getTime()) / (1000 * 3600 * 24);
             return daysDifference <= dateRange;
         });
-        return filtered;
+        return filtered.length > 0 ? filtered : [{ sessionDate: new Date().toISOString(), count: 0 }]; // Ensure no ghost data
     };
 
     useEffect(() => {
@@ -126,16 +127,21 @@ const Graph: React.FC = () => {
             // Create a mapping of behavior names based on selectedData
             const behaviorNames = Object.fromEntries(selectedData.map(item => [item.id, item.name]));
 
-            Promise.all(selectedData.map(item => getTargetData(item.id)))
+            Promise.all([...new Set(selectedData.map(item => item.id))].map(id => getTargetData(id)))
                 .then((allData) => {
                     const flattenedData = allData.flat().filter(entry => entry !== null);
                     const filteredData = filterDataByDateRange(flattenedData); // Filter data based on date range
                     
-                    if (filteredData.length > 0) {
-                        setFetchedData(filteredData);
-                    } else {
-                        setStatusMessage('No data available within range');
+                    console.log("filteredData", filteredData);
+
+                    const isEmptyData = filteredData.length === 0 || 
+                        (filteredData.length === 1 && filteredData[0].count === 0 && !filteredData[0].behaviorDataID);
+
+                    if (isEmptyData) {
+                        return setStatusMessage("No data available within range");
                     }
+    
+                    setFetchedData(filteredData);
                     setIsLoading(false);
                 })
                 .catch(error => {
