@@ -168,7 +168,7 @@ const Graph: React.FC = () => {
                             <div className={componentStyles.innerBlock}>
                                 <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                                 <label className={componentStyles.dateDropdown}>
-                                    Graph for the last
+                                    <b>Graph for the</b>
                                     <SelectDropdown name={`DateRange`} requiring={true} value={dateRange} options={dateRanges.map((range) => ({ value: range.value, label: range.label }))} onChange={(e) => handleDateRangeChange(Number(e.target.value))} />
                                 </label>
                                 <div className={componentStyles.tbGraphShell}><GraphDataProcessor fetchedData={fetchedData} behaviorNames={behaviorNames} title={`${clientName}'s Behavior(s) Over the ${dateRangeLabel}`} measurementType={measurementType} dateRange={dateRange}/></div>

@@ -21,9 +21,9 @@ const Header: React.FC = () => {
         if (userIsLoggedIn) {
             setButtonLabel('Logout');
             const userLinks = [
-                <li key="home"><Link href='/Dashboard' hrefType='link' placeholder="Dashboard" /></li>,
-                <li key="behavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Behaviors" /></li>,
-                // <li key="skill"><Link href='/SkillAquisition' hrefType='link' placeholder="Skills" /></li>,
+                <li key="dashboard"><Link href='/Dashboard' hrefType='link' placeholder="Dashboard" /></li>,
+                <li key="behavior"><Link href='/Behavior' hrefType='link' placeholder="Behaviors" /></li>,
+                // <li key="skill"><Link href='/Skill' hrefType='link' placeholder="Skills" /></li>,
                 <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry" /></li>,
             ];
             if (userIsAdmin) {
@@ -34,8 +34,8 @@ const Header: React.FC = () => {
             setButtonLabel('Login');
             setLinks([
                 <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
-                <li key="about"><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>,
-                <li key="contact"><Link href='/ContactUs' hrefType='link' placeholder="Contact us"/></li>
+                <li key="about"><Link href='/About' hrefType='link' placeholder="About us"/></li>,
+                <li key="contact"><Link href='/Contact' hrefType='link' placeholder="Contact us"/></li>
             ]);
         }
     }, [userIsLoggedIn]);
@@ -69,7 +69,7 @@ const Header: React.FC = () => {
 
     return (
         <div className={componentStyles.headerBody}>
-            <a href='/'><img src={companyLogo.src} alt ="BMetrics Logo" /></a>
+            <a href={userIsLoggedIn ? '/Dashboard' : '/'}><img src={companyLogo.src} alt ="BMetrics Logo" /></a>
             <h1 className={componentStyles.companyName}>BMetrics <span className={componentStyles.trade}>&trade;</span></h1>
             <img className={componentStyles.farBars} src={farBars.src} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
             <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' onClick={routeChange}/>

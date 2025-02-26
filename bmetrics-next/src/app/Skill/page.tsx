@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import componentStyles from '../../styles/components.module.scss';
 import Header from '../../components/header';
 import Button from '../../components/Button';
@@ -9,7 +9,7 @@ import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, isCookieValid } from '../../function/VerificationCheck';
 import Axios from 'axios';
 
-const AddSkillAquisition: React.FC = () => {
+const SkillAquisition: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const cookieIsValid = isCookieValid();
@@ -17,11 +17,8 @@ const AddSkillAquisition: React.FC = () => {
 
     useEffect(() => {
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
         else {
             setIsLoading(true);
@@ -34,7 +31,7 @@ const AddSkillAquisition: React.FC = () => {
     <>
         <Header />
         <Head>
-            <title>Add Skills - BMetrics</title>
+            <title>Skills - BMetrics</title>
         </Head>
         <div className={componentStyles.pageBody}>
             <main>
@@ -51,4 +48,4 @@ const AddSkillAquisition: React.FC = () => {
   );
 }
 
-export default AddSkillAquisition;
+export default SkillAquisition;

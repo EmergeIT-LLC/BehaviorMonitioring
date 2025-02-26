@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, JSX } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
@@ -38,7 +38,7 @@ const TargetbehaviorDetails: React.FC = () => {
             || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
             || (sessionStorage.getItem('behaviorID') === undefined && bID === undefined)
         ) {
-            navigate.push('/TargetBehavior');
+            navigate.push('/Behavior');
         }
 
         sessionStorage.removeItem('clientID');
@@ -72,11 +72,8 @@ const TargetbehaviorDetails: React.FC = () => {
         setIsLoading(true);
         setBehaviorBase([]);
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
 
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAClientTargetBehavior';
@@ -105,11 +102,9 @@ const TargetbehaviorDetails: React.FC = () => {
         setIsLoading(true);
         setTargetBehaviorData([]);
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+
         }
 
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getTargetBehavior';
@@ -183,11 +178,9 @@ const TargetbehaviorDetails: React.FC = () => {
     const deleteDataCall = async (behaviorDataId: string) => {
         setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+
         }
         
         try {

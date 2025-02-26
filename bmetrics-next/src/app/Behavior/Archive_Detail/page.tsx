@@ -38,7 +38,7 @@ const ArchiveDetails: React.FC = () => {
             || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
             || (sessionStorage.getItem('archivedBehaviorID') === undefined && bID === undefined)
         ) {
-            navigate.push('/TargetBehavior');
+            navigate.push('/Behavior');
         }
 
         sessionStorage.removeItem('clientID');

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Button from '../../../components/Button';
@@ -51,11 +51,9 @@ const AddTargetBehavior: React.FC = () => {
     const getClientNames = async () => {
         setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+
         }
         
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
@@ -121,11 +119,9 @@ const AddTargetBehavior: React.FC = () => {
     const submitBehavior = async () => {
         setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
-            navigate.push('/Login', {
-                query: {
-                    previousUrl: location.pathname,
-                }
-            });
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+
         }
         
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/addNewTargetBehavior';

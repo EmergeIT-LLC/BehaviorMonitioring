@@ -190,7 +190,7 @@ const TargetBehavior: React.FC = () => {
     const openBehaviorDetail = (id: string | number) => {
         sessionStorage.setItem('clientID', String(selectedClientID));
         sessionStorage.setItem('behaviorID', String(id));
-        navigate.push(`/TargetBehavior/Detail`);
+        navigate.push(`/Behavior/Detail`);
     }
 
     const graphBehaviorCall = (index: number | string, name: string) => {
@@ -210,7 +210,7 @@ const TargetBehavior: React.FC = () => {
         const updatedBehaviors = [...storedCheckedBehaviors.filter((b: any) => b.id !== index), behaviorObject];
         sessionStorage.setItem('checkedBehaviors', JSON.stringify(updatedBehaviors));
     
-        navigate.push(`/TargetBehavior/Graph`);
+        navigate.push(`/Behavior/Graph`);
     };
 
     const handleEllipsisClick = (index: number) => {
@@ -380,8 +380,8 @@ const TargetBehavior: React.FC = () => {
                         :
                         <div className={componentStyles.bodyBlock}>
                             <div className={componentStyles.tbHRSButtons}>
-                                <Link href='/TargetBehavior/Add' hrefType='link' placeholder="Add Behavior" />
-                                <Link href='/TargetBehavior/Archive' hrefType='link' placeholder="Archived Behavior" />
+                                <Link href='/Behavior/Add' hrefType='link' placeholder="Add Behavior" />
+                                <Link href='/Behavior/Archive' hrefType='link' placeholder="Archived Behavior" />
                             </div>
                             <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
                             <div className={componentStyles.innerBlock}>
