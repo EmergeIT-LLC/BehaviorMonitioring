@@ -61,7 +61,7 @@ async function abaUpdateClientData(fName, lName, DOB, intakeDate, groupHomeName,
     });
 }
 
-/*-------------------------------------------------ABA--------------------------------------------------*/
+/*-------------------------------------------------Behavior--------------------------------------------------*/
 async function behaviorSkillExistByID(bsID) {
     return new Promise((resolve, reject) => {
         db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ?', [bsID], (err, rows) => {
@@ -266,7 +266,7 @@ async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDele
     });
 }
 
-/*-------------------------------------------------ABA ARCHIVE--------------------------------------------------*/
+/*-------------------------------------------------Behavior ARCHIVE--------------------------------------------------*/
 
 async function archiveBehaviorSkillExistByID(bsID) {
     return new Promise((resolve, reject) => {
@@ -383,6 +383,31 @@ async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID) {
                 reject({ message: err.message });
             } else {
                 resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+/*-------------------------------------------------Session Notes--------------------------------------------------*/
+async function abaSessionNoteDataExistByClientID(cID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ?', [cID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+async function abaGetSessionNoteDataByClientID(cID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ?', [cID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
             }
         });
     });
