@@ -94,7 +94,7 @@ const Graph: React.FC = () => {
             if (response.data.statusCode === 200) {
                 return response.data.behaviorSkillData;
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
             console.error(error);

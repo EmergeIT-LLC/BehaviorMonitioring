@@ -88,10 +88,10 @@ const TargetbehaviorDetails: React.FC = () => {
                 setBehaviorBase(response.data.behaviorSkillData);
                 generateTargetTableHeaders(response.data.behaviorSkillData[0].measurement);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }    
         } catch (error) {
-            console.log(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -116,12 +116,12 @@ const TargetbehaviorDetails: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
-                setTargetBehaviorData(response.data.behaviorSkillData.reverse());
+                return setTargetBehaviorData(response.data.behaviorSkillData.reverse());
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }    
         } catch (error) {
-            console.log(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
