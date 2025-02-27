@@ -195,11 +195,10 @@ const TargetbehaviorDetails: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);  
             } else {
-                setStatusMessage(`Failed to delete "${behaviorDataId}".`);
+                throw new Error(`Failed to delete "${behaviorDataId}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while deleting.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

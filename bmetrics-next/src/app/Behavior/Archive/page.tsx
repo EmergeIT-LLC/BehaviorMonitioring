@@ -73,10 +73,10 @@ const Archive: React.FC = () => {
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -110,10 +110,10 @@ const Archive: React.FC = () => {
 
                 setArchivedBehaviors(fetchedOptions);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         } finally {
             setIsLoading(false);
         }
@@ -165,11 +165,10 @@ const Archive: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
-                setStatusMessage(`Failed to archive "${behaviorName}".`);
+                throw new Error(`Failed to archive "${behaviorName}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while archiving.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -192,11 +191,10 @@ const Archive: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {
-                setStatusMessage(`Failed to delete "${behaviorName}".`);
+                throw new Error(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while deleting.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

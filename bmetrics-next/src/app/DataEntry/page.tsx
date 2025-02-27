@@ -147,10 +147,10 @@ const DataEntry: React.FC = () => {
                 }));
                 setTargetOptions([{ value: 'null', label: 'Select A Behavior' }, ...fetchedOptions]);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -180,10 +180,10 @@ const DataEntry: React.FC = () => {
                 }));
                 setSkillOptions([{ value: 'null', label: 'Select A Skill' }, ...fetchedOptions]);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         setIsLoading(false);
     };
@@ -432,7 +432,7 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    setStatusMessage(response.data.serverMessage);
+                    throw new Error(response.data.serverMessage);
                 }    
             }
             else if (activeTab === 'Skill') {
@@ -452,7 +452,7 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    setStatusMessage(response.data.serverMessage);
+                    throw new Error(response.data.serverMessage);
                 }
             }
             else if (activeTab === 'Session Notes') {
@@ -471,11 +471,11 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    setStatusMessage(response.data.serverMessage);
+                    throw new Error(response.data.serverMessage);
                 }
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

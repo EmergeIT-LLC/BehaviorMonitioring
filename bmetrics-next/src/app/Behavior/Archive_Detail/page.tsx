@@ -88,10 +88,10 @@ const ArchiveDetails: React.FC = () => {
                 setBehaviorBase(response.data.behaviorSkillData);
                 generateTargetTableHeaders(response.data.behaviorSkillData[0].measurement);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }    
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -115,12 +115,12 @@ const ArchiveDetails: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
-                setTargetBehaviorData(response.data.behaviorSkillData.reverse());
+                return setTargetBehaviorData(response.data.behaviorSkillData.reverse());
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }    
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -193,11 +193,10 @@ const ArchiveDetails: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);  
             } else {
-                setStatusMessage(`Failed to delete "${behaviorDataId}".`);
+                throw new Error(`Failed to delete "${behaviorDataId}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while deleting.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

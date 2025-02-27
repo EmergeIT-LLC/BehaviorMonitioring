@@ -81,10 +81,10 @@ const TargetBehavior: React.FC = () => {
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -121,10 +121,10 @@ const TargetBehavior: React.FC = () => {
                 setTargetOptions(fetchedOptions);
                 setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         } finally {
             setIsLoading(false);
         }
@@ -281,11 +281,10 @@ const TargetBehavior: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
-                setStatusMessage(response.data.serverMessage || 'Merge failed');
+                throw new Error(response.data.serverMessage || 'Merge failed');
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while merging behaviors');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -317,11 +316,10 @@ const TargetBehavior: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
-                setStatusMessage(`Failed to archive "${behaviorName}".`);
+                throw new Error(`Failed to archive "${behaviorName}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while archiving.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -344,11 +342,10 @@ const TargetBehavior: React.FC = () => {
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {
-                setStatusMessage(`Failed to delete "${behaviorName}".`);
+                throw new Error(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
-            console.error(error);
-            setStatusMessage('An error occurred while deleting.');
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

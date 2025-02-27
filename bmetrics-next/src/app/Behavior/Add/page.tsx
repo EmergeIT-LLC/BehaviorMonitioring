@@ -68,10 +68,10 @@ const AddTargetBehavior: React.FC = () => {
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);
@@ -140,10 +140,10 @@ const AddTargetBehavior: React.FC = () => {
                 const failedBehaviors: Behavior[] = response.data.failedBehaviors;
                 setBehaviorsToAdd(failedBehaviors);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(response.data.serverMessage)
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

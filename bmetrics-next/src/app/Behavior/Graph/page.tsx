@@ -67,7 +67,7 @@ const Graph: React.FC = () => {
             selectedIDs.forEach((item: SelectedBehavior) => { // Specify the type for item here
                 namesMap[item.id] = item.name; // Use the item.id and item.name
             });
-            setBehaviorNames(namesMap); // Update the state with the behavior names
+            return setBehaviorNames(namesMap); // Update the state with the behavior names
         } catch (error) {
             setStatusMessage("Selected IDs are not found");
         }
@@ -97,8 +97,7 @@ const Graph: React.FC = () => {
                 throw new Error(response.data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
-            return null;
+            return setStatusMessage(String(error));
         }
         finally {
             setIsLoading(false);

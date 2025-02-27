@@ -62,16 +62,11 @@ const Login: React.FC = () => {
                 navigate.push(previousUrl || '/');
             }
             else {
-                if (response.data.statusCode === 401) {
-                    setStatusMessage(response.data.serverMessage);
-                }
-                else {
-                    throw new Error(response.data.serverMessage);
-                }
+                throw new Error(response.data.serverMessage);
             }
         })
         .catch((error) => {
-            console.error(error.message);
+            return setStatusMessage(error.message);
         })
         .finally(() => {
             setIsLoading(false);
