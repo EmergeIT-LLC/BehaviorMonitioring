@@ -1,9 +1,9 @@
 const db = require('../dbConnection');
 
 /*-------------------------------------------------client--------------------------------------------------*/
-async function abaClientExistByID(cID) {
+async function abaClientExistByID(cID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM client WHERE clientID = ?', [cID], (err, rows) => {
+        db.all('SELECT * FROM client WHERE clientID = ? and companyID = ?', [cID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -13,9 +13,9 @@ async function abaClientExistByID(cID) {
     });
 }
 
-async function abaAddClientData(fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, enteredBy, dateEntered, timeEntered) {
+async function abaAddClientData(fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO client (fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO client (fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, companyID, companyName, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [fName, lName, DOB, intakeDate, groupHomeName, medicadeNum, behaviorPlanDueDate, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -27,7 +27,7 @@ async function abaAddClientData(fName, lName, DOB, intakeDate, groupHomeName, me
 
 async function abaGetClientDataByID(cID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client WHERE clientID = ?', [cID], (err, rows) => {
+        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, companyID, companyName, time_entered FROM client WHERE clientID = ?', [cID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -39,7 +39,7 @@ async function abaGetClientDataByID(cID) {
 
 async function abaGetAllClientData() {
     return new Promise((resolve, reject) => {
-        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, date_entered, time_entered FROM client', [], (err, rows) => {
+        db.all('SELECT clientID, fName, lName, DOB, intake_Date, group_home_name, medicaid_id_number, behavior_plan_due_date, entered_by, companyID, companyName, date_entered, time_entered FROM client', [], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -62,9 +62,9 @@ async function abaUpdateClientData(fName, lName, DOB, intakeDate, groupHomeName,
 }
 
 /*-------------------------------------------------Behavior--------------------------------------------------*/
-async function behaviorSkillExistByID(bsID) {
+async function behaviorSkillExistByID(bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ?', [bsID], (err, rows) => {
+        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ? and companyID = ?', [bsID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -74,9 +74,9 @@ async function behaviorSkillExistByID(bsID) {
     });
 }
 
-async function abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered) {
+async function abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, cName, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorAndSkill (name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, def, meas, cat, type, cID, cName, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
+        db.run('INSERT INTO BehaviorAndSkill (name, definition, measurement, category, type, clientID, clientName, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, def, meas, cat, type, cID, cName, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -86,9 +86,9 @@ async function abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, cName, ent
     });
 }
 
-async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, bsID) {
+async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorAndSkill SET name = ?, definition= ?, measurement= ?, category= ?, type= ?, clientID = ?, clientName = ? WHERE bsID = ?', [name, def, meas, cat, type, cID, cName, bsID], function (err) {
+        db.run('UPDATE BehaviorAndSkill SET name = ?, definition= ?, measurement= ?, category= ?, type= ?, clientID = ?, clientName = ? WHERE bsID = ? and companyID = ?', [name, def, meas, cat, type, cID, cName, bsID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -98,9 +98,9 @@ async function abaUpdateBehaviorOrSkill(name, def, meas, cat, type, cID, cName, 
     });
 }
 
-async function abaGetBehaviorOrSkill(cID, BorS) {
+async function abaGetBehaviorOrSkill(cID, BorS, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and status = ?', [cID, BorS, "Active"], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and companyID = ? and status = ?', [cID, BorS, compID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -110,9 +110,9 @@ async function abaGetBehaviorOrSkill(cID, BorS) {
     });
 }
 
-async function abaGetABehaviorOrSkill(cID, bsID, BorS) {
+async function abaGetABehaviorOrSkill(cID, bsID, BorS, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and status = ?', [cID, bsID, BorS, "Active"], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and companyID = ? and status = ?', [cID, bsID, BorS, compID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -122,9 +122,9 @@ async function abaGetABehaviorOrSkill(cID, bsID, BorS) {
     });
 }
 
-async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
+async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -134,9 +134,9 @@ async function abaAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count
     });
 }
 
-async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered) {
+async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, duration, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -146,9 +146,9 @@ async function abaAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, dur
     });
 }
 
-async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered) {
+async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered, "Active"], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -158,9 +158,9 @@ async function abaAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial,
     });
 }
 
-async function abaGetBehaviorDataById(cID, bsID) {
+async function abaGetBehaviorDataById(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and companyID = ? and status = ?', [bsID, cID, compID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -170,9 +170,9 @@ async function abaGetBehaviorDataById(cID, bsID) {
     });
 }
 
-async function abaFoundBehaviorDataById(cID, bsID) {
+async function abaFoundBehaviorDataById(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Active"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and companyID = ? and status = ?', [bsID, cID, compID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -182,9 +182,9 @@ async function abaFoundBehaviorDataById(cID, bsID) {
     });
 }
 
-async function abaMergeBehaviorDataById(cID, tBSID, mBsID) {
+async function abaMergeBehaviorDataById(cID, tBSID, mBsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET bsID = ? WHERE bsID = ? and clientID = ?', [tBSID, mBsID, cID], function (err) {
+        db.run('UPDATE BehaviorData SET bsID = ? WHERE bsID = ? and clientID = ? and companyID = ?', [tBSID, mBsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -194,9 +194,9 @@ async function abaMergeBehaviorDataById(cID, tBSID, mBsID) {
     });
 }
 
-async function abaDeleteBehaviorDataByID(cID, bsID) {
+async function abaDeleteBehaviorDataByID(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ? and companyID = ?', [bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -206,9 +206,9 @@ async function abaDeleteBehaviorDataByID(cID, bsID) {
     });
 }
 
-async function abaGetBehaviorDataByBehaviorId(cID, bsID, bdID) {
+async function abaGetBehaviorDataByBehaviorId(cID, bsID, bdID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Active"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and companyID = ? and status = ?', [bsID, bdID, cID, compID, "Active"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -218,9 +218,9 @@ async function abaGetBehaviorDataByBehaviorId(cID, bsID, bdID) {
     });
 }
 
-async function abaDeleteBehaviorDataByBehaviorID(cID, bsID, bdID) {
+async function abaDeleteBehaviorDataByBehaviorID(cID, bsID, bdID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ?', [bsID, bdID, cID], function (err) {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and companyID = ?', [bsID, bdID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -230,9 +230,9 @@ async function abaDeleteBehaviorDataByBehaviorID(cID, bsID, bdID) {
     });
 }
 
-async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
+async function abaDeleteBehaviorOrSkillByID(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ?', [bsID, cID], function (err) {
+        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ? and companyID = ?', [bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -242,9 +242,9 @@ async function abaDeleteBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
-async function abaArchiveBehaviorDataByID(newStatus, cID, bsID) {
+async function abaArchiveBehaviorDataByID(newStatus, cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET status = ? WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorData SET status = ? WHERE bsID = ? and clientID = ? and companyID = ?', [newStatus, bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -254,9 +254,9 @@ async function abaArchiveBehaviorDataByID(newStatus, cID, bsID) {
     });
 }
 
-async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
+async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ? and companyID = ?', ["Archived", dateArchived, dateToDeleteArchive, bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -268,9 +268,9 @@ async function abaArchiveBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDele
 
 /*-------------------------------------------------Behavior ARCHIVE--------------------------------------------------*/
 
-async function archiveBehaviorSkillExistByID(bsID) {
+async function archiveBehaviorSkillExistByID(bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ? and status = ?', [bsID, 'Archived'], (err, rows) => {
+        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ? and companyID = ? and status = ?', [bsID, compID, 'Archived'], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -280,9 +280,9 @@ async function archiveBehaviorSkillExistByID(bsID) {
     });
 }
 
-async function abaReactivateBehaviorDataByID(newStatus, cID, bsID) {
+async function abaReactivateBehaviorDataByID(newStatus, cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ?', [newStatus, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorData SET status = ?, WHERE bsID = ? and clientID = ? and companyID = ?', [newStatus, bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -292,9 +292,9 @@ async function abaReactivateBehaviorDataByID(newStatus, cID, bsID) {
     });
 }
 
-async function abaReactivateBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive) {
+async function abaReactivateBehaviorOrSkillByID(cID, bsID, dateArchived, dateToDeleteArchive, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ?', ["Active", dateArchived, dateToDeleteArchive, bsID, cID], function (err) {
+        db.run('UPDATE BehaviorAndSkill SET status = ?, archived_date = ?, archived_deletion_date = ? WHERE bsID = ? and clientID = ? and companyID = ?', ["Active", dateArchived, dateToDeleteArchive, bsID, cID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -304,9 +304,9 @@ async function abaReactivateBehaviorOrSkillByID(cID, bsID, dateArchived, dateToD
     });
 }
 
-async function abaGetArchivedBehaviorDataById(cID, bsID) {
+async function abaGetArchivedBehaviorDataById(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, "Archived"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and clientID = ? and companyID = ? and status = ?', [bsID, cID, compID, "Archived"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -316,9 +316,9 @@ async function abaGetArchivedBehaviorDataById(cID, bsID) {
     });
 }
 
-async function abaGetArchivedBehaviorOrSkill(cID, BorS) {
+async function abaGetArchivedBehaviorOrSkill(cID, BorS, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and status = ?', [cID, BorS, "Archived"], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and type = ? and companyID = ? and status = ?', [cID, BorS, compID, "Archived"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -328,9 +328,9 @@ async function abaGetArchivedBehaviorOrSkill(cID, BorS) {
     });
 }
 
-async function abaDeleteArchivedBehaviorDataByID(cID, bsID) {
+async function abaDeleteArchivedBehaviorDataByID(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, 'Archived'], function (err) {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and clientID = ? and companyID = ? and status = ?', [bsID, cID, compID, 'Archived'], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -340,9 +340,9 @@ async function abaDeleteArchivedBehaviorDataByID(cID, bsID) {
     });
 }
 
-async function abaDeleteArchivedBehaviorOrSkillByID(cID, bsID) {
+async function abaDeleteArchivedBehaviorOrSkillByID(cID, bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ? and status = ?', [bsID, cID, 'Archived'], function (err) {
+        db.run('DELETE FROM BehaviorAndSkill WHERE bsID = ? and clientID = ? and companyID = ? and status = ?', [bsID, cID, compID, 'Archived'], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -352,9 +352,9 @@ async function abaDeleteArchivedBehaviorOrSkillByID(cID, bsID) {
     });
 }
 
-async function abaGetAArchivedBehaviorOrSkill(cID, bsID, BorS) {
+async function abaGetAArchivedBehaviorOrSkill(cID, bsID, BorS, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and status = ?', [cID, bsID, BorS, "Archived"], (err, rows) => {
+        db.all('SELECT bsID, name, definition, measurement, category, type, clientID, clientName, entered_by, date_entered, time_entered, status FROM BehaviorAndSkill WHERE clientID = ? and bsID = ? and type = ? and companyID = ? and status = ?', [cID, bsID, BorS, compID, "Archived"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -364,9 +364,9 @@ async function abaGetAArchivedBehaviorOrSkill(cID, bsID, BorS) {
     });
 }
 
-async function abaGetArchivedBehaviorDataByBehaviorId(cID, bsID, bdID) {
+async function abaGetArchivedBehaviorDataByBehaviorId(cID, bsID, bdID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Archived"], (err, rows) => {
+        db.all('SELECT behaviorDataID, bsID, clientID, clientName, sessionDate, sessionTime, count, duration, trial, entered_by, date_entered, time_entered, status FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and companyID = ? and status = ?', [bsID, bdID, cID, compID, "Archived"], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -376,9 +376,9 @@ async function abaGetArchivedBehaviorDataByBehaviorId(cID, bsID, bdID) {
     });
 }
 
-async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID) {
+async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and status = ?', [bsID, bdID, cID, "Archived"], function (err) {
+        db.run('DELETE FROM BehaviorData WHERE bsID = ? and behaviorDataID = ? and clientID = ? and companyID = ? and status = ?', [bsID, bdID, cID, compID, "Archived"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -389,9 +389,9 @@ async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID) {
 }
 
 /*-------------------------------------------------Session Notes--------------------------------------------------*/
-async function abaSessionNoteDataExistByClientID(cID) {
+async function abaSessionNoteDataByClientID(cID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ?', [cID], (err, rows) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? and companyID = ?', [cID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -401,13 +401,37 @@ async function abaSessionNoteDataExistByClientID(cID) {
     });
 }
 
-async function abaGetSessionNoteDataByClientID(cID) {
+async function abaGetSessionNoteDataByClientID(cID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ?', [cID], (err, rows) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? and companyID = ?', [cID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
                 resolve(rows); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+async function abaAddSessionNoteData(cID, cName, sDate, sTime, enteredBy, dateEntered, timeEntered) {
+    return new Promise((resolve, reject) => {
+        db.run('INSERT INTO SessionNoteData (clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?)', [cID, cName, sDate, sTime, enteredBy, dateEntered, timeEntered], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
+            }
+        });
+    });
+}
+
+async function abaDeleteSessionNoteDataByID(cID, snID) {
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM SessionNoteData WHERE sessionNoteDataID = ? and clientID = ?', [snID, cID], function (err) {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(this.changes > 0);
             }
         });
     });

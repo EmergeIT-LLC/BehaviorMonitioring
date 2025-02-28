@@ -27,7 +27,7 @@ async function employeeExistByID(uID) {
 
 async function employeeDataByUsername(uName) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status FROM employee WHERE username = ?', [uName], (err, rows) => {
+        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName, FROM employee WHERE username = ?', [uName], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -39,7 +39,7 @@ async function employeeDataByUsername(uName) {
 
 async function employeeDataById(uID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
+        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName, FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -73,9 +73,9 @@ async function employeePasswordById(uID) {
     });
 }
 
-async function employeeUpdateEmployeeAccountByUsername(fName, lName, email, phone_number, pWord, uName) {
+async function employeeUpdateEmployeeAccountByUsername(fName, lName, email, phone_number, pWord, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE username = ?', [fName, lName, email, phone_number, pWord, uName], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE username = ? and companyID = ?', [fName, lName, email, phone_number, pWord, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -85,9 +85,9 @@ async function employeeUpdateEmployeeAccountByUsername(fName, lName, email, phon
     });
 }
 
-async function employeeUpdateEmployeeAccountByID(fName, lName, email, phone_number, pWord, eID) {
+async function employeeUpdateEmployeeAccountByID(fName, lName, email, phone_number, pWord, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE employeeID = ?', [fName, lName, email, phone_number, pWord, eID], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE employeeID = ? and companyID = ?', [fName, lName, email, phone_number, pWord, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -97,9 +97,9 @@ async function employeeUpdateEmployeeAccountByID(fName, lName, email, phone_numb
     });
 }
 
-async function employeeUpdateEmployeeAccountWithoutPasswordByUsername(fName, lName, email, phone_number, pWord, uName) {
+async function employeeUpdateEmployeeAccountWithoutPasswordByUsername(fName, lName, email, phone_number, pWord, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE username = ?', [fName, lName, email, phone_number, pWord, uName], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE username = ? and companyID = ?', [fName, lName, email, phone_number, pWord, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -109,9 +109,9 @@ async function employeeUpdateEmployeeAccountWithoutPasswordByUsername(fName, lNa
     });
 }
 
-async function employeeUpdateEmployeeAccountWithoutPasswordByID(fName, lName, email, phone_number, pWord, eID) {
+async function employeeUpdateEmployeeAccountWithoutPasswordByID(fName, lName, email, phone_number, pWord, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE employeeID = ?', [fName, lName, email, phone_number, pWord, eID], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, password = ? WHERE employeeID = ? and companyID = ?', [fName, lName, email, phone_number, pWord, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -121,9 +121,9 @@ async function employeeUpdateEmployeeAccountWithoutPasswordByID(fName, lName, em
     });
 }
 
-async function employeeUpdateEmployeeAccountStatusByUsername(accountStatus, uName) {
+async function employeeUpdateEmployeeAccountStatusByUsername(accountStatus, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status = ? WHERE username = ?', [accountStatus, uName], function (err) {
+        db.run('UPDATE Employee SET account_status = ? WHERE username = ? and companyID = ?', [accountStatus, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -133,9 +133,9 @@ async function employeeUpdateEmployeeAccountStatusByUsername(accountStatus, uNam
     });
 }
 
-async function employeeUpdateEmployeeStatusAccountByID(accountStatus, eID) {
+async function employeeUpdateEmployeeStatusAccountByID(accountStatus, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status = ? WHERE employeeID = ?', [accountStatus, eID], function (err) {
+        db.run('UPDATE Employee SET account_status = ? WHERE employeeID = ? and companyID = ?', [accountStatus, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -145,9 +145,9 @@ async function employeeUpdateEmployeeStatusAccountByID(accountStatus, eID) {
     });
 }
 
-async function employeeSetEmployeeCredentialsByUsername(pWord, uName) {
+async function employeeSetEmployeeCredentialsByUsername(pWord, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET password = ? WHERE username = ?', [pWord, uName], function (err) {
+        db.run('UPDATE Employee SET password = ? WHERE username = ? and companyID = ?', [pWord, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -157,9 +157,9 @@ async function employeeSetEmployeeCredentialsByUsername(pWord, uName) {
     });
 }
 
-async function employeeSetEmployeeCredentialsByID(pWord, eID) {
+async function employeeSetEmployeeCredentialsByID(pWord, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET password = ? WHERE employeeID = ?', [pWord, eID], function (err) {
+        db.run('UPDATE Employee SET password = ? WHERE employeeID = ? and companyID = ?', [pWord, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -170,9 +170,9 @@ async function employeeSetEmployeeCredentialsByID(pWord, eID) {
 }
 
 /*-------------------------------------------------ABA--------------------------------------------------*/
-async function behaviorSkillExistByID(bsID) {
+async function behaviorSkillExistByID(bsID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ?', [bsID], (err, rows) => {
+        db.all('SELECT * FROM BehaviorAndSkill WHERE bsID = ? and companyID = ?', [bsID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -182,10 +182,9 @@ async function behaviorSkillExistByID(bsID) {
     });
 }
 
-
-async function employeeAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered) {
+async function employeeAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, count, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -195,9 +194,9 @@ async function employeeAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, 
     });
 }
 
-async function employeeAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered) {
+async function employeeAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count, duration, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, count, duration, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, count, duration, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -207,9 +206,9 @@ async function employeeAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count
     });
 }
 
-async function employeeAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered) {
+async function employeeAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, trial, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, trial, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO BehaviorData (bsID, clientID, clientName, sessionDate, sessionTime, duration, entered_by, companyID, companyName, date_entered, time_entered, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [bsID, cID, cName, sDate, sTime, trial, enteredBy, compID, compName, dateEntered, timeEntered, "Active"], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
