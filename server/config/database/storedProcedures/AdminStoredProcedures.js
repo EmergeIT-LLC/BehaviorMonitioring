@@ -49,9 +49,9 @@ async function adminDataById(uID) {
     });
 }
 
-async function adminAddNewEmployee(fName, lName, username, email, phone_number, role, account_status, enteredBy, dateEntered, timeEntered) {
+async function adminAddNewEmployee(fName, lName, username, email, phone_number, role, account_status, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO Employee (fName, lName, username, email, phone_number, role, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [fName, lName, username, email, phone_number, role, account_status, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO Employee (fName, lName, username, email, phone_number, role, entered_by, companyID, companyName, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [fName, lName, username, email, phone_number, role, account_status, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -61,9 +61,9 @@ async function adminAddNewEmployee(fName, lName, username, email, phone_number, 
     });
 }
 
-async function adminDeleteAnEmployeeByID(eID) {
+async function adminDeleteAnEmployeeByID(eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Employee WHERE employeeID = ?', [eID], function (err) {
+        db.run('DELETE FROM Employee WHERE employeeID = ? and companyID = ?', [eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -73,9 +73,9 @@ async function adminDeleteAnEmployeeByID(eID) {
     });
 }
 
-async function adminDeleteAnEmployeeByUsername(uName) {
+async function adminDeleteAnEmployeeByUsername(uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Employee WHERE username = ?', [uName], function (err) {
+        db.run('DELETE FROM Employee WHERE username = ? and companyID = ?', [uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -85,9 +85,9 @@ async function adminDeleteAnEmployeeByUsername(uName) {
     });
 }
 
-async function adminUpdateEmployeeAccountStatusByUsername(accountStatus, uName) {
+async function adminUpdateEmployeeAccountStatusByUsername(accountStatus, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status WHERE username = ?', [accountStatus, uName], function (err) {
+        db.run('UPDATE Employee SET account_status WHERE username = ? and companyID = ?', [accountStatus, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -97,9 +97,9 @@ async function adminUpdateEmployeeAccountStatusByUsername(accountStatus, uName) 
     });
 }
 
-async function adminUpdateEmployeeAccountStatusByID(accountStatus, eID) {
+async function adminUpdateEmployeeAccountStatusByID(accountStatus, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status = ? WHERE employeeID = ?', [accountStatus, eID], function (err) {
+        db.run('UPDATE Employee SET account_status = ? WHERE employeeID = ? and companyID = ?', [accountStatus, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -109,9 +109,9 @@ async function adminUpdateEmployeeAccountStatusByID(accountStatus, eID) {
     });
 }
 
-async function adminUpdateEmployeeAccountByUsername(fName, lName, email, phone_number, role, uName) {
+async function adminUpdateEmployeeAccountByUsername(fName, lName, email, phone_number, role, uName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE username = ?', [fName, lName, username, email, phone_number, role, uName], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE username = ? and companyID = ?', [fName, lName, username, email, phone_number, role, uName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -121,9 +121,9 @@ async function adminUpdateEmployeeAccountByUsername(fName, lName, email, phone_n
     });
 }
 
-async function adminUpdateEmployeeAccountByID(fName, lName, email, phone_number, role, eID) {
+async function adminUpdateEmployeeAccountByID(fName, lName, email, phone_number, role, eID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE employeeID = ?', [fName, lName, email, phone_number, role, eID], function (err) {
+        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE employeeID = ? and companyID = ?', [fName, lName, email, phone_number, role, eID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -134,9 +134,9 @@ async function adminUpdateEmployeeAccountByID(fName, lName, email, phone_number,
 }
 
 /*-----------------------------------------------Home-----------------------------------------------*/
-async function homeExistByName(name) {
+async function homeExistByName(name, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM Home WHERE name = ?', [name], (err, rows) => {
+        db.all('SELECT * FROM Home WHERE name = ? and companyID = ?', [name, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -146,9 +146,9 @@ async function homeExistByName(name) {
     });
 }
 
-async function homeExistByID(hID) {
+async function homeExistByID(hID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM Home WHERE homeID = ?', [hID], (err, rows) => {
+        db.all('SELECT * FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -158,9 +158,9 @@ async function homeExistByID(hID) {
     });
 }
 
-async function homeDataByName(name) {
+async function homeDataByName(name, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, date_entered, time_entered FROM Home WHERE name = ?', [name], (err, rows) => {
+        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, companyID, companyName, date_entered, time_entered FROM Home WHERE name = ? and companyID = ?', [name, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -170,9 +170,9 @@ async function homeDataByName(name) {
     });
 }
 
-async function homeDataById(hID) {
+async function homeDataById(hID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, date_entered, time_entered FROM Home WHERE homeID = ?', [hID], (err, rows) => {
+        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, date_entered, companyID, companyName, time_entered FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -182,9 +182,9 @@ async function homeDataById(hID) {
     });
 }
 
-async function adminAddNewHome(name, streetAddress, city, state, zipCode, enteredBy, dateEntered, timeEntered) {
+async function adminAddNewHome(name, streetAddress, city, state, zipCode, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO Home (name, street_address, city, state, zip_code, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [name, streetAddress, city, state, zipCode, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO Home (name, street_address, city, state, zip_code, entered_by, companyID, companyName, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, streetAddress, city, state, zipCode, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -194,9 +194,9 @@ async function adminAddNewHome(name, streetAddress, city, state, zipCode, entere
     });
 }
 
-async function adminDeleteAHomeByID(hID) {
+async function adminDeleteAHomeByID(hID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Home WHERE homeID = ?', [hID], function (err) {
+        db.run('DELETE FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -206,9 +206,9 @@ async function adminDeleteAHomeByID(hID) {
     });
 }
 
-async function adminDeleteAHomeByName(name) {
+async function adminDeleteAHomeByName(name, compID) {
     return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Home WHERE name = ?', [name], function (err) {
+        db.run('DELETE FROM Home WHERE name = ? and companyID = ?', [name, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -218,9 +218,9 @@ async function adminDeleteAHomeByName(name) {
     });
 }
 
-async function adminUpdateHomeByName(name, streetAddress, city, state, zipCode, currentName) {
+async function adminUpdateHomeByName(name, streetAddress, city, state, zipCode, currentName, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE name = ?', [name, streetAddress, city, state, zipCode, currentName], function (err) {
+        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE name = ? and companyID = ?', [name, streetAddress, city, state, zipCode, currentName, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -230,9 +230,9 @@ async function adminUpdateHomeByName(name, streetAddress, city, state, zipCode, 
     });
 }
 
-async function adminUpdateHomeByID(name, streetAddress, city, state, zipCode, hID) {
+async function adminUpdateHomeByID(name, streetAddress, city, state, zipCode, hID, compID) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE homeID = ?', [name, streetAddress, city, state, zipCode, hID], function (err) {
+        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE homeID = ? and companyID = ?', [name, streetAddress, city, state, zipCode, hID, compID], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
