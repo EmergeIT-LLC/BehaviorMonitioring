@@ -73,7 +73,7 @@ export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, compID:
     if (loginSuccessful) {
         localStorage.setItem('bmLoggedInStatus', "true");
         localStorage.setItem('bmUsername', uName);
-        localStorage.setItem('bmCompanyID', compID.toLocaleString());
+        localStorage.setItem('bmCompanyID', compID.toString());
         localStorage.setItem('bmCompanyName', compName);
         
         if (isAdmin) {
