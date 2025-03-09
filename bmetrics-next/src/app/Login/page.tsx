@@ -56,7 +56,7 @@ const Login: React.FC = () => {
         })
         .then((response) => {
             if (response.data.statusCode === 200) {
-                SetLoggedInUser(response.data.loginStatus, response.data.uName, response.data.isAdmin);
+                SetLoggedInUser(response.data.loginStatus, response.data.uName,  response.data.compID, response.data.compName, response.data.isAdmin);
                 SetCookies(response.data.cookie.name, response.data.cookie.value, response.data.cookie.options.expirationTime, response.data.cookie.options.path, response.data.cookie.options.secure, response.data.cookie.options.sameSite);
                 setUserStatus(true);
                 navigate.push(previousUrl || '/');

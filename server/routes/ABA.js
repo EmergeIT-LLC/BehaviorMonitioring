@@ -66,8 +66,8 @@ router.post('/getClientInfo', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
-                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                     if (clientData){
                         return res.json({ statusCode: 200, clientData: clientData });
@@ -189,8 +189,8 @@ router.post('/addNewTargetBehavior', async (req, res) => {
                     const cID = behaviors[i].clientID;
                     const clientName = behaviors[i].clientName;
 
-                    if (await abaQueries.abaClientExistByID(cID)) {
-                        const clientData = await abaQueries.abaGetClientDataByID(cID);
+                    if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                        const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                         if (clientData){
                             if (!await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
@@ -238,8 +238,8 @@ router.post('/updateTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
-                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                     if (clientData){
                         if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
@@ -337,8 +337,8 @@ router.post('/getClientTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior');
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior', employeeData.companyID);
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
@@ -373,7 +373,7 @@ router.post('/getAClientTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior');
 
                     if (behaviorSkillData.length > 0){
@@ -444,7 +444,7 @@ router.post('/getClientArchivedBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior');
                     const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior');
 
@@ -484,7 +484,7 @@ router.post('/getAClientArchivedBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior');
                     const archivedBehaviorSkillData = await abaQueries.abaGetAArchivedBehaviorOrSkill(cID, bsID, 'Behavior');
 
@@ -573,8 +573,8 @@ router.post('/submitTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
-                    const clientData = await abaQueries.abaGetClientDataByID(cID);
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
     
                     for (let i = 0; i < targetAmount; i++) {
                         if (await abaQueries.behaviorSkillExistByID(selectedTargetIds[i])) {
@@ -633,7 +633,7 @@ router.post('/mergeBehaviors', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     if (await abaQueries.behaviorSkillExistByID(targetBehaviorId)) {
                         const targetBehaviorData = await abaQueries.abaGetBehaviorOrSkill(targetBehaviorId, "Behavior");
     
@@ -691,7 +691,7 @@ router.post('/archiveBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
                         const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
                         const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
@@ -822,7 +822,7 @@ router.post('/activateBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
                         const behaviorData = await abaQueries.abaGetArchivedBehaviorOrSkill(behaviorId, "Behavior");
     
@@ -952,7 +952,7 @@ router.post('/getClientSkillAquisition', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID)) {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Skill');
 
                     if (behaviorSkillData.length > 0){

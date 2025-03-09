@@ -67,15 +67,17 @@ export const DeleteCookies = (name: string, expirationTime: string, path: string
 
 export const isAuthenticated = () => isCookieValid();
 
-export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
+export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, compID: string | number, compName: string, isAdmin: boolean) => {
     if (typeof window === 'undefined') return true;
     
     if (loginSuccessful) {
         localStorage.setItem('bmLoggedInStatus', "true");
         localStorage.setItem('bmUsername', uName);
-
+        localStorage.setItem('bmCompanyID', compID.toLocaleString());
+        localStorage.setItem('bmCompanyName', compName);
+        
         if (isAdmin) {
-            localStorage.setItem('bmAdmin', "true")
+            localStorage.setItem('bmAdmin', String(isAdmin));
         }
     }
     else {

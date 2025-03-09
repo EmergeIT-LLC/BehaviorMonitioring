@@ -27,7 +27,7 @@ async function employeeExistByID(uID) {
 
 async function employeeDataByUsername(uName) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName, FROM employee WHERE username = ?', [uName], (err, rows) => {
+        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName FROM employee WHERE username = ?', [uName], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -39,7 +39,7 @@ async function employeeDataByUsername(uName) {
 
 async function employeeDataById(uID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName, FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
+        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, companyID, companyName FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
