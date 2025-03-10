@@ -193,7 +193,7 @@ router.post('/addNewTargetBehavior', async (req, res) => {
                         const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                         if (clientData){
-                            if (!await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                            if (!await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                 failedBehaviors.push({ name, def, meas, cat, type, cID, clientName });
                             }
                         }
@@ -242,7 +242,7 @@ router.post('/updateTargetBehavior', async (req, res) => {
                     const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                     if (clientData){
-                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                        if (await abaQueries.abaAddBehaviorOrSkill(name, def, meas, cat, type, cID, clientData.fName + " " + clientData.lName, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                             return res.json({ statusCode: 200, clientAdded: true });
                         }
                         else {
@@ -302,8 +302,8 @@ router.post('/getTargetBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.behaviorSkillExistByID(bID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorDataById(cID, bID);
+                if (await abaQueries.behaviorSkillExistByID(bID, employeeData.companyID)) {
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorDataById(cID, bID, employeeData.companyID);
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
@@ -374,7 +374,7 @@ router.post('/getAClientTargetBehavior', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior');
+                    const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior', employeeData.companyID);
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
@@ -409,8 +409,8 @@ router.post('/getArchivedBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.behaviorSkillExistByID(bID)) {
-                    const behaviorSkillData = await abaQueries.abaGetArchivedBehaviorDataById(cID, bID);
+                if (await abaQueries.behaviorSkillExistByID(bID, employeeData.companyID)) {
+                    const behaviorSkillData = await abaQueries.abaGetArchivedBehaviorDataById(cID, bID, employeeData.companyID);
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });
@@ -445,8 +445,8 @@ router.post('/getClientArchivedBehavior', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior');
-                    const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior');
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Behavior', employeeData.companyID);
+                    const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorOrSkill(cID, 'Behavior', employeeData.companyID);
 
                     if (archivedBehaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: archivedBehaviorSkillData });
@@ -485,8 +485,8 @@ router.post('/getAClientArchivedBehavior', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior');
-                    const archivedBehaviorSkillData = await abaQueries.abaGetAArchivedBehaviorOrSkill(cID, bsID, 'Behavior');
+                    const behaviorSkillData = await abaQueries.abaGetABehaviorOrSkill(cID, bsID, 'Behavior', employeeData.companyID);
+                    const archivedBehaviorSkillData = await abaQueries.abaGetAArchivedBehaviorOrSkill(cID, bsID, 'Behavior', employeeData.companyID);
 
                     if (archivedBehaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: archivedBehaviorSkillData });
@@ -524,9 +524,9 @@ router.post('/getAArchivedBehaviorData', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.behaviorSkillExistByID(bID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorDataById(cID, bID);
-                    const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorDataById(cID, bID);
+                if (await abaQueries.behaviorSkillExistByID(bID, employeeData.companyID)) {
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorDataById(cID, bID, employeeData.companyID);
+                    const archivedBehaviorSkillData = await abaQueries.abaGetArchivedBehaviorDataById(cID, bID, employeeData.companyID);
 
                     if (archivedBehaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: archivedBehaviorSkillData });
@@ -577,21 +577,21 @@ router.post('/submitTargetBehavior', async (req, res) => {
                     const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
     
                     for (let i = 0; i < targetAmount; i++) {
-                        if (await abaQueries.behaviorSkillExistByID(selectedTargetIds[i])) {
+                        if (await abaQueries.behaviorSkillExistByID(selectedTargetIds[i], employeeData.companyID)) {
 
                             switch (selectedMeasurementTypes[i]) {
                                 case "Frequency":
-                                    if (!await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddFrequencyBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break;    
                                 case "Duration":
-                                    if (!await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddDurationBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], duration[i], employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break;
                                 case "Rate":
-                                    if (!await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                                    if (!await abaQueries.abaAddRateBehaviorData(selectedTargetIds[i], cID, clientData.fName + " " + clientData.lName, datesTargetsOccured[i], timesTargetsOccured[i], count[i], duration[i], employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                                         addedSuccessfully = false;
                                     }
                                     break; 
@@ -634,27 +634,27 @@ router.post('/mergeBehaviors', async (req, res) => {
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    if (await abaQueries.behaviorSkillExistByID(targetBehaviorId)) {
-                        const targetBehaviorData = await abaQueries.abaGetBehaviorOrSkill(targetBehaviorId, "Behavior");
+                    if (await abaQueries.behaviorSkillExistByID(targetBehaviorId, employeeData.companyID)) {
+                        const targetBehaviorData = await abaQueries.abaGetBehaviorOrSkill(targetBehaviorId, "Behavior", employeeData.companyID);
     
                         for (let i = 0; i < mergeBehaviorIds.length; i++) {
-                            let mergeBehaviorData = await abaQueries.abaGetBehaviorOrSkill(mergeBehaviorIds[i], "Behavior"); 
+                            let mergeBehaviorData = await abaQueries.abaGetBehaviorOrSkill(mergeBehaviorIds[i], "Behavior", employeeData.companyID); 
     
                             if (mergeBehaviorData.measurment === targetBehaviorData.measurment) {
-                                const dataExists = await abaQueries.abaGetBehaviorDataById(cID, mergeBehaviorIds[i])
+                                const dataExists = await abaQueries.abaGetBehaviorDataById(cID, mergeBehaviorIds[i], employeeData.companyID);
 
                                 if (dataExists.length > 0) {
-                                    if (!await abaQueries.abaMergeBehaviorDataById(cID, targetBehaviorId, mergeBehaviorIds[i])) {
+                                    if (!await abaQueries.abaMergeBehaviorDataById(cID, targetBehaviorId, mergeBehaviorIds[i], employeeData.companyID)) {
                                         throw new Error("An error occured while merging " + mergeBehaviorData.name);
                                     }
                                     else {
-                                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, mergeBehaviorIds[i])) {
+                                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, mergeBehaviorIds[i], employeeData.companyID)) {
                                             throw new Error("An error occured while deleting " + mergeBehaviorData.name);
                                         }
                                     }
                                 }
                                 else {
-                                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, mergeBehaviorIds[i])) {
+                                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, mergeBehaviorIds[i], employeeData.companyID)) {
                                         throw new Error("An error occured while deleting " + mergeBehaviorData.name);
                                     }
                                 }
@@ -692,22 +692,22 @@ router.post('/archiveBehavior', async (req, res) => {
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
-                        const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
+                    if (await abaQueries.behaviorSkillExistByID(behaviorId, employeeData.companyID)) {
+                        const behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID);
                         const archiveDeletionDate = await formatDateString(await addYears(await formatDateString(await currentDateTime.getCurrentDate()), 7));
     
-                        if (await abaQueries.abaFoundBehaviorDataById(cID, behaviorId)) {
-                            if (!await abaQueries.abaArchiveBehaviorDataByID('Archived', cID, behaviorId)) {
+                        if (await abaQueries.abaFoundBehaviorDataById(cID, behaviorId, employeeData.companyID)) {
+                            if (!await abaQueries.abaArchiveBehaviorDataByID('Archived', cID, behaviorId, employeeData.companyID)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name + "'s data");
                             }
                             else {
-                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
+                                if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate, employeeData.companyID)) {
                                     throw new Error("An error occured while archiving " + behaviorData.name);
                                 }
                             }
                         }
                         else {
-                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate)) {
+                            if (!await abaQueries.abaArchiveBehaviorOrSkillByID(cID, behaviorId, await formatDateString(await currentDateTime.getCurrentDate()), archiveDeletionDate, employeeData.companyID)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name);
                             }
                         }
@@ -742,20 +742,20 @@ router.post('/deleteBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior"); 
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID); 
 
                 if (await abaQueries.abaFoundBehaviorDataById(cID, behaviorId)) {
-                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId)) {
+                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
                     }
                     else {
-                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId, employeeData.companyID)) {
                             throw new Error("An error occured while deleting " + behaviorData.name);
                         }
                     }
                 }
                 else {
-                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name);
                     }
                 }
@@ -785,10 +785,10 @@ router.post('/deleteBehaviorData', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID);
 
-                if (await abaQueries.abaGetBehaviorDataByBehaviorId(cID, behaviorId, behaviorDataId)) {
-                    if (!await abaQueries.abaDeleteBehaviorDataByBehaviorID(cID, behaviorId, behaviorDataId)) {
+                if (await abaQueries.abaGetBehaviorDataByBehaviorId(cID, behaviorId, behaviorDataId, employeeData.companyID)) {
+                    if (!await abaQueries.abaDeleteBehaviorDataByBehaviorID(cID, behaviorId, behaviorDataId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
                     }
                     else {
@@ -823,21 +823,21 @@ router.post('/activateBehavior', async (req, res) => {
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    if (await abaQueries.behaviorSkillExistByID(behaviorId)) {
-                        const behaviorData = await abaQueries.abaGetArchivedBehaviorOrSkill(behaviorId, "Behavior");
+                    if (await abaQueries.behaviorSkillExistByID(behaviorId, employeeData.companyID)) {
+                        const behaviorData = await abaQueries.abaGetArchivedBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID);
     
                         if (await abaQueries.abaGetArchivedBehaviorDataById(cID, behaviorId) > 0) {
-                            if (!await abaQueries.abaReactivateBehaviorDataByID('Active', cID, behaviorId)) {
+                            if (!await abaQueries.abaReactivateBehaviorDataByID('Active', cID, behaviorId, null, null)) {
                                 throw new Error("An error occured while reactivating " + behaviorData.name + "'s data");
                             }
                             else {
-                                if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null)) {
+                                if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null, employeeData.companyID)) {
                                     throw new Error("An error occured while reactivating " + behaviorData.name);
                                 }
                             }
                         }
                         else {
-                            if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null)) {
+                            if (!await abaQueries.abaReactivateBehaviorOrSkillByID(cID, behaviorId, null, null, employeeData.companyID)) {
                                 throw new Error("An error occured while archiving " + behaviorData.name);
                             }
                         }
@@ -872,20 +872,20 @@ router.post('/deleteArchivedBehavior', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior"); 
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID); 
 
-                if (await abaQueries.abaFoundBehaviorDataById(cID, behaviorId)) {
-                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId)) {
+                if (await abaQueries.abaFoundBehaviorDataById(cID, behaviorId, employeeData.companyID)) {
+                    if (!await abaQueries.abaDeleteBehaviorDataByID(cID, behaviorId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
                     }
                     else {
-                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                        if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId, employeeData.companyID)) {
                             throw new Error("An error occured while deleting " + behaviorData.name);
                         }
                     }
                 }
                 else {
-                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId)) {
+                    if (!await abaQueries.abaDeleteBehaviorOrSkillByID(cID, behaviorId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name);
                     }
                 }
@@ -916,10 +916,10 @@ router.post('/deleteArchivedBehaviorData', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
             
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior");
+                let behaviorData = await abaQueries.abaGetBehaviorOrSkill(behaviorId, "Behavior", employeeData.companyID);
 
-                if (await abaQueries.abaGetArchivedBehaviorDataByBehaviorId(cID, behaviorId, behaviorDataId)) {
-                    if (!await abaQueries.abaDeleteArchivedBehaviorDataByBehaviorID(cID, behaviorId, behaviorDataId)) {
+                if (await abaQueries.abaGetArchivedBehaviorDataByBehaviorId(cID, behaviorId, behaviorDataId, employeeData.companyID)) {
+                    if (!await abaQueries.abaDeleteArchivedBehaviorDataByBehaviorID(cID, behaviorId, behaviorDataId, employeeData.companyID)) {
                         throw new Error("An error occured while deleting " + behaviorData.name + "'s data");
                     }
                     else {
@@ -943,6 +943,40 @@ router.post('/deleteArchivedBehaviorData', async (req, res) => {
     }
 });
 
+router.post('/submitTargetBehavior', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const employeeUsername = req.body.employeeUsername;
+
+        //For successful/failed adds
+        let addedSuccessfully = true;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
+    
+                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All behavior data added' });
+                }
+                else {
+                    return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, behaviorAdded: false, serverMessage: 'Unauthorized user' });
+        }
+    }
+    catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
 router.post('/getClientSkillAquisition', async (req, res) => {
     try {
         const cID = req.body.clientID;
@@ -952,8 +986,8 @@ router.post('/getClientSkillAquisition', async (req, res) => {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
-                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Skill');
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID, employeeData.companyName)) {
+                    const behaviorSkillData = await abaQueries.abaGetBehaviorOrSkill(cID, 'Skill', employeeData.companyID);
 
                     if (behaviorSkillData.length > 0){
                         return res.json({ statusCode: 200, behaviorSkillData: behaviorSkillData });

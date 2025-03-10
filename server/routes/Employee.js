@@ -82,7 +82,7 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
                     const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
                     
                     if (employeeData.role === "root" || employeeData.role === "admin") {
-                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: true, cookie: cookieSettings });
+                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: true, cookie: cookieSettings });
                     }
                     else {
                         return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: false, cookie: cookieSettings });

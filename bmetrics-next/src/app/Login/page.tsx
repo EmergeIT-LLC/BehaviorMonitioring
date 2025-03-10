@@ -17,7 +17,8 @@ const Login: React.FC = () => {
     const searchParams = useSearchParams();
     const previousUrl = searchParams.get('previousUrl');
     const navigate = useRouter();
-    const [userStatus, setUserStatus] = useState<boolean>(GetLoggedInUserStatus());    const [uName, setuName] = useState<string>('');
+    const [userStatus, setUserStatus] = useState<boolean>(GetLoggedInUserStatus());    
+    const [uName, setuName] = useState<string>('');
     const [pWord, setPWord] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<string>('');
