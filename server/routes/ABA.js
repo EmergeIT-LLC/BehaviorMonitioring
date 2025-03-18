@@ -943,7 +943,7 @@ router.post('/deleteArchivedBehaviorData', async (req, res) => {
     }
 });
 
-router.post('/submitTargetBehavior', async (req, res) => {
+router.post('/submitSessionNotes', async (req, res) => {
     try {
         const cID = req.body.clientID;
         const employeeUsername = req.body.employeeUsername;
@@ -957,8 +957,10 @@ router.post('/submitTargetBehavior', async (req, res) => {
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
+
+                    
     
-                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All behavior data added' });
+                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All submission notes stored' });
                 }
                 else {
                     return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Client does not exist' });
