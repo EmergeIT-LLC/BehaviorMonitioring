@@ -100,6 +100,7 @@ export const GetLoggedInUserStatus = () => {
         const parsedData = JSON.parse(userData);
         return Boolean(parsedData.bmLoggedInStatus);
     }
+    return false;
 }
 
 export const GetLoggedInUser = () => {
