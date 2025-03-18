@@ -71,14 +71,15 @@ export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, compID:
     if (typeof window === 'undefined') return true;
     
     if (loginSuccessful) {
-        localStorage.setItem('bmLoggedInStatus', String(loginSuccessful));
-        localStorage.setItem('bmUsername', uName);
-        localStorage.setItem('bmCompanyID', String(compID));
-        localStorage.setItem('bmCompanyName', compName);
-        
-        if (isAdmin) {
-            localStorage.setItem('bmAdmin', String(isAdmin));
-        }
+        const dataToStore = {
+            bmLoggedInStatus: loginSuccessful,
+            bmUsername: uName,
+            bmCompanyID: String(compID),
+            bmCompanyName: compName,
+            bmAdmin: isAdmin
+        };
+
+        localStorage.setItem('bmUserData', JSON.stringify(dataToStore));
     }
     else {
         ClearLoggedInUser();
@@ -94,19 +95,22 @@ export const ClearLoggedInUser = () => {
 export const GetLoggedInUserStatus = () => {
     if (typeof window === 'undefined') return true;
 
-    const isUserLoggedStatus = localStorage.getItem('bmLoggedInStatus');
-
-    if (isUserLoggedStatus === "true") {
-        return true;
+    const userData = localStorage.getItem('bmUserData');
+    if (userData) {
+        const parsedData = JSON.parse(userData);
+        return Boolean(parsedData.bmLoggedInStatus);
     }
-    return false;
 }
 
 export const GetLoggedInUser = () => {
     if (typeof window === 'undefined') return true;
 
     if (GetLoggedInUserStatus()) {
-        return localStorage.getItem('bmUsername');
+        const userData = localStorage.getItem('bmUserData');
+        if (userData) {
+            const parsedData = JSON.parse(userData);
+            return String(parsedData.bmUsername);
+        }
     }
     return null;
 }
@@ -115,10 +119,11 @@ export const GetAdminStatus = () => {
     if (typeof window === 'undefined') return true;
     
     if (GetLoggedInUserStatus()) {
-        if (localStorage.getItem('bmAdmin') !== null && localStorage.getItem('bmAdmin') === "true") {
-            return true;
+        const userData = localStorage.getItem('bmUserData');
+        if (userData) {
+            const parsedData = JSON.parse(userData);
+            return Boolean(parsedData.bmAdmin);
         }
-        return false;
     }
     return false;
 }
