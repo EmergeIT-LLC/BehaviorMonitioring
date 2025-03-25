@@ -946,10 +946,10 @@ router.post('/deleteArchivedBehaviorData', async (req, res) => {
 router.post('/submitSessionNotes', async (req, res) => {
     try {
         const cID = req.body.clientID;
+        const sessionDate = req.body.sessionNoteDate;
+        const sessionTime = req.body.sessionNoteTime;
+        const sessionNotes = req.body.sessionNotes;
         const employeeUsername = req.body.employeeUsername;
-
-        //For successful/failed adds
-        let addedSuccessfully = true;
 
         if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
             const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
@@ -958,7 +958,10 @@ router.post('/submitSessionNotes', async (req, res) => {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
                     const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
-                    
+                    //Store notes into notes table
+                    if (clientData.length > 0) {
+                        abaQueries.abaAddSessionNoteData(cID, clientData.fName + " " + clientData.lName, sessionDate, sessionTime, sessionNotes, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST");
+                    }
     
                     return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All submission notes stored' });
                 }

@@ -413,9 +413,9 @@ async function abaGetSessionNoteDataByClientID(cID, compID) {
     });
 }
 
-async function abaAddSessionNoteData(cID, cName, sDate, sTime, enteredBy, dateEntered, timeEntered) {
+async function abaAddSessionNoteData(cID, cName, sDate, sTime, enteredBy, compID, compName, dateEntered, timeEntered) {
     return new Promise((resolve, reject) => {
-        db.run('INSERT INTO SessionNoteData (clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?)', [cID, cName, sDate, sTime, enteredBy, dateEntered, timeEntered], function (err) {
+        db.run('INSERT INTO SessionNoteData (clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, clientID, clientName, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [cID, cName, sDate, sTime, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
             if (err) {
                 reject({ message: err.message });
             } else {
@@ -469,5 +469,9 @@ module.exports = {
     abaDeleteArchivedBehaviorOrSkillByID,
     abaGetArchivedBehaviorDataByBehaviorId,
     abaGetAArchivedBehaviorOrSkill,
-    abaDeleteArchivedBehaviorDataByBehaviorID
+    abaDeleteArchivedBehaviorDataByBehaviorID,
+    abaAddSessionNoteData,
+    abaSessionNoteDataByClientID,
+    abaGetSessionNoteDataByClientID,
+    abaDeleteSessionNoteDataByID
 }
