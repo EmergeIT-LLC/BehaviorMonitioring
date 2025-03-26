@@ -424,7 +424,7 @@
                 cursor: pointer;
             }
 
-            button:first-child, a:first-child {
+            button:not(:last-child), a:not(:last-child) {
                 margin-right: 1em;
             }
         }
