@@ -16,6 +16,7 @@ import Tab from '../../components/Tab';
 import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
 import Axios from 'axios';
+import { todo } from 'node:test';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {
@@ -90,6 +91,7 @@ const DataEntry: React.FC = () => {
             const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
             return () => clearTimeout(timer);
         }
+
         if (timerCount === 0 && clearMessageStatus) {
             sessionStorage.removeItem('dataEntryState');
             setClearMessageStatus(false);
@@ -139,6 +141,7 @@ const DataEntry: React.FC = () => {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
+
             if (response.data.statusCode === 200) {
                 const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
                     value: behavior.bsID,
@@ -172,6 +175,7 @@ const DataEntry: React.FC = () => {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
+
             if (response.data.statusCode === 200) {
                 const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
                     value: behavior.bsID,
@@ -219,7 +223,7 @@ const DataEntry: React.FC = () => {
             numericValue = 1;
         }
     
-        setTargetAmt(numericValue);
+        setSkillAmt(numericValue);
     };
 
     useEffect(() => {
@@ -253,7 +257,7 @@ const DataEntry: React.FC = () => {
                 const newTimes = Array(skillAmt).fill(getCurrentTime());
                 return newTimes.map((_, i) => prev[i] || getCurrentTime());
             });        }
-    }, [targetAmt, activeTab, isInitialized]);
+    }, [targetAmt, skillAmt, activeTab, isInitialized]);
     
 
     const handleClientChange = (value: any) => {
@@ -329,29 +333,53 @@ const DataEntry: React.FC = () => {
             if (times.length > 0) setTimes(times);
             if (count.length > 0) setCount(count);
             if (selectedMeasurementTypes.length > 0) setSelectedMeasurementTypes(selectedMeasurementTypes);
+            // TODO: Add logic for skill data collection
         };
 
-        const generateTargetTableHeaders = () => {
-            const newHeaders: JSX.Element[] = [
-                <th key="remove"></th>,
-                <th key="target">Target:</th>,
-                <th key="sessionDate">Session Date:</th>,
-                <th key="time">Time:</th>
-            ];
+        if (activeTab === 'Behavior') {
+            const generateTargetTableHeaders = () => {
+                const newHeaders: JSX.Element[] = [
+                    <th key="remove"></th>,
+                    <th key="target">Target:</th>,
+                    <th key="sessionDate">Session Date:</th>,
+                    <th key="time">Time:</th>
+                ];
 
-            if (selectedMeasurementTypes.includes('Frequency') || selectedMeasurementTypes.includes('Rate')) {
-                newHeaders.push(<th key="count">Count:</th>);
-            }
-            if (selectedMeasurementTypes.includes('Duration') || selectedMeasurementTypes.includes('Rate')) {
-                newHeaders.push(<th key="duration">Duration:</th>);
+                if (selectedMeasurementTypes.includes('Frequency') || selectedMeasurementTypes.includes('Rate')) {
+                    newHeaders.push(<th key="count">Count:</th>);
+                }
+                if (selectedMeasurementTypes.includes('Duration') || selectedMeasurementTypes.includes('Rate')) {
+                    newHeaders.push(<th key="duration">Duration:</th>);
+                }    
+                return newHeaders;
+            };
+
+            if (isInitialized) {
+                loadData();  // Load data when component mounts
             }    
-            return newHeaders;
-        };
 
-        if (isInitialized) {
-            loadData();  // Load data when component mounts
+            setHeaders(generateTargetTableHeaders());
         }
-        setHeaders(generateTargetTableHeaders());
+        else if (activeTab === 'Skill') {
+            const generateSkillTableHeaders = () => {
+                const newHeaders: JSX.Element[] = [
+                    <th key="remove"></th>,
+                    <th key="target">Target:</th>,
+                    <th key="sessionDate">Session Date:</th>,
+                    <th key="time">Time:</th>
+                ];
+    
+                // TODO: Add logic for skill data collection
+                    
+                return newHeaders;
+            };
+
+            if (isInitialized) {
+                loadData();  // Load data when component mounts
+            }
+    
+            setHeaders(generateSkillTableHeaders());
+        }
     }, [selectedMeasurementTypes]);
 
     const renderTargetTableData = (index: number) => {
@@ -379,6 +407,19 @@ const DataEntry: React.FC = () => {
                 </td>
             );
         }
+        return cells;
+    };
+
+    const renderSkillTableData = (index: number) => {
+        const cells = [
+            <td key={`remove-${index}`}><Button nameOfClass='tbRemoveButton' placeholder='Remove' btnType='button' onClick={() => removeEntry(index)}/></td>,
+            <td key={`skill-${index}`}><SelectDropdown name={`Target-${index}`} requiring={true} value={selectedTargets[index]} options={targetOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>,
+            <td key={`sessionDate-${index}`}><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>,
+            <td key={`time-${index}`}><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
+        ];
+
+        // TODO: Add logic for skill data collection
+
         return cells;
     };
 
@@ -422,6 +463,7 @@ const DataEntry: React.FC = () => {
                     "duration": duration,
                     "employeeUsername": loggedInUser
                 });
+
                 if (response.data.statusCode === 201) {
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
@@ -442,6 +484,7 @@ const DataEntry: React.FC = () => {
                     "clientID": selectedClientID,
                     "employeeUsername": loggedInUser
                 });
+
                 if (response.data.statusCode === 201) {
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setTargetAmt(1);
@@ -465,6 +508,7 @@ const DataEntry: React.FC = () => {
                     "sessionNotes": sessionNotes,
                     "employeeUsername": loggedInUser
                 });
+
                 if (response.data.statusCode === 201) {
                     setStatusMessage(<>{response.data.serverMessage}</>);
                     setSessionNotes('');
@@ -530,10 +574,10 @@ const DataEntry: React.FC = () => {
                                         </label>
                                     )}
                                     {activeTab === 'Skill' && (
-                                            <label className={componentStyles.dataEntryInputAMT}>
-                                                Number of skill:
-                                                <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={skillAmt} onChange={handleSkillAMTChange} />
-                                            </label>
+                                        <label className={componentStyles.dataEntryInputAMT}>
+                                            Number of skill:
+                                            <InputFields name="skillAmtField" type="number" placeholder="1" requiring={true} value={skillAmt} onChange={handleSkillAMTChange} />
+                                        </label>
                                     )}
                                     {activeTab === 'Session Notes' && (
                                         <label className={componentStyles.dataEntryInputAMT}>
@@ -565,32 +609,17 @@ const DataEntry: React.FC = () => {
                                 )}
                                 {activeTab === 'Skill' && (
                                     <table className={componentStyles.dataEntryTable}>
-                                    <thead>
-                                        <tr>
-                                            <th>Remove:</th>
-                                            <th>Target:</th>
-                                            <th>Session Date:</th>
-                                            <th>Time:</th>
-                                            {targetAmt > 0 && dates.map((date, index) =>
-                                                selectedMeasurementTypes[index] && (
-                                                    <th key={index}></th>
-                                                )
+                                        <thead>
+                                            {headers}
+                                        </thead>
+                                        <tbody>
+                                            {skillAmt > 0 && dates.map((date, index) =>
+                                                <tr key={index}>
+                                                    {renderSkillTableData(index)}
+                                                </tr>
                                             )}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {skillAmt > 0 && dates.map((date, index) =>
-                                            <tr key={index}>
-                                                <td><SelectDropdown name={`Skill-${index}`} requiring={true} value={selectedSkills[index]} options={skillOptions} onChange={(e) => handleOptionChange(index, e.target.value)} /></td>
-                                                <td><DateFields name={`SessionDate-${index}`} requiring={true} value={dates[index]} onChange={(e) => handleDateChange(index, e.target.value)} /></td>
-                                                <td><TimeFields name={`SessionTime-${index}`} requiring={true} value={times[index]} onChange={(e) => handleTimeChange(index, e.target.value)} /></td>
-                                                {selectedMeasurementTypes.includes('frequency') && (
-                                                    <td></td>
-                                                )}
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
                                 )}
                                 {activeTab === 'Session Notes' && (
                                     <div className={componentStyles.sessionNotesContainer}>

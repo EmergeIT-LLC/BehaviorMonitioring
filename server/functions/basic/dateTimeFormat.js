@@ -1,5 +1,7 @@
 const { parse, format } = require('date-fns');
 const pattern = 'yyyy-MM-dd';
+const timePattern = 'HH:mm';
+const outputTimePattern = 'hh:mm:ss a';
 
 async function dateTimeFormat(dateTime) {
     // Parse the input date string
@@ -13,7 +15,13 @@ async function formatDateString(date) {
     return format(date, pattern);
 }
 
+async function formatTimeString(time) {
+    const parsedTime = parse(time, timePattern, new Date());
+    return `${format(parsedTime, outputTimePattern)} EST`;
+}
+
 module.exports = {
     dateTimeFormat,
-    formatDateString
+    formatDateString,
+    formatTimeString
 }

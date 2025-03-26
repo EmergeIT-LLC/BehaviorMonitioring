@@ -8,7 +8,7 @@ const emailHandler = require('../config/email/emailTemplate');
 const currentDateTime = require('../functions/basic/currentDateTime');
 const cookieMonster = require('../config/cookies/cookieHandler');
 const { addDays, addYears } = require('../functions/basic/addDayYear');
-const { formatDateString } = require('../functions/basic/dateTimeFormat');
+const { formatDateString, formatTimeString } = require('../functions/basic/dateTimeFormat');
 
 /*-----------------------------------------------ABA-----------------------------------------------*/
 router.post('/addNewClient', async (req, res) => {
@@ -946,8 +946,8 @@ router.post('/deleteArchivedBehaviorData', async (req, res) => {
 router.post('/submitSessionNotes', async (req, res) => {
     try {
         const cID = req.body.clientID;
-        const sessionDate = req.body.sessionNoteDate;
-        const sessionTime = req.body.sessionNoteTime;
+        const sessionDate = req.body.sessionDate;
+        const sessionTime = req.body.sessionTime;
         const sessionNotes = req.body.sessionNotes;
         const employeeUsername = req.body.employeeUsername;
 
@@ -959,11 +959,13 @@ router.post('/submitSessionNotes', async (req, res) => {
                     const clientData = await abaQueries.abaGetClientDataByID(cID, employeeData.companyID);
 
                     //Store notes into notes table
-                    if (clientData.length > 0) {
-                        abaQueries.abaAddSessionNoteData(cID, clientData.fName + " " + clientData.lName, sessionDate, sessionTime, sessionNotes, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST");
+                    if (await abaQueries.abaAddSessionNoteData(cID, clientData.fName + " " + clientData.lName, await formatDateString(sessionDate), await formatTimeString(sessionTime), sessionNotes, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                        return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All submission notes stored' });
+                    }
+                    else {
+                        return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Unable to store notes' });
                     }
     
-                    return res.json({ statusCode: 201, behaviorAdded: true, serverMessage: 'All submission notes stored' });
                 }
                 else {
                     return res.json({ statusCode: 400, behaviorAdded: false, serverMessage: 'Client does not exist' });
