@@ -130,11 +130,11 @@ function updateBackupImportStatus(backupOrImport, successOrUnsuccess) {
 }
 
 // Schedule backup to run every day at 12:00 AM EST
-cron.schedule('5 0 * * *', () => {
-  backupDatabaseToS3();
-}, {
-  timezone: "America/New_York"
-});
+// cron.schedule('5 0 * * *', () => {
+//   backupDatabaseToS3();
+// }, {
+//   timezone: "America/New_York"
+// });
 
 module.exports = {
   backupDatabaseToS3,
