@@ -984,6 +984,79 @@ router.post('/submitSessionNotes', async (req, res) => {
     }
 });
 
+router.post('/getSessionNotes', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const sessionNotesData = await abaQueries.abaGetSessionNotes(cID, employeeData.companyID);
+
+                    if (sessionNotesData.length > 0){
+                        return res.json({ statusCode: 200, sessionNotesData: sessionNotesData });
+                    }
+                    else {
+                        return res.json({ statusCode: 400, serverMessage: 'Unable to locate client data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    }
+    catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/getASessionNote', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const sessionNoteId = req.body.sessionNoteId;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    const sessionNoteData = await abaQueries.abaGetSessionNoteById(cID, sessionNoteId, employeeData.companyID);
+                    
+                    if (sessionNoteData.length > 0){
+                        return res.json({ statusCode: 200, sessionNoteData: sessionNoteData });
+                    }
+                    else {
+                        return res.json({ statusCode: 400, serverMessage: 'Unable to locate client data' });
+                    }
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    }
+    catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
 router.post('/getClientSkillAquisition', async (req, res) => {
     try {
         const cID = req.body.clientID;

@@ -24,6 +24,7 @@ const Header: React.FC = () => {
                 <li key="dashboard"><Link href='/Dashboard' hrefType='link' placeholder="Dashboard" /></li>,
                 <li key="behavior"><Link href='/Behavior' hrefType='link' placeholder="Behaviors" /></li>,
                 // <li key="skill"><Link href='/Skill' hrefType='link' placeholder="Skills" /></li>,
+                <li key="session-notes"><Link href='/SessionNotes' hrefType='link' placeholder="Session Notes" /></li>,
                 <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry" /></li>,
             ];
             if (userIsAdmin) {
