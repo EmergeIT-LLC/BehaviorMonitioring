@@ -25,8 +25,8 @@ const SessionNotes: React.FC = () => {
         const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
         const [selectedClient, setSelectedClient] = useState<string>('');
         const [selectedClientID, setSelectedClientID] = useState<number>(0);
-        const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
-        const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string; measurementType: string | undefined }[]>([]);
+        const [notesOptions, setNotesOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
+        const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; measurementType: string | undefined }[]>([]);
         const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
         const maxCheckedLimit = 4; // Define a limit for checkboxes
         const [activeMenu, setActiveMenu] = useState<number | null>(null);
@@ -34,8 +34,8 @@ const SessionNotes: React.FC = () => {
         const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
         const [mergeBehaviorList, setMergeBehaviorList] = useState<{ id: string; name: string }[]>([]);
         const [popupAction, setPopupAction] = useState<string>('');
-        const [behaviorNameToActOn, setBehaviorNameToActOn] = useState<string>('');
-        const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
+        const [sessionNotesToActOn, setSessionNotesToActOn] = useState<string>('');
+        const [sessionNotesIdToActOn, setSessionNotesIdToActOn] = useState<string>('');
         const [timerCount, setTimerCount] = useState<number>(0);
         const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
     
