@@ -994,7 +994,7 @@ router.post('/getSessionNotes', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const sessionNotesData = await abaQueries.abaGetSessionNotes(cID, employeeData.companyID);
+                    const sessionNotesData = await abaQueries.abaSessionNoteDataByClientID(cID, employeeData.companyID);
 
                     if (sessionNotesData.length > 0){
                         return res.json({ statusCode: 200, sessionNotesData: sessionNotesData });
@@ -1053,6 +1053,41 @@ router.post('/getASessionNote', async (req, res) => {
         }
     }
     catch (error) {
+        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post('/deleteSessionNote', async (req, res) => {
+    try {
+        const cID = req.body.clientID;
+        const sessionNoteId = req.body.sessionNoteId;
+        const employeeUsername = req.body.employeeUsername;
+
+        if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
+            const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
+            
+            if (employeeData.role === "root" || employeeData.role === "Admin") {
+                if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
+                    if (!await abaQueries.abaDeleteSessionNoteDataByID(cID, sessionNoteId, employeeData.companyID)) {
+                        throw new Error("An error occured while deleting the session note");
+                    }
+                    else {
+                        //Behaviors deleted successfully
+                        return res.json({ statusCode: 200, serverMessage: 'Session note deleted successfully' });
+                    }     
+                }
+                else {
+                    return res.json({ statusCode: 400, serverMessage: 'Client does not exist' });
+                }
+            }
+            else {
+                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+            }
+        }
+        else {
+            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+        }
+    } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
 });
