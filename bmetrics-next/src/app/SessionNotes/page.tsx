@@ -16,7 +16,6 @@ import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
 
 const SessionNotes: React.FC = () => {
-
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
@@ -39,8 +38,6 @@ const SessionNotes: React.FC = () => {
     const [sessionNotesIdToActOn, setSessionNotesIdToActOn] = useState<string>('');
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
-
-    console.log('getClientNames', clientLists);
 
     const handleClientChange = (value: any) => {
         setStatusMessage('');
