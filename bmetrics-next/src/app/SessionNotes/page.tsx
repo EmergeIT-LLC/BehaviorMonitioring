@@ -25,7 +25,7 @@ const SessionNotes: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [notesOptions, setNotesOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
+    const [notesOptions, setNotesOptions] = useState<{  value: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, label: string, entered_by: string }[]>([]);
     const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
@@ -109,18 +109,18 @@ const SessionNotes: React.FC = () => {
                 setCheckedNotes([]);
                 sessionStorage.removeItem('checkedNotes');
 
-                // const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
-                //     value: notes.sessionNoteDataID,
-                //     label: notes.name,
-                //     clientID: notes.clientID,
-                //     clientName: notes.clientName,
-                //     sessionDate: notes.sessionDate,
-                //      sessionTime: notes.sessionTime,
-                //     sessionNotes: notes.sessionNotes,
-                //     enteredBy: notes.entered_by,
-                // }));
-                // setNotesOptions(fetchedOptions);
-                // setCheckedState(new Array(fetchedOptions.length).fill(false));
+                const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
+                    value: notes.sessionNoteDataID,
+                    label: notes.name,
+                    clientID: notes.clientID,
+                    clientName: notes.clientName,
+                    sessionDate: notes.sessionDate,
+                     sessionTime: notes.sessionTime,
+                    sessionNotes: notes.sessionNotes,
+                    enteredBy: notes.entered_by,
+                }));
+                setNotesOptions(fetchedOptions);
+                setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
                 throw new Error(response.data.serverMessage);
             }
@@ -177,12 +177,9 @@ const SessionNotes: React.FC = () => {
     };
         
     const isCheckboxDisabled = (index: number) => {
-        const selectedMeasurementType = checkedNotes.length > 0 ? notesOptions.find(option => option.value === Number(checkedNotes[0].id))?.measurementType : null;
-        const currentBehaviorMeasurementType = notesOptions[index].measurementType;
         const currentCheckedCount = checkedState.filter(Boolean).length;
     
         return (
-            (checkedNotes.length > 0 && currentBehaviorMeasurementType !== selectedMeasurementType && !checkedState[index]) ||
             (!checkedState[index] && currentCheckedCount >= maxCheckedLimit)
         );
     };
@@ -295,8 +292,8 @@ const SessionNotes: React.FC = () => {
                                             <tr key={index}>
                                                 <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
                                                 <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.definition}</div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.measurementType}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.sessionDate}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
                                                 <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
                                             </tr>
                                         ))}
