@@ -994,9 +994,10 @@ router.post('/getSessionNotes', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (await abaQueries.abaClientExistByID(cID, employeeData.companyID)) {
-                    const sessionNotesData = await abaQueries.abaSessionNoteDataByClientID(cID, employeeData.companyID);
+                    const locatedSessionNotesData = await abaQueries.abaSessionNoteDataByClientIDExists(cID, employeeData.companyID);
 
-                    if (sessionNotesData.length > 0){
+                    if (locatedSessionNotesData){
+                        const sessionNotesData = await abaQueries.abaSessionNoteDataByClientID(cID, employeeData.companyID);
                         return res.json({ statusCode: 200, sessionNotesData: sessionNotesData });
                     }
                     else {

@@ -389,13 +389,25 @@ async function abaDeleteArchivedBehaviorDataByBehaviorID(cID, bsID, bdID, compID
 }
 
 /*-------------------------------------------------Session Notes--------------------------------------------------*/
-async function abaSessionNoteDataByClientID(cID, compID) {
+async function abaSessionNoteDataByClientIDExists(cID, compID) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? AND companyID = ?', [cID, compID], (err, rows) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, sessionNotes, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? AND companyID = ?', [cID, compID], (err, rows) => {
             if (err) {
                 reject({ message: err.message });
             } else {
                 resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
+            }
+        });
+    });
+}
+
+async function abaSessionNoteDataByClientID(cID, compID) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, sessionNotes, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? AND companyID = ?', [cID, compID], (err, rows) => {
+            if (err) {
+                reject({ message: err.message });
+            } else {
+                resolve(rows); // Resolve with true if duplicate user found, false otherwise
             }
         });
     });
@@ -472,6 +484,7 @@ module.exports = {
     abaDeleteArchivedBehaviorDataByBehaviorID,
     abaAddSessionNoteData,
     abaSessionNoteDataByClientID,
+    abaSessionNoteDataByClientIDExists,
     abaGetSessionNoteDataByID,
     abaDeleteSessionNoteDataByID
 }

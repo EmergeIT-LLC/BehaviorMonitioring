@@ -39,6 +39,98 @@ const SessionNotes: React.FC = () => {
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
+    useEffect(() => {
+        getClientNames();
+    }, [userLoggedIn]);
+
+        useEffect(() => {
+            if (selectedClientID > 0) {
+                getClientSessionNotes();
+            }
+        }, [selectedClientID]);
+    
+
+    useEffect(() => {
+        if (timerCount > 0) {
+            const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+        if (timerCount === 0 && clearMessageStatus) {
+            setClearMessageStatus(false);
+            setStatusMessage('')
+        }
+    }, [timerCount, clearMessageStatus]);
+
+    const getClientNames = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+        }
+        
+        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
+        try {
+            const response = await Axios.post(url, { "employeeUsername": loggedInUser });
+            if (response.data.statusCode === 200) {
+                setSelectedClient(response.data.clientData[0].fName + " " + response.data.clientData[0].lName);
+                setSelectedClientID(response.data.clientData[0].clientID);
+                const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
+                    value: clientData.clientID,
+                    label: `${clientData.fName} ${clientData.lName}`,
+                }));
+                setClientLists(fetchedOptions);
+            } else {
+                throw new Error(response.data.serverMessage);
+            }
+        } catch (error) {
+            return setStatusMessage(String(error));
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getClientSessionNotes = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);        
+        }
+
+        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getSessionNotes';
+        try {
+            const response = await Axios.post(url, {
+                "clientID": selectedClientID,
+                "employeeUsername": loggedInUser
+            });
+            if (response.data.statusCode === 200) {
+                setNotesOptions([]);
+                setCheckedState([]);
+                setCheckedNotes([]);
+                sessionStorage.removeItem('checkedNotes');
+
+                // const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
+                //     value: notes.sessionNoteDataID,
+                //     label: notes.name,
+                //     clientID: notes.clientID,
+                //     clientName: notes.clientName,
+                //     sessionDate: notes.sessionDate,
+                //      sessionTime: notes.sessionTime,
+                //     sessionNotes: notes.sessionNotes,
+                //     enteredBy: notes.entered_by,
+                // }));
+                // setNotesOptions(fetchedOptions);
+                // setCheckedState(new Array(fetchedOptions.length).fill(false));
+            } else {
+                throw new Error(response.data.serverMessage);
+            }
+        } catch (error) {
+            return setStatusMessage(String(error));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleClientChange = (value: any) => {
         setStatusMessage('');
         setNotesOptions([]);
@@ -94,6 +186,75 @@ const SessionNotes: React.FC = () => {
             (!checkedState[index] && currentCheckedCount >= maxCheckedLimit)
         );
     };
+
+    const handleEllipsisClick = (index: number) => {
+        if (activeMenu === index) {
+            closeMenu(); // Close if clicked again
+        } else {
+            setActiveMenu(index); // Open for the clicked row
+        }
+    };
+    
+    const getMenuPosition = (menuIndex: number) => {
+        const ellipsisButton = document.querySelectorAll('.tbHRSEllipsesButton')[menuIndex];
+        if (ellipsisButton) {
+            const buttonRect = ellipsisButton.getBoundingClientRect();
+            const menuTop = buttonRect.top + window.scrollY; // Account for scrolling
+            const menuLeft = buttonRect.left + window.scrollX + buttonRect.width; // Offset for width
+            return {
+                top: `${menuTop}px`,
+                left: `${menuLeft}px`,
+            };
+        }
+        return { top: '0px', left: '0px' };
+    };
+            
+    const closeMenu = () => setActiveMenu(null); // Close the menu
+
+    const openPopout = (action: string, sessionId: string, sessionNote: string) => {
+        setPopupAction(action);
+        setSessionNotesToActOn(sessionId);
+        setSessionNotesIdToActOn(sessionNote);
+        setIsPopoutVisible(true);
+    };
+
+    const openNotesDetail = (id: string | number) => {
+        sessionStorage.setItem('clientID', String(selectedClientID));
+        sessionStorage.setItem('behaviorID', String(id));
+        navigate.push(`/SessionNotes/Detail`);
+    }
+
+    const handleDelete = async () => {
+        setIsPopoutVisible(false);
+        await deleteBehaviorCall(sessionNotesIdToActOn, sessionNotesToActOn);
+    };
+
+    const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);        
+        }
+        
+        try {
+            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
+            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            if (response.data.statusCode === 200) {
+                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
+                // Update the notesOptions state to remove the deleted behavior
+                setTimerCount(3);
+                setClearMessageStatus(true);                                   
+        } else {
+                throw new Error(`Failed to delete "${behaviorName}".`);
+            }
+        } catch (error) {
+            return setStatusMessage(String(error));
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+
     
     return (
         <>
@@ -129,7 +290,27 @@ const SessionNotes: React.FC = () => {
                                             <th>More Options</th>
                                         </tr>
                                     </thead>
+                                    <tbody>
+                                        {notesOptions.map((option, index) => (
+                                            <tr key={index}>
+                                                <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.definition}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.measurementType}</div></td>
+                                                <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
                                 </table>
+                                {activeMenu !== null && (
+                                    <div className={componentStyles.popoutMenu} style={getMenuPosition(activeMenu)}>
+                                        <ul>
+                                            <li onClick={() => { const selectedNotes = notesOptions[activeMenu]; closeMenu(); openPopout('Delete', String(selectedNotes.value), selectedNotes.label); }}>Delete</li>
+                                            <li onClick={closeMenu}>Close Menu</li>
+                                        </ul>
+                                    </div>
+                                )}
+                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${sessionNotesToActOn}"?`} onConfirm={handleDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={sessionNotesToActOn} />
                             </div>
                         </div>
                     }
