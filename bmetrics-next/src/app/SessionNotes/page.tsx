@@ -43,13 +43,12 @@ const SessionNotes: React.FC = () => {
         getClientNames();
     }, [userLoggedIn]);
 
-        useEffect(() => {
-            if (selectedClientID > 0) {
-                getClientSessionNotes();
-            }
-        }, [selectedClientID]);
+    useEffect(() => {
+        if (selectedClientID > 0) {
+            getClientSessionNotes();
+        }
+    }, [selectedClientID]);
     
-
     useEffect(() => {
         if (timerCount > 0) {
             const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
@@ -104,6 +103,7 @@ const SessionNotes: React.FC = () => {
                 "employeeUsername": loggedInUser
             });
             if (response.data.statusCode === 200) {
+                const labelLength = 50;
                 setNotesOptions([]);
                 setCheckedState([]);
                 setCheckedNotes([]);
@@ -111,14 +111,15 @@ const SessionNotes: React.FC = () => {
 
                 const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
                     value: notes.sessionNoteDataID,
-                    label: notes.name,
+                    label: notes.sessionNotes.length > labelLength ? notes.sessionNotes.substring(0, labelLength) + '...' : notes.sessionNotes,
                     clientID: notes.clientID,
                     clientName: notes.clientName,
                     sessionDate: notes.sessionDate,
-                     sessionTime: notes.sessionTime,
+                    sessionTime: notes.sessionTime,
                     sessionNotes: notes.sessionNotes,
-                    enteredBy: notes.entered_by,
+                    entered_by: notes.entered_by,
                 }));
+                console.log(fetchedOptions);
                 setNotesOptions(fetchedOptions);
                 setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
@@ -251,7 +252,6 @@ const SessionNotes: React.FC = () => {
             setIsLoading(false);
         }
     };
-
     
     return (
         <>
@@ -277,7 +277,7 @@ const SessionNotes: React.FC = () => {
                                         <SelectDropdown name={`ClientName`} requiring={true} value={selectedClientID} options={clientLists} onChange={(e) => handleClientChange({ name: e.target.options[e.target.selectedIndex].text || '', id: e.target.value})} />
                                     </label>
                                 </div>
-                                <table className={componentStyles.tbHRSTable}>
+                                <table className={componentStyles.sessionNoteTable}>
                                     <thead>
                                         <tr>
                                             <th></th>
@@ -291,9 +291,9 @@ const SessionNotes: React.FC = () => {
                                         {notesOptions.map((option, index) => (
                                             <tr key={index}>
                                                 <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
                                                 <td onClick={() => openNotesDetail(option.value)}><div>{option.sessionDate}</div></td>
                                                 <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.entered_by}</div></td>
                                                 <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
                                             </tr>
                                         ))}

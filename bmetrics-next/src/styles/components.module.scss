@@ -825,6 +825,58 @@
             }
         }
 
+        .sessionNoteTable {
+            width: 100%;
+            table-layout: fixed; /* Ensures the columns are evenly distributed */
+
+            tr: {
+                position: relative;
+            }
+    
+            //Boarder
+            tr:not(:last-child) td {
+                border-bottom: .012em solid $color7;
+            }
+
+            //Row hover settings
+            tr:hover td{
+                background-color: $color2;
+                color: $color6;
+                cursor: pointer;
+            }
+            
+            th {
+                margin: 0; 
+                padding: 0 1em;
+                color: $color6;
+                background-color: $color2;
+                border: .012em solid $color7;
+                width: calc(100% / auto); /* Distribute other columns evenly */
+            }
+
+            td {
+                text-align: center;
+                width: calc(100% / auto); /* Distribute other columns evenly */
+                
+                div {
+                    min-height: 2.50em;
+
+                    button {
+                        margin: 5% auto;
+                        width: 100%;
+                        border: none;
+                        background-color: $color2;
+                        color: $color6;
+                    }
+
+                    button:hover {
+                        background-color: $color1;
+                        color: $color6;
+                    }
+                }
+            }
+        }
+
         .dateDropdown {
             display: flex;
             margin: 1em 2em;
