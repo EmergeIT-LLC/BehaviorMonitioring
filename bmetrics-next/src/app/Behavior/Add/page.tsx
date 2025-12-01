@@ -7,6 +7,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import SelectDropdown from '../../../components/Selectdropdown';
 import InputFields from '../../../components/Inputfield';
@@ -45,7 +46,7 @@ const AddTargetBehavior: React.FC = () => {
     const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string, type: string }[]>([]);
 
     useEffect(() => {
-        getClientNames();
+        debounceAsync(getClientNames, 300)();
     }, [userLoggedIn]);
 
     const getClientNames = async () => {
@@ -220,7 +221,7 @@ const AddTargetBehavior: React.FC = () => {
                                             </li>
                                         ))}
                                     </ul>
-                                    <Button nameOfClass='tbSubmitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={submitBehavior}/>
+                                    <Button nameOfClass='tbSubmitButton' placeholder='Submit' btnType='button' isLoading={isLoading} onClick={debounceAsync(submitBehavior, 300)}/>
                                 </div>
                             }
                         </div>

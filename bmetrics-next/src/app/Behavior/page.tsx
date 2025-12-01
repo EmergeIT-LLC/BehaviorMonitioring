@@ -9,6 +9,7 @@ import SelectDropdown from '../../components/Selectdropdown';
 import Checkbox from '../../components/Checkbox';
 import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
@@ -42,12 +43,12 @@ const TargetBehavior: React.FC = () => {
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('checkedBehaviors');
         sessionStorage.removeItem('behaviorID');
-        getClientNames();
+        debounceAsync(getClientNames, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {
         if (selectedClientID > 0) {
-            getClientTargetBehaviors();
+            debounceAsync(getClientTargetBehaviors, 300)();
         }
     }, [selectedClientID]);
 
@@ -277,7 +278,7 @@ const TargetBehavior: React.FC = () => {
     
             if (response.data.statusCode === 200) {
                 setStatusMessage('Behaviors merged successfully.');
-                getClientTargetBehaviors();
+                debounceAsync(getClientTargetBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
@@ -312,7 +313,7 @@ const TargetBehavior: React.FC = () => {
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(<> Behavior "{behaviorName}" has been archived successfully. <br /> "{behaviorName}" will be archived for 7 years before deletion.</>);
-                getClientTargetBehaviors();
+                debounceAsync(getClientTargetBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
@@ -338,7 +339,7 @@ const TargetBehavior: React.FC = () => {
             const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
-                getClientTargetBehaviors();
+                debounceAsync(getClientTargetBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {
@@ -424,8 +425,8 @@ const TargetBehavior: React.FC = () => {
                                         </ul>
                                     </div>
                                 )}
-                                <PromptForMerge isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={handleMergeConfirm} onCancel={handleArchiveMergeDeleteCancel} />
-                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${behaviorNameToActOn}"?`} onConfirm={handleArchiveDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={behaviorNameToActOn} />
+                                <PromptForMerge isVisible={isPopupVisible} behaviors={mergeBehaviorList} onConfirm={debounceAsync(handleMergeConfirm, 300)} onCancel={handleArchiveMergeDeleteCancel} />
+                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${behaviorNameToActOn}"?`} onConfirm={debounceAsync(handleArchiveDelete, 300)} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={behaviorNameToActOn} />
                             </div>
                         </div>
                     }

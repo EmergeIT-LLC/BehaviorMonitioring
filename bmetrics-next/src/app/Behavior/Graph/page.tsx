@@ -6,6 +6,7 @@ import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import SelectDropdown from '../../../components/Selectdropdown';
 import GraphDataProcessor from '../../../function/GraphDataProcessor';
@@ -126,7 +127,7 @@ const Graph: React.FC = () => {
             // Create a mapping of behavior names based on selectedData
             const behaviorNames = Object.fromEntries(selectedData.map(item => [item.id, item.name]));
 
-            Promise.all([...new Set(selectedData.map(item => item.id))].map(id => getTargetData(id)))
+            Promise.all([...new Set(selectedData.map(item => item.id))].map(id => debounceAsync(() => getTargetData(id), 300)()))
                 .then((allData) => {
                     const flattenedData = allData.flat().filter(entry => entry !== null);
                     const filteredData = filterDataByDateRange(flattenedData); // Filter data based on date range

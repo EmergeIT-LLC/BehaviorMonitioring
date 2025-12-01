@@ -6,6 +6,7 @@ import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
@@ -43,8 +44,8 @@ const ArchiveDetails: React.FC = () => {
 
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('archivedBehaviorID');
-        getClientArchivedBehaviorBaseData();
-        getClientTargetBehaviorData();
+        debounceAsync(getClientArchivedBehaviorBaseData, 300)();
+        debounceAsync(getClientTargetBehaviorData, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {
@@ -188,8 +189,8 @@ const ArchiveDetails: React.FC = () => {
                 setStatusMessage(`Behavior "${behaviorDataId}" has been deleted successfully.`);
                 setClientID(String(behaviorBase[0].clientID));
                 setBID(String(behaviorBase[0].bsID));
-                await getClientArchivedBehaviorBaseData();
-                await getClientTargetBehaviorData();           
+                await debounceAsync(getClientArchivedBehaviorBaseData, 300)();
+                await debounceAsync(getClientTargetBehaviorData, 300)();           
                 setTimerCount(3);
                 setClearMessageStatus(true);  
             } else {

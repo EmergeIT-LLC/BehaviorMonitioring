@@ -7,6 +7,7 @@ import Header from '../../components/header';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, isCookieValid } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 
 const SkillAquisition: React.FC = () => {

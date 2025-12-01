@@ -11,6 +11,7 @@ import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, SetCookies } from '../../function/VerificationCheck'
 import { CheckUsername, CheckPassword } from '../../function/EntryCheck';
 import { SetLoggedInUser } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 
 const Login: React.FC = () => {
@@ -31,7 +32,7 @@ const Login: React.FC = () => {
 
     onkeydown = (e) => {
         if (e.key === 'Enter') {
-            submitLoginForm();
+            debounceAsync(submitLoginForm, 300)();
         }
     }
 
@@ -89,7 +90,7 @@ const Login: React.FC = () => {
                         <h2>Login</h2>
                         <InputFields name="usernameField" type="text" placeholder="Username" requiring={true} value={uName} onChange={(e) => setuName(e.target.value)}/>
                         <InputFields name="passwordField" type="password" placeholder="Password" requiring={true} value={pWord} onChange={(e) => setPWord(e.target.value)}/>
-                        <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={submitLoginForm}/>
+                        <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={debounceAsync(submitLoginForm, 300)}/>
                         <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
                     </form>
                 }

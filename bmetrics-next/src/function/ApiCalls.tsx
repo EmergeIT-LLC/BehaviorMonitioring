@@ -1,5 +1,6 @@
 "use client";
 import Axios from 'axios';
+import { debounceAsync } from './debounce';
 
 //Grabbed from Behavior/Add/Page.tsx
 export const getClientNames = async (loggedInUser : string) => {
@@ -111,3 +112,10 @@ export const getClientArchiveBehaviorData = async (clientID: string | number, bI
         return {statusCode: statusCodeRecieved, errorMessage: String(error)};
     }
 }
+
+// Debounced versions of API calls (300ms delay by default)
+export const debouncedGetClientNames = debounceAsync(getClientNames, 300);
+export const debouncedGetClientActiveBehaviorBaseData = debounceAsync(getClientActiveBehaviorBaseData, 300);
+export const debouncedGetClientActiveBehaviorData = debounceAsync(getClientActiveBehaviorData, 300);
+export const debouncedGetClientArchivedBehaviorBaseData = debounceAsync(getClientArchivedBehaviorBaseData, 300);
+export const debouncedGetClientArchiveBehaviorData = debounceAsync(getClientArchiveBehaviorData, 300);

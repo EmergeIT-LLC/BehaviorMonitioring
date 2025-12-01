@@ -7,6 +7,7 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import SelectDropdown from '../../../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
@@ -34,7 +35,7 @@ const Archive: React.FC = () => {
     const [behaviorIdToActOn, setBehaviorIdToActOn] = useState<string>('');
 
     useEffect(() => {
-        getClientNames();
+        debounceAsync(getClientNames, 300)();
     }, [userLoggedIn]);
 
         useEffect(() => {
@@ -142,9 +143,9 @@ const Archive: React.FC = () => {
 
     const handleReactivationDelete = async () => {
         if (popupAction === 'Reactivate') {
-            await reactivateBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
+            debounceAsync(() => reactivateBehaviorCall(behaviorIdToActOn, behaviorNameToActOn), 300);
         } else if (popupAction === 'Delete') {
-            await deleteBehaviorCall(behaviorIdToActOn, behaviorNameToActOn);
+            debounceAsync(() => deleteBehaviorCall(behaviorIdToActOn, behaviorNameToActOn), 300 );
         }
         setIsPopoutVisible(false); // Close the popout after action
     };
@@ -161,7 +162,7 @@ const Archive: React.FC = () => {
             const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been reactived successfully.`);
-                getClientArchivedBehaviors();
+                debounceAsync(getClientArchivedBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
@@ -187,7 +188,7 @@ const Archive: React.FC = () => {
             const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
-                getClientArchivedBehaviors();
+                debounceAsync(getClientArchivedBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {

@@ -8,6 +8,7 @@ import Footer from '../../components/footer';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
 import { ClearLoggedInUser, GetLoggedInUser, GetLoggedInUserStatus, DeleteCookies } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 
 const Logout: React.FC = () => {
@@ -26,12 +27,12 @@ const Logout: React.FC = () => {
         }
     }
 
-    const submitLogoutForm = () => {
+    const submitLogoutForm = async() => {
         setIsLoading(true);
 
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/employee/verifyEmployeeLogout';
 
-        Axios.post(url, {
+        await Axios.post(url, {
             username : loggedInUser
         })
         .then((response) => {
@@ -52,7 +53,7 @@ const Logout: React.FC = () => {
 
     const executeLogout = () => {
         if (GetLoggedInUserStatus()) {
-            submitLogoutForm();
+            debounceAsync(submitLogoutForm, 300)();
             ClearLoggedInUser();
         }
     }

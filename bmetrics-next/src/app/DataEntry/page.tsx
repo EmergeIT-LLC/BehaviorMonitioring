@@ -15,6 +15,7 @@ import TextareaInput from '../../components/TextareaInput';
 import Tab from '../../components/Tab';
 import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 import { todo } from 'node:test';
 
@@ -83,7 +84,7 @@ const DataEntry: React.FC = () => {
     }, [activeTab, targetAmt, skillAmt, selectedClient, selectedClientID, selectedTargets, selectedSkills, selectedMeasurementTypes, dates, times, count, duration, isInitialized]);
 
     useEffect(() => {
-        getClientNames();
+        debounceAsync(getClientNames, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {
@@ -270,11 +271,11 @@ const DataEntry: React.FC = () => {
     useEffect(() => {
         if (activeTab === 'Behavior') {
             setTargetOptions([{ value: 'null', label: 'Select A Behavior' }]);
-            getClientTargetBehaviors();
+            debounceAsync(getClientTargetBehaviors, 300)();
         }
         else if (activeTab === 'Skill') {
             setSkillOptions([{ value: 'null', label: 'Select A Skill' }]);
-            getClientSkillAquisitions();
+            debounceAsync(getClientSkillAquisitions, 300)();
         }
     }, [selectedClientID]);    
 
@@ -629,7 +630,7 @@ const DataEntry: React.FC = () => {
                                         </label>
                                     </div>
                                 )}
-                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={isLoading} onClick={submitDataEntryForm}/>
+                                <Button nameOfClass='submitButton' placeholder='Submit' btnType='submit' isLoading={isLoading} onClick={debounceAsync(submitDataEntryForm, 300)}/>
                             </div>
                         </div>
                     }

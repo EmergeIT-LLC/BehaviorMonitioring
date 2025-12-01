@@ -9,7 +9,8 @@ import SelectDropdown from '../../../components/Selectdropdown';
 import Checkbox from '../../../components/Checkbox';
 import Link from '../../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
-import { getClientNames } from '../../../function/ApiCalls';
+import { debouncedGetClientNames } from '../../../function/ApiCalls';
+import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import Button from '../../../components/Button';
 import PromptForMerge from '../../../components/PromptForMerge';
@@ -134,7 +135,7 @@ const Page: React.FC = () => {
 
     const handleDelete = async () => {
         setIsPopoutVisible(false);
-        await deleteBehaviorCall(sessionNotesIdToActOn, sessionNotesToActOn);
+        await debounceAsync(() => deleteBehaviorCall(sessionNotesIdToActOn, sessionNotesToActOn), 300)();
     };
 
     const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {

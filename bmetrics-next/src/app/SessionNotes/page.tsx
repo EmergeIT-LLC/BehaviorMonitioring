@@ -9,7 +9,7 @@ import SelectDropdown from '../../components/Selectdropdown';
 import Checkbox from '../../components/Checkbox';
 import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
-import { getClientNames } from '../../function/ApiCalls';
+import { debouncedGetClientNames } from '../../function/ApiCalls';
 import Axios from 'axios';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
