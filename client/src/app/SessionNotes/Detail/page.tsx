@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
-import componentStyles from '../../styles/components.module.scss';
+import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import SelectDropdown from '../../../components/Selectdropdown';
@@ -23,12 +23,8 @@ const Page: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
-    const [selectedClient, setSelectedClient] = useState<string>('');
+    const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteID'));
     const [selectedClientID, setSelectedClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [notesOptions, setNotesOptions] = useState<{  value: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, label: string, entered_by: string }[]>([]);
-    const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
-    const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
-    const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
@@ -50,94 +46,21 @@ const Page: React.FC = () => {
         }
     }, [timerCount, clearMessageStatus]);
 
-    // Fetch client details on component mount
-
-    const getClientSessionNotes = async () => {
-        setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
-            const previousUrl = encodeURIComponent(location.pathname);
-            navigate.push(`/Login?previousUrl=${previousUrl}`);        
+    onkeydown = (e) => {
+        if (e.key === 'Escape') {
+            backButtonFuctionality();
         }
-
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getSessionNotes';
-        try {
-            const response = await Axios.post(url, {
-                "clientID": selectedClientID,
-                "employeeUsername": loggedInUser
-            });
-            if (response.data.statusCode === 200) {
-                const labelLength = 50;
-                setNotesOptions([]);
-                setCheckedState([]);
-                setCheckedNotes([]);
-                sessionStorage.removeItem('checkedNotes');
-
-                const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
-                    value: notes.sessionNoteDataID,
-                    label: notes.sessionNotes.length > labelLength ? notes.sessionNotes.substring(0, labelLength) + '...' : notes.sessionNotes,
-                    clientID: notes.clientID,
-                    clientName: notes.clientName,
-                    sessionDate: notes.sessionDate,
-                    sessionTime: notes.sessionTime,
-                    sessionNotes: notes.sessionNotes,
-                    entered_by: notes.entered_by,
-                }));
-                console.log(fetchedOptions);
-                setNotesOptions(fetchedOptions);
-                setCheckedState(new Array(fetchedOptions.length).fill(false));
-            } else {
-                throw new Error(response.data.serverMessage);
-            }
-        } catch (error) {
-            return setStatusMessage(String(error));
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleEllipsisClick = (index: number) => {
-        if (activeMenu === index) {
-            closeMenu(); // Close if clicked again
-        } else {
-            setActiveMenu(index); // Open for the clicked row
-        }
-    };
-    
-    const getMenuPosition = (menuIndex: number) => {
-        const ellipsisButton = document.querySelectorAll('.tbHRSEllipsesButton')[menuIndex];
-        if (ellipsisButton) {
-            const buttonRect = ellipsisButton.getBoundingClientRect();
-            const menuTop = buttonRect.top + window.scrollY; // Account for scrolling
-            const menuLeft = buttonRect.left + window.scrollX + buttonRect.width; // Offset for width
-            return {
-                top: `${menuTop}px`,
-                left: `${menuLeft}px`,
-            };
-        }
-        return { top: '0px', left: '0px' };
-    };
-            
-    const closeMenu = () => setActiveMenu(null); // Close the menu
-
-    const openPopout = (action: string, sessionId: string, sessionNote: string) => {
-        setPopupAction(action);
-        setSessionNotesToActOn(sessionId);
-        setSessionNotesIdToActOn(sessionNote);
-        setIsPopoutVisible(true);
-    };
-
-    const openNotesDetail = (id: string | number) => {
-        sessionStorage.setItem('clientID', String(selectedClientID));
-        sessionStorage.setItem('behaviorID', String(id));
-        navigate.push(`/SessionNotes/Detail`);
     }
 
-    const handleDelete = async () => {
-        setIsPopoutVisible(false);
-        await debounceAsync(() => deleteBehaviorCall(sessionNotesIdToActOn, sessionNotesToActOn), 300)();
+    const backButtonFuctionality = () => {
+        navigate.back();
     };
 
-    const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+    const handleDelete = async () => {
+        await debounceAsync(() => deleteSessionNoteCall(sessionNotesIdToActOn, sessionNotesToActOn), 300)();
+    };
+
+    const deleteSessionNoteCall = async (sessionNoteId: string, sessionNoteName: string) => {
         setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
             const previousUrl = encodeURIComponent(location.pathname);
@@ -145,15 +68,15 @@ const Page: React.FC = () => {
         }
         
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
+            const response = await Axios.post(url, { "clientID": selectedClientID, sessionNoteId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
+                setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {
-                throw new Error(`Failed to delete "${behaviorName}".`);
+                throw new Error(`Failed to delete "${sessionNoteName}".`);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -164,9 +87,30 @@ const Page: React.FC = () => {
     };
 
     return (
-        <div>
-            
-        </div>
+        <>
+            <Header/>
+            <Head>
+                <title>Session Notes - Detail</title>
+            </Head>
+            <div className={componentStyles.pageBody}>
+                <main>
+                    {isLoading ? 
+                        <Loading /> 
+                        : 
+                        <div className={componentStyles.bodyBlock}>
+                            <h1 className={componentStyles.pageHeader}>Session Notes - Detail</h1>
+                                <div className={componentStyles.tbHRSButtons}>
+                                    <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={backButtonFuctionality}/>
+                                </div>
+                                <div className={componentStyles.innerBlock}>
+                                    <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                                    
+                                </div>
+                        </div>
+                    }
+                </main>
+            </div>
+        </>
     );
 }
 
