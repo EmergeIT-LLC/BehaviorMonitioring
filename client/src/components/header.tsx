@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
+"use client";
+import React, {useState, useEffect, JSX} from 'react';
+import { useRouter } from 'next/navigation';
 import componentStyles from '../styles/components.module.scss';
 import companyLogo from '../Images/BMetrics-logo-removebg.png';
 import farBars from '../Images/naviconrww752.png';
-import Link from '../components/Link';
+import Link from './Link';
 import Button from './Button';
 import {GetLoggedInUserStatus, GetAdminStatus} from '../function/VerificationCheck';
 
 const Header: React.FC = () => {
-    const navigate = useNavigate();
+    const navigate = useRouter();
     const userIsLoggedIn = GetLoggedInUserStatus();
     const userIsAdmin = GetAdminStatus();
     let phoneMenu = null;
@@ -20,9 +21,10 @@ const Header: React.FC = () => {
         if (userIsLoggedIn) {
             setButtonLabel('Logout');
             const userLinks = [
-                <li key="home"><Link href='/' hrefType='link' placeholder="Home" /></li>,
-                <li key="behavior"><Link href='/TargetBehavior' hrefType='link' placeholder="Behaviors" /></li>,
-                // <li key="skill"><Link href='/SkillAquisition' hrefType='link' placeholder="Skills" /></li>,
+                <li key="dashboard"><Link href='/Dashboard' hrefType='link' placeholder="Dashboard" /></li>,
+                <li key="behavior"><Link href='/Behavior' hrefType='link' placeholder="Behaviors" /></li>,
+                // <li key="skill"><Link href='/Skill' hrefType='link' placeholder="Skills" /></li>,
+                <li key="session-notes"><Link href='/SessionNotes' hrefType='link' placeholder="Session Notes" /></li>,
                 <li key="dataEntry"><Link href='/DataEntry' hrefType='link' placeholder="Data Entry" /></li>,
             ];
             if (userIsAdmin) {
@@ -33,18 +35,18 @@ const Header: React.FC = () => {
             setButtonLabel('Login');
             setLinks([
                 <li key="home"><Link href='/' hrefType='link' placeholder="Home"/></li>,
-                <li key="about"><Link href='/AboutUs' hrefType='link' placeholder="About us"/></li>,
-                <li key="contact"><Link href='/ContactUs' hrefType='link' placeholder="Contact us"/></li>
+                <li key="about"><Link href='/About' hrefType='link' placeholder="About us"/></li>,
+                <li key="contact"><Link href='/Contact' hrefType='link' placeholder="Contact us"/></li>
             ]);
         }
     }, [userIsLoggedIn]);
 
     const routeChange = () => {
         if (userIsLoggedIn) {
-            navigate('/logout');
+            navigate.push('/Logout');
         }
         else {
-            navigate('/login');
+            navigate.push('/Login');
         }
     }
       
@@ -68,9 +70,9 @@ const Header: React.FC = () => {
 
     return (
         <div className={componentStyles.headerBody}>
-            <a href='/'><img src={companyLogo} alt ="BMetrics Logo" /></a>
+            <a href={userIsLoggedIn ? '/Dashboard' : '/'}><img src={companyLogo.src} alt ="BMetrics Logo" /></a>
             <h1 className={componentStyles.companyName}>BMetrics <span className={componentStyles.trade}>&trade;</span></h1>
-            <img className={componentStyles.farBars} src={farBars} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
+            <img className={componentStyles.farBars} src={farBars.src} alt ="FarBar Button" onClick={showPhoneMenuBoolean}/>
             <Button nameOfClass='loginButton' placeholder={buttonLabel} btnType='button' onClick={routeChange}/>
             {phoneMenu}
             <nav>

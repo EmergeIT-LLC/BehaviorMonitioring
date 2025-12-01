@@ -5,7 +5,7 @@ import annotationPlugin, { AnnotationOptions } from 'chartjs-plugin-annotation';
 
 const backgroundPlugin = {
     id: 'backgroundColor',
-    beforeDraw: (chart: Chart) => {
+    beforeDraw: (chart: ChartJS) => {
         const ctx = chart.ctx ?? 0;
         const chartArea = chart.chartArea;
 

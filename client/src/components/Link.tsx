@@ -1,4 +1,5 @@
 import React from 'react';
+import NextLink from 'next/link';
 
 interface LinkProps {
     href: string;
@@ -13,7 +14,11 @@ const Link: React.FC<LinkProps> = ({ href, hrefType, placeholder }) => {
         case "phone":
             return <a href={href} aria-label={'call ' + placeholder}>{placeholder}</a>
         default:
-            return <a href={href} aria-label={placeholder + ' link'}>{placeholder}</a>
+            return (
+                <NextLink href={href} aria-label={placeholder + ' link'} passHref>
+                    {placeholder}
+                </NextLink>
+            );
     }
     
 };

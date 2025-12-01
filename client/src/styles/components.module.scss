@@ -1,4 +1,4 @@
-@import './colors.scss';
+@use './colors.scss' as *;
 
 .headerBody {
     display: block;
@@ -240,7 +240,7 @@
 .pageBody {
     display: flex;
     flex-direction: column;
-    min-height: 70.5vh; /* Ensures the entire viewport height is filled */
+    min-height: 84vh; /* Ensures the entire viewport height is filled */
     background-color: $page-background;
     margin: 0 auto;
     width: 100%;
@@ -342,6 +342,7 @@
     }
 
     .statusMessage {
+        text-align: center;
         color: $font-color;
         margin: 2em auto;
     }
@@ -386,7 +387,7 @@
         margin: 0 auto;
         width: 90%;
         border: .012em solid $color6;
-        min-height: 28em;
+        height: 100%;
 
         .pageHeader {
             font-size: 1.75em;
@@ -404,46 +405,27 @@
             margin: 2em 3em 2em 0;
             color: $font-color;
 
-            button {
+            button, a {
                 display: inline;
                 background-color: $button-background-color;
                 color: $button-font-color;
                 border: 0.15em solid $color1;
-                width: 8em;
+                width: 10em;
                 margin: 0;
+                padding: 0.2em;
                 font-size: 1em;
                 font-weight: bold;
             }
         
-            button:hover {
+            button:hover, a:hover {
                 background-color: $button-background-color-hover;
                 color: $buttonHover-font-color;
                 border-color: $color6;
                 cursor: pointer;
             }
-            
-            button:first-child {
-                margin-right: 1em;
-            }
 
-            a {
-                display: inline;
-                background-color: $nav-background-page-color;
-                color: $button-font-color;
-                border: 0.15em solid $color1;
-                width: 10em;
-                margin: 0 auto;
-                padding: 0.2em;
-                font-size: 1em;
-                font-weight: bold;
-                text-decoration: none;
-                text-align: center;        
-            }
-        
-            a:hover {
-                background-color: $nav-background-page-color-hover;
-                color: $buttonHover-font-color;
-                border-color: $color6;
+            button:not(:last-child), a:not(:last-child) {
+                margin-right: 1em;
             }
         }
 
@@ -843,6 +825,58 @@
             }
         }
 
+        .sessionNoteTable {
+            width: 100%;
+            table-layout: fixed; /* Ensures the columns are evenly distributed */
+
+            tr: {
+                position: relative;
+            }
+    
+            //Boarder
+            tr:not(:last-child) td {
+                border-bottom: .012em solid $color7;
+            }
+
+            //Row hover settings
+            tr:hover td{
+                background-color: $color2;
+                color: $color6;
+                cursor: pointer;
+            }
+            
+            th {
+                margin: 0; 
+                padding: 0 1em;
+                color: $color6;
+                background-color: $color2;
+                border: .012em solid $color7;
+                width: calc(100% / auto); /* Distribute other columns evenly */
+            }
+
+            td {
+                text-align: center;
+                width: calc(100% / auto); /* Distribute other columns evenly */
+                
+                div {
+                    min-height: 2.50em;
+
+                    button {
+                        margin: 5% auto;
+                        width: 100%;
+                        border: none;
+                        background-color: $color2;
+                        color: $color6;
+                    }
+
+                    button:hover {
+                        background-color: $color1;
+                        color: $color6;
+                    }
+                }
+            }
+        }
+
         .dateDropdown {
             display: flex;
             margin: 1em 2em;
@@ -941,9 +975,9 @@
         display: block;
         margin: 0 auto;
         
-        .span {
+        span {
             display: block;
-            margin: 1em auto;
+            margin: 1em 0 1em 1em;
             text-align: left;
         }
 
@@ -1087,6 +1121,13 @@
         border: .25em solid $color2;
 
         h2 {
+            text-align: center;
+            color: $font-color2;
+        }
+
+        p {
+            margin: 1em auto 2em;
+            text-align: center;
             color: $font-color2;
         }
 
@@ -1094,19 +1135,12 @@
             margin: 1em auto 1em;
             color: $font-color2;
         }
-
-        .logoutForm {
-            p {
-                margin: 1em auto 2em;
-                color: $font-color2;
-            }
-        }
     }
 
     .loadingBody {
         .loadingBodyForm {
             .lgLogo {
-                background-image: url('../Images/BMetrics-logo-removebg.png');
+                background-image: url('../app/BMetrics-logo-removebg.png');
                 display: block;
                 margin: 3em auto;
                 background-repeat: no-repeat;

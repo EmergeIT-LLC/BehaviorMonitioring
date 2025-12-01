@@ -1,3 +1,4 @@
+"use client";
 import './styles/timerStyle.css';
 import React, { useState } from 'react';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';

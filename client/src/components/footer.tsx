@@ -1,6 +1,6 @@
 import React from 'react';
 import componentStyles from '../styles/components.module.scss';
-import Link from '../components/Link';
+import Link from './Link';
 
 const Footer: React.FC = () => {
     return (

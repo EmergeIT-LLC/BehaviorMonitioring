@@ -13,6 +13,8 @@ export const SetCookies = (name: string, value: object, expirationTime: string, 
 };
 
 export const isCookieValid = () => {
+    if (typeof window === 'undefined') return true;
+    
     const cookieName = "bmAuthServices-" + GetLoggedInUser();
     const cookieValue = Cookies.get(cookieName);
 
@@ -65,14 +67,19 @@ export const DeleteCookies = (name: string, expirationTime: string, path: string
 
 export const isAuthenticated = () => isCookieValid();
 
-export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin: boolean) => {
+export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, compID: string | number, compName: string, isAdmin: boolean) => {
+    if (typeof window === 'undefined') return true;
+    
     if (loginSuccessful) {
-        localStorage.setItem('bmLoggedInStatus', "true");
-        localStorage.setItem('bmUsername', uName);
+        const dataToStore = {
+            bmLoggedInStatus: loginSuccessful,
+            bmUsername: uName,
+            bmCompanyID: String(compID),
+            bmCompanyName: compName,
+            bmAdmin: isAdmin
+        };
 
-        if (isAdmin) {
-            localStorage.setItem('bmAdmin', "true")
-        }
+        localStorage.setItem('bmUserData', JSON.stringify(dataToStore));
     }
     else {
         ClearLoggedInUser();
@@ -80,36 +87,51 @@ export const SetLoggedInUser = (loginSuccessful: boolean, uName: string, isAdmin
 }
 
 export const ClearLoggedInUser = () => {
+    if (typeof window === 'undefined') return true;
+
     localStorage.clear();
 }
 
 export const GetLoggedInUserStatus = () => {
-    const isUserLoggedStatus = localStorage.getItem('bmLoggedInStatus');
+    if (typeof window === 'undefined') return true;
 
-    if (isUserLoggedStatus === "true") {
-        return true;
+    const userData = localStorage.getItem('bmUserData');
+    if (userData) {
+        const parsedData = JSON.parse(userData);
+        return Boolean(parsedData.bmLoggedInStatus);
     }
     return false;
 }
 
 export const GetLoggedInUser = () => {
+    if (typeof window === 'undefined') return true;
+
     if (GetLoggedInUserStatus()) {
-        return localStorage.getItem('bmUsername');
+        const userData = localStorage.getItem('bmUserData');
+        if (userData) {
+            const parsedData = JSON.parse(userData);
+            return String(parsedData.bmUsername);
+        }
     }
     return null;
 }
 
 export const GetAdminStatus = () => {
+    if (typeof window === 'undefined') return true;
+    
     if (GetLoggedInUserStatus()) {
-        if (localStorage.getItem('bmAdmin') !== null && localStorage.getItem('bmAdmin') === "true") {
-            return true;
+        const userData = localStorage.getItem('bmUserData');
+        if (userData) {
+            const parsedData = JSON.parse(userData);
+            return Boolean(parsedData.bmAdmin);
         }
-        return false;
     }
     return false;
 }
 
 export const NeedToLogout = (uName: string) => {
+    if (typeof window === 'undefined') return true;
+    
     if (GetLoggedInUserStatus() && uName === GetLoggedInUser()) {
         return false;
     }

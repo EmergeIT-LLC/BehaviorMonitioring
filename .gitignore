@@ -1,44 +1,44 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Next dependencies
-/bmetrics-next/node_modules
-/bmetrics-next/.pnp
-/bmetrics-next/.pnp.*
-/bmetrics-next/.yarn/*
-/bmetrics-next/!.yarn/patches
-/bmetrics-next/!.yarn/plugins
-/bmetrics-next/!.yarn/releases
-/bmetrics-next/!.yarn/versions
+/client/node_modules
+/client/.pnp
+/client/.pnp.*
+/client/.yarn/*
+/client/!.yarn/patches
+/client/!.yarn/plugins
+/client/!.yarn/releases
+/client/!.yarn/versions
 
 # testing
-/bmetrics-next/coverage
+/client/coverage
 
 # next.js
-/bmetrics-next/.next/
-/bmetrics-next/out/
+/client/.next/
+/client/out/
 
 # production
-/bmetrics-next/build
+/client/build
 
 # misc
-/bmetrics-next/.DS_Store
-/bmetrics-next/*.pem
+/client/.DS_Store
+/client/*.pem
 
 # debug
-/bmetrics-next/npm-debug.log*
-/bmetrics-next/yarn-debug.log*
-/bmetrics-next/yarn-error.log*
-/bmetrics-next/.pnpm-debug.log*
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
+/client/.pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-/bmetrics-next/.env*
+/client/.env*
 
 # vercel
-/bmetrics-next/.vercel
+/client/.vercel
 
 # typescript
-/bmetrics-next/*.tsbuildinfo
-/bmetrics-next/next-env.d.ts
+/client/*.tsbuildinfo
+/client/next-env.d.ts
 
 # CRA Dependencies
 /client/.pnp
