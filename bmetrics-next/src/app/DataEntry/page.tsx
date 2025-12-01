@@ -17,7 +17,6 @@ import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
-import { todo } from 'node:test';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {

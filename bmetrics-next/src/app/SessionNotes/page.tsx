@@ -9,6 +9,7 @@ import SelectDropdown from '../../components/Selectdropdown';
 import Checkbox from '../../components/Checkbox';
 import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
+import { debounceAsync } from '../../function/debounce';
 import { debouncedGetClientNames } from '../../function/ApiCalls';
 import Axios from 'axios';
 import Button from '../../components/Button';
@@ -40,12 +41,12 @@ const SessionNotes: React.FC = () => {
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
     useEffect(() => {
-        getClientNames();
+        debounceAsync(getClientNames, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {
         if (selectedClientID > 0) {
-            getClientSessionNotes();
+            debounceAsync(getClientSessionNotes, 300)();
         }
     }, [selectedClientID]);
     
@@ -218,16 +219,16 @@ const SessionNotes: React.FC = () => {
 
     const openNotesDetail = (id: string | number) => {
         sessionStorage.setItem('clientID', String(selectedClientID));
-        sessionStorage.setItem('behaviorID', String(id));
+        sessionStorage.setItem('sessionNoteID', String(id));
         navigate.push(`/SessionNotes/Detail`);
     }
 
     const handleDelete = async () => {
         setIsPopoutVisible(false);
-        await deleteBehaviorCall(sessionNotesIdToActOn, sessionNotesToActOn);
+        await debounceAsync(() => deleteSessionNoteCall(sessionNotesIdToActOn, sessionNotesToActOn), 300)();
     };
 
-    const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
+    const deleteSessionNoteCall = async (sessionNoteId: string, sessionNoteName: string) => {
         setIsLoading(true);
         if (!userLoggedIn || !cookieIsValid) {
             const previousUrl = encodeURIComponent(location.pathname);
@@ -235,15 +236,15 @@ const SessionNotes: React.FC = () => {
         }
         
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
+            const response = await Axios.post(url, { "clientID": selectedClientID, sessionNoteId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
-                setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
+                setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
         } else {
-                throw new Error(`Failed to delete "${behaviorName}".`);
+                throw new Error(`Failed to delete "${sessionNoteName}".`);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -307,7 +308,7 @@ const SessionNotes: React.FC = () => {
                                         </ul>
                                     </div>
                                 )}
-                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${sessionNotesToActOn}"?`} onConfirm={handleDelete} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={sessionNotesToActOn} />
+                                <PopoutPrompt title={`${popupAction} Behavior`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${sessionNotesToActOn}"?`} onConfirm={debounceAsync(handleDelete, 300)} onCancel={() => setIsPopoutVisible(false)} isVisible={isPopoutVisible} behaviorNameSelected={sessionNotesToActOn} />
                             </div>
                         </div>
                     }

@@ -25,7 +25,7 @@ const Page: React.FC = () => {
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
-    const [selectedClientID, setSelectedClientID] = useState<number>(0);
+    const [selectedClientID, setSelectedClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
     const [notesOptions, setNotesOptions] = useState<{  value: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, label: string, entered_by: string }[]>([]);
     const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
