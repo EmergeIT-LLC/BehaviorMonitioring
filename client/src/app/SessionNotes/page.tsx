@@ -218,7 +218,7 @@ const SessionNotes: React.FC = () => {
 
     const openNotesDetail = (id: string | number) => {
         sessionStorage.setItem('clientID', String(selectedClientID));
-        sessionStorage.setItem('sessionNoteID', String(id));
+        sessionStorage.setItem('sessionNoteId', String(id));
         navigate.push(`/SessionNotes/Detail`);
     }
 
@@ -236,7 +236,7 @@ const SessionNotes: React.FC = () => {
         
         try {
             const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
-            const response = await Axios.post(url, { "clientID": selectedClientID, sessionNoteId, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, { "clientID": selectedClientID, "sessionNoteId": sessionNoteId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior

@@ -22,7 +22,7 @@ const Page: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteID'));
+    const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteId'));
     const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
     const [sessionNotesData, setSessionNotesData] = useState<{ clientID: string; clientName: string; entered_by: string; label: string; sessionDate: string; sessionNotes: string; sessionTime: string; }[]>([]);
     const [sessionNotesToActOn, setSessionNotesToActOn] = useState<string>('');
@@ -40,7 +40,7 @@ const Page: React.FC = () => {
         }
         debounceAsync(getSessionNoteDetails, 300)();
         sessionStorage.removeItem('clientID');
-        sessionStorage.removeItem('sessionNoteID');
+        sessionStorage.removeItem('sessionNoteId');
     }, [userLoggedIn]);
 
     useEffect(() => {
@@ -74,7 +74,7 @@ const Page: React.FC = () => {
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getASessionNote';
 
         try {
-            const response = await Axios.post(url, { "clientID": clientID, "sessionNoteID": selectedSessionNoteID, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 return setSessionNotesData(response.data.sessionNoteData);
             } else {
@@ -102,7 +102,11 @@ const Page: React.FC = () => {
         
         try {
             const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
-            const response = await Axios.post(url, { "clientID": clientID, sessionNoteId, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, {
+                "clientID": clientID, 
+                "sessionNoteId": sessionNoteId, 
+                "employeeUsername": loggedInUser 
+            });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
