@@ -413,7 +413,7 @@ async function abaSessionNoteDataByClientID(cID, compID) {
     });
 }
 
-async function abaGetSessionNoteDataByID(cID, sessionNoteId, compID) {
+async function abaGetSessionNoteByID(cID, sessionNoteId, compID) {
     return new Promise((resolve, reject) => {
         db.all('SELECT sessionNoteDataID, clientID, clientName, sessionDate, sessionTime, entered_by, date_entered, time_entered FROM SessionNoteData WHERE clientID = ? AND sessionNoteDataID = ? AND companyID = ?', [cID, sessionNoteId, compID], (err, rows) => {
             if (err) {
@@ -485,6 +485,6 @@ module.exports = {
     abaAddSessionNoteData,
     abaSessionNoteDataByClientID,
     abaSessionNoteDataByClientIDExists,
-    abaGetSessionNoteDataByID,
+    abaGetSessionNoteByID,
     abaDeleteSessionNoteDataByID
 }

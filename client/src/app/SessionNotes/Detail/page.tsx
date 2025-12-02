@@ -22,18 +22,26 @@ const Page: React.FC = () => {
     const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteID'));
-    const [selectedClientID, setSelectedClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [activeMenu, setActiveMenu] = useState<number | null>(null);
-    const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
-    const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
-    const [mergeBehaviorList, setMergeBehaviorList] = useState<{ id: string; name: string }[]>([]);
-    const [popupAction, setPopupAction] = useState<string>('');
+    const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
+    const [sessionNotesData, setSessionNotesData] = useState<{ clientID: string; clientName: string; entered_by: string; label: string; sessionDate: string; sessionNotes: string; sessionTime: string; }[]>([]);
     const [sessionNotesToActOn, setSessionNotesToActOn] = useState<string>('');
     const [sessionNotesIdToActOn, setSessionNotesIdToActOn] = useState<string>('');
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
+
+    useEffect(() => {
+        if ((sessionStorage.getItem('clientID') === null && clientID === null) 
+            || (sessionStorage.getItem('sessionNoteID') === null && selectedSessionNoteID === null)
+            || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
+            || (sessionStorage.getItem('sessionNoteID') === undefined && selectedSessionNoteID === undefined)
+        ) {
+            navigate.push('/SessionNotes');
+        }
+        debounceAsync(getSessionNoteDetails, 300)();
+        sessionStorage.removeItem('clientID');
+        sessionStorage.removeItem('sessionNoteID');
+    }, [userLoggedIn]);
 
     useEffect(() => {
         if (timerCount > 0) {
@@ -56,6 +64,31 @@ const Page: React.FC = () => {
         navigate.back();
     };
 
+    const getSessionNoteDetails = async () => {
+        setIsLoading(true);
+        if (!userLoggedIn || !cookieIsValid) {
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+        }
+
+        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getASessionNote';
+
+        try {
+            const response = await Axios.post(url, { "clientID": clientID, "sessionNoteID": selectedSessionNoteID, "employeeUsername": loggedInUser });
+            if (response.data.statusCode === 200) {
+                return setSessionNotesData(response.data.sessionNoteData);
+            } else {
+                throw new Error(response.data.serverMessage);
+            }
+        } catch (error) {
+            setStatusMessage(String(error));
+        }
+        finally {
+            setIsLoading(false);
+            console.log(sessionNotesData);
+        }
+    };
+
     const handleDelete = async () => {
         await debounceAsync(() => deleteSessionNoteCall(sessionNotesIdToActOn, sessionNotesToActOn), 300)();
     };
@@ -69,7 +102,7 @@ const Page: React.FC = () => {
         
         try {
             const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
-            const response = await Axios.post(url, { "clientID": selectedClientID, sessionNoteId, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, { "clientID": clientID, sessionNoteId, "employeeUsername": loggedInUser });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
@@ -104,7 +137,7 @@ const Page: React.FC = () => {
                                 </div>
                                 <div className={componentStyles.innerBlock}>
                                     <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-                                    
+
                                 </div>
                         </div>
                     }

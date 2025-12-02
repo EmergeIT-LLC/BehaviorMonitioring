@@ -120,7 +120,6 @@ const SessionNotes: React.FC = () => {
                     sessionNotes: notes.sessionNotes,
                     entered_by: notes.entered_by,
                 }));
-                console.log(fetchedOptions);
                 setNotesOptions(fetchedOptions);
                 setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
