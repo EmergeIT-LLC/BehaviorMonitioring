@@ -57,7 +57,7 @@
 /client/.env.test.local
 /client/.env.production.local
 /server/.env
-/server/config/database/dataStorage.db
+/server/middleware/database/dataStorage.db
 
 /client/npm-debug.log*
 /client/yarn-debug.log*

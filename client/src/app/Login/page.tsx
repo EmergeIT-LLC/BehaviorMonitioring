@@ -52,7 +52,7 @@ const Login: React.FC = () => {
             return setStatusMessage('Password is incorrect')  
         }
 
-        await Axios.post(process.env.NEXT_PUBLIC_BACKEND_UR + '/employee/verifyEmployeeLogin', {
+        await Axios.post(process.env.NEXT_PUBLIC_BACKEND_UR + '/auth/verifyEmployeeLogin', {
             username: uName,
             password: pWord
         })

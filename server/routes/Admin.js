@@ -1,11 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const adminQueries = require('../config/database/storedProcedures/AdminStoredProcedures');
-const currentDateTime = require('../functions/basic/currentDateTime');
-const { formatDateString } = require('../functions/basic/dateTimeFormat');
-const generateUsername = require('../functions/basic/generateUsername');
-const emailHandler = require('../config/email/emailTemplate');
+const logAuthEvent = require('../middleware/helpers/authLog');
+const adminQueries = require('../middleware/helpers/AdminQueries');
+const currentDateTime = require('../functions/base/currentDateTime');
+const { formatDateString } = require('../functions/base/dateTimeFormat');
+const generateUsername = require('../functions/users/generateUsername');
+const emailHandler = require('../middleware/email/emailTemplate');
 
 /*-----------------------------------------------Employee-----------------------------------------------*/
 router.post('/addNewEmployee', async (req, res) => {

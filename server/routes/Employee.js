@@ -1,121 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
-const emailHandler = require('../config/email/emailTemplate');
-const currentDateTime = require('../functions/basic/currentDateTime');
-const { formatDateString } = require('../functions/basic/dateTimeFormat');
-const cookieMonster = require('../config/cookies/cookieHandler');
+const logAuthEvent = require('../middleware/helpers/authLog');
+const employeeQueries = require('../middleware/helpers/EmployeeQueries');
+const emailHandler = require('../middleware/email/emailTemplate');
+const currentDateTime = require('../functions/base/currentDateTime');
+const { formatDateString } = require('../functions/base/dateTimeFormat');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
-
-/*--------------------------------------------Authentication---------------------------------------------*/
-router.post('/validateEmployeeAccount', async (req, res) => {
-    try {
-        const uName = req.body.username;
-        
-        if (await employeeQueries.employeeExistByUsername(uName)) {
-            const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-
-            if (employeeData.account_status === "In Verification") {
-                return res.json({ statusCode: 200, locatedAccount: true });
-            }
-            return res.json({ statusCode: 401, locatedAccount: false });            
-        }
-    } catch (error) {
-        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
-    }
-});
-
-router.post('/validateEmployeeAccount', async (req, res) => {
-    try {
-        const uName = req.body.username;
-        const password = req.body.password;
-    
-        if (await employeeQueries.employeeExistByUsername(uName)) {
-            const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-
-            if (employeeData.account_status === "In Verification") {
-                bcrypt.hash(password, saltRounds, async function(err, hash) {
-                    if (err) {
-                        return res.json({ statusCode: 403, accountVerified: false, serverMessage: 'A server error occurred', errorMessage: err.message });
-                    }
-                    else if (await employeeQueries.employeeSetEmployeeCredentialsByUsername(hash, uName)) {
-                        if (await employeeQueries.employeeUpdateEmployeeAccountStatusByUsername("Active", uName)) {
-                            return res.json({ statusCode: 200, accountVerified: true });
-                        }
-                        else {
-                            return res.json({ statusCode: 403, accountVerified: false, serverMessage: 'A server error occurred', errorMessage: 'Unable to activate account' });
-                        }
-                    }
-                });
-            }
-            return res.json({ statusCode: 401, locatedAccount: false });            
-        }
-    } catch (error) {
-        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
-    }
-});
-
-router.post('/verifyEmployeeLogin', async (req, res) => {
-    try {
-        const uName = req.body.username;
-        const password = req.body.password;
-
-        if (await employeeQueries.employeeExistByUsername(uName.toLowerCase())) {
-            const employeePassword = await employeeQueries.employeePasswordByUsername(uName.toLowerCase());
-
-            if (employeePassword.password.length > 0 || employeePassword.password !== null) {
-                const bcryptResult = await new Promise((resolve, reject) => {
-                    bcrypt.compare(password, employeePassword.password, (err, result) => {
-                        if (err){
-                            reject(err);
-                        }
-                        else {
-                            resolve(result);
-                        }
-                    });
-                });
-
-                if (bcryptResult) {
-                    const cookieSettings = await cookieMonster.setCookie(res, 'bmAuthServices-' + uName.toLowerCase());
-                    const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-                    
-                    if (employeeData.role === "root" || employeeData.role === "admin") {
-                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: true, cookie: cookieSettings });
-                    }
-                    else {
-                        return res.json({ statusCode: 200, loginStatus: true, uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: false, cookie: cookieSettings });
-                    }
-                }
-                else {
-                    return res.json({ statusCode: 401, serverMessage: 'Password is incorrect' });
-                }
-            }
-            else {
-                //Need to send the verification email to the employee and return 401 code if email is successfully sent...
-                return res.json({ statusCode: 401, serverMessage: 'User needs to authenticate their account' });
-            }
-        }
-        else {
-            return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
-        }
-    } catch (error) {
-        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
-    }
-});
-
-router.post('/verifyEmployeeLogout', async (req, res) => {
-    try {
-        const uName = req.body.username;
-
-        let cookieSettings = await cookieMonster.deleteCookie(res, 'bmAuthServices-' + uName.toLowerCase())
-
-        return res.json({ statusCode: 200, loginStatus: false, isAdmin: false, cookie: cookieSettings });
-    } catch (error) {
-        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
-    }
-});
 
 /*-----------------------------------------------Employee-----------------------------------------------*/
 router.post('/getEmployeeData', async (req, res) => {

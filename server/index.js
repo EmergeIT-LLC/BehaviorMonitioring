@@ -1,48 +1,37 @@
 require('dotenv').config();
-const AWS_S3_Bucket_Handler = require('./config/aws/s3Handler');
-const jsonHandler = require('./functions/basic/jsonHandler');
+const AWS_S3_Bucket_Handler = require('./middleware/aws/s3Handler');
+const jsonHandler = require('./functions/base/jsonHandler');
 const host = process.env.HOST;
 const port = process.env.PORT;
-const prodStatus = process.env.IN_PROD;
+const prodStatus = process.env.IN_PROD === "true";
 const clientOrigin = process.env.ClientHost;
 const amplifyOrigin = process.env.AmplifyHost;
 const cors = require('cors');
 const express = require('express');
 const app = express();
-const cookieParser = require('cookie-parser');
-let prodHost = process.env.HOST + ":" + process.env.PORT;
+const authMiddleware = require('./middleware/authMiddleware');
+const requestLogger = require('./middleware/requestLogger');
+let prodHost = prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ''}`;
 
 // Define allowed origins
-const allowedOrigins = [clientOrigin, amplifyOrigin];
+const allowedOrigins = [clientOrigin, amplifyOrigin].filter(Boolean);
 
 // CORS configuration
 const corsOptions = {
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With', 'Custom-Header'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With', 'Custom-Header', 'X-Requested-With', 'Origin'],
 };
 
+app.use(requestLogger);
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cookieParser());
 
-if (prodStatus === "true") {
+if (prodStatus) {
   prodHost = host;
   jsonHandler.testJson();
   AWS_S3_Bucket_Handler.importBackupFromS3();
 }
-
-// Middleware for setting CORS headers for routes that exist and are from allowed origin
-const setHeadersForAllowedRoutes = (req, res, next) => {
-  // Check if the request origin is allowed
-  if (allowedOrigins.includes(req.headers.origin)) {
-    // Set CORS headers for the allowed origin
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  }
-  next();
-};
 
 // Define your routes before the middleware for handling 404 errors
 app.get('/', (req, res) => {
@@ -54,14 +43,17 @@ app.get('/', (req, res) => {
   }
 });
 
+const authRoute = require('./routes/Auth');
+app.use('/auth', authRoute);
+
 const adminRoute = require('./routes/Admin');
-app.use('/admin', setHeadersForAllowedRoutes, adminRoute);
+app.use('/admin', authMiddleware, adminRoute);
 
 const employeeRoute = require('./routes/Employee');
-app.use('/employee', setHeadersForAllowedRoutes, employeeRoute);
+app.use('/employee', authMiddleware, employeeRoute);
 
 const abaRoute = require('./routes/ABA');
-app.use('/aba', setHeadersForAllowedRoutes, abaRoute);
+app.use('/aba', authMiddleware, abaRoute);
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');
@@ -71,18 +63,16 @@ app.use((req, res, next) => {
 
 // Middleware for handling errors and setting CORS headers
 app.use((err, req, res, next) => {
-  // Set CORS headers to allow requests from the allowed origins
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigins.join(', '));
-  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // Check if it's a 404 error
   if (err.status && err.status === 404) {
     res.redirect(host + '/PageNotFound');
-  } else if (err.status) {
-    // For other errors with status codes, send corresponding error response
+  } 
+  
+  if (err.status) {
     res.status(err.status).send(err.message || 'Internal Server Error');
   }
+
+  console.error('Unhandled error:', err);
+  res.status(500).send('Internal Server Error');
 });
 
 app.listen(port, () => {

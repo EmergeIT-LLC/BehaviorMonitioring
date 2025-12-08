@@ -1,6 +1,6 @@
 //Queries imported
-const adminQueries = require('../../config/database/storedProcedures/AdminStoredProcedures');
-const employeeQueries = require('../../config/database/storedProcedures/EmployeeStoredProcedures');
+const adminQueries = require('../../middleware/helpers/AdminQueries');
+const employeeQueries = require('../../middleware/helpers/EmployeeQueries');
 
 //Function to generate a username
 async function GenerateUsername (fName, lName, role) {

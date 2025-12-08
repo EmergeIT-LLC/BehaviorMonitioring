@@ -1,14 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
+const logAuthEvent = require('../middleware/helpers/authLog');
 //Import Queries
-const abaQueries = require('../config/database/storedProcedures/ABAStoredProcedures');
-const employeeQueries = require('../config/database/storedProcedures/EmployeeStoredProcedures');
-const emailHandler = require('../config/email/emailTemplate');
-const currentDateTime = require('../functions/basic/currentDateTime');
-const cookieMonster = require('../config/cookies/cookieHandler');
-const { addDays, addYears } = require('../functions/basic/addDayYear');
-const { formatDateString, formatTimeString } = require('../functions/basic/dateTimeFormat');
+const abaQueries = require('../middleware/helpers/ABAQueries');
+const employeeQueries = require('../middleware/helpers/EmployeeQueries');
+const emailHandler = require('../middleware/email/emailTemplate');
+const currentDateTime = require('../functions/base/currentDateTime');
+const { addDays, addYears } = require('../functions/base/addDayYear');
+const { formatDateString, formatTimeString } = require('../functions/base/dateTimeFormat');
 
 /*-----------------------------------------------ABA-----------------------------------------------*/
 router.post('/addNewClient', async (req, res) => {

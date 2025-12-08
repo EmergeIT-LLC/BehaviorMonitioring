@@ -30,7 +30,7 @@ const Logout: React.FC = () => {
     const submitLogoutForm = async() => {
         setIsLoading(true);
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/employee/verifyEmployeeLogout';
+        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/auth/verifyEmployeeLogout';
 
         await Axios.post(url, {
             username : loggedInUser

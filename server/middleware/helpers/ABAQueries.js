@@ -1,4 +1,4 @@
-const db = require('../dbConnection');
+const db = require('../database/dbConnection');
 
 /*-------------------------------------------------client--------------------------------------------------*/
 async function abaClientExistByID(cID, compID) {
