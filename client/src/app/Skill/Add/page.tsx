@@ -6,18 +6,17 @@ import componentStyles from '../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
-import { GetLoggedInUserStatus, isCookieValid } from '../../../function/VerificationCheck';
+import { GetLoggedInUserStatus } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 
 const AddSkillAquisition: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

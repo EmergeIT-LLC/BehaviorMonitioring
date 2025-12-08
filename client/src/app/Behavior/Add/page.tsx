@@ -6,8 +6,10 @@ import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
-import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
+import type { GetAllClientInfoResponse } from '../../../dto/aba/GetAllClientInfoResponse';
+import { api } from '../../../lib/Api';
 import Axios from 'axios';
 import SelectDropdown from '../../../components/Selectdropdown';
 import InputFields from '../../../components/Inputfield';
@@ -27,7 +29,6 @@ const AddTargetBehavior: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const behaviorOrSkill = 'Behavior';
     const behaviorCategories = ['Select a Behavior Category', 'Aggression', 'Dangerous Acts', 'Disrobing', 'Disruption', 'Elopement', 'Feeding/Mealtime', 'Inappropriate Social', 'Moto Stereotypy', 'Noncompliance/Refusal', 'Other', 'Property Destruction', 'Rituals/Compulsive/Habit/Tics', 'Self-Injury', 'Sexual Behavior', 'Sleep/Toileting', 'Verbal', 'Visual Stereotype', 'Vocal'].map((category) => ({ value: category, label: category }));
     const behaviorMeasurements = ['Select a Measurement Type', 'Frequency', 'Duration', 'Rate'].map((measurement) => ({ value: measurement, label: measurement }));
@@ -51,25 +52,22 @@ const AddTargetBehavior: React.FC = () => {
 
     const getClientNames = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);
-
         }
-        
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
         try {
-            const response = await Axios.post(url, { "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
-                setSelectedClient(response.data.clientData[0].fName + " " + response.data.clientData[0].lName);
-                setSelectedClientID(response.data.clientData[0].clientID);
-                const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: clientData.clientID,
+            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            if (data.statusCode === 200) {
+                setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
+                setSelectedClientID(data.clientData[0].clientID);
+                const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
+                    value: String(clientData.clientID),
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(data.serverMessage);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -119,7 +117,7 @@ const AddTargetBehavior: React.FC = () => {
 
     const submitBehavior = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);
 

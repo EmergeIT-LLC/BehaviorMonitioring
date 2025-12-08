@@ -11,14 +11,14 @@ const saltRounds = 10;
 router.post('/validateEmployeeAccount', async (req, res) => {
     try {
         const uName = req.body.username;
-        
+
         if (await employeeQueries.employeeExistByUsername(uName)) {
             const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
 
             if (employeeData.account_status === "In Verification") {
                 return res.json({ statusCode: 200, locatedAccount: true });
             }
-            return res.json({ statusCode: 401, locatedAccount: false });            
+            return res.json({ statusCode: 401, locatedAccount: false });
         }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
@@ -29,12 +29,12 @@ router.post('/validateEmployeeAccount', async (req, res) => {
     try {
         const uName = req.body.username;
         const password = req.body.password;
-    
+
         if (await employeeQueries.employeeExistByUsername(uName)) {
             const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
 
             if (employeeData.account_status === "In Verification") {
-                bcrypt.hash(password, saltRounds, async function(err, hash) {
+                bcrypt.hash(password, saltRounds, async function (err, hash) {
                     if (err) {
                         return res.json({ statusCode: 403, accountVerified: false, serverMessage: 'A server error occurred', errorMessage: err.message });
                     }
@@ -48,7 +48,7 @@ router.post('/validateEmployeeAccount', async (req, res) => {
                     }
                 });
             }
-            return res.json({ statusCode: 401, locatedAccount: false });            
+            return res.json({ statusCode: 401, locatedAccount: false });
         }
     } catch (error) {
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
@@ -66,7 +66,7 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
             if (employeePassword.password.length > 0 || employeePassword.password !== null) {
                 const bcryptResult = await new Promise((resolve, reject) => {
                     bcrypt.compare(password, employeePassword.password, (err, result) => {
-                        if (err){
+                        if (err) {
                             reject(err);
                         }
                         else {
@@ -77,15 +77,16 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
 
                 if (bcryptResult) {
                     const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-                    const token = createJWTToken(employeeData);
-                    
+                    const authToken = createJWTToken(employeeData);
+                    const refreshToken = createRefreshToken(employeeData);
+
                     if (employeeData.role === "root" || employeeData.role === "admin") {
                         await logAuthEvent("ADMIN_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
-                        return res.json({ statusCode: 200, loginStatus: true, accessToken: token, user:{ uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: true} });
+                        return res.json({ statusCode: 200, loginStatus: true, accessToken: authToken, refreshToken: refreshToken, user: { uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: true } });
                     }
                     else {
                         await logAuthEvent("EMPLOYEE_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
-                        return res.json({ statusCode: 200, loginStatus: true, accessToken: token, user:{ uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: false} });
+                        return res.json({ statusCode: 200, loginStatus: true, accessToken: authToken, refreshToken: refreshToken, user: { uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: false } });
                     }
                 }
                 else {
@@ -118,6 +119,63 @@ router.post('/verifyEmployeeLogout', async (req, res) => {
     } catch (error) {
         await logAuthEvent("EMPLOYEE_LOGOUT_ERROR", { email: req.body.username.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'], details: error.message });
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
+    }
+});
+
+router.post("/refresh", async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(401).json({ error: "Missing refresh token" });
+        }
+
+        let decoded;
+
+        try {
+            decoded = jwt.verify(
+                refreshToken,
+                process.env.JWT_REFRESH_SECRET,
+                {
+                    issuer: process.env.HOST,
+                    audience: process.env.ClientHost
+                }
+            );
+        } catch (err) {
+            await logAuthEvent("REFRESH_TOKEN_INVALID", {
+                token: refreshToken,
+                ip: req.ip
+            });
+            return res.status(401).json({ error: "Invalid or expired refresh token" });
+        }
+
+        // decoded payload contains: { sub, email, roles, ... , exp }
+        const userPayload = {
+            sub: decoded.sub,
+            email: decoded.email,
+            roles: decoded.roles,
+            companyID: decoded.companyID
+        };
+
+        const newAccessToken = createJWTToken(userPayload);
+        const newRefreshToken = createRefreshToken(userPayload);
+
+        await logAuthEvent("REFRESH_TOKEN_SUCCESS", {
+            userId: decoded.sub,
+            ip: req.ip
+        });
+
+        return res.json({
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        });
+
+    } catch (err) {
+        await logAuthEvent("REFRESH_TOKEN_ERROR", {
+            ip: req.ip,
+            details: err.message
+        });
+        return res.status(500).json({ error: "Server error" });
     }
 });
 module.exports = router;

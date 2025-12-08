@@ -13,4 +13,19 @@ function createJWTToken(payload) {
     );
 }
 
-module.exports = createJWTToken;
+function createRefreshToken(payload) {
+  return jwt.sign(
+    payload,
+    process.env.JWT_REFRESH_SECRET, // separate secret from access token
+    {
+      expiresIn: "7d",               // typical refresh lifetime
+      issuer: process.env.HOST,
+      audience: process.env.ClientHost
+    }
+  );
+}
+
+module.exports = {
+  createJWTToken,
+  createRefreshToken
+};

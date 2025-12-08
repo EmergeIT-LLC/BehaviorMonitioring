@@ -8,7 +8,7 @@ import Loading from '../../../components/loading';
 import SelectDropdown from '../../../components/Selectdropdown';
 import Checkbox from '../../../components/Checkbox';
 import Link from '../../../components/Link';
-import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import Axios from 'axios';
 import Button from '../../../components/Button';
@@ -19,7 +19,6 @@ const Page: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteId'));
@@ -66,7 +65,7 @@ const Page: React.FC = () => {
 
     const getSessionNoteDetails = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
@@ -95,7 +94,7 @@ const Page: React.FC = () => {
 
     const deleteSessionNoteCall = async (sessionNoteId: string, sessionNoteName: string) => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

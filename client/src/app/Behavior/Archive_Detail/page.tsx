@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
-import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
+import { api } from '../../../lib/Api';
 import Axios from 'axios';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
@@ -15,7 +16,6 @@ const ArchiveDetails: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
     const [bID, setBID] = useState<string | null>(sessionStorage.getItem('archivedBehaviorID'));
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const ArchiveDetails: React.FC = () => {
     const getClientArchivedBehaviorBaseData = async () => {
         setIsLoading(true);
         setBehaviorBase([]);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -102,7 +102,7 @@ const ArchiveDetails: React.FC = () => {
     const getClientTargetBehaviorData = async () => {
         setIsLoading(true);
         setTargetBehaviorData([]);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -177,7 +177,7 @@ const ArchiveDetails: React.FC = () => {
 
     const deleteDataCall = async (behaviorDataId: string) => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

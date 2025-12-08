@@ -7,17 +7,16 @@ import Header from '../../components/header';
 import InputFields from '../../components/Inputfield';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
-import { GetLoggedInUserStatus, isCookieValid } from '../../function/VerificationCheck';
+import { GetLoggedInUserStatus } from '../../function/VerificationCheck';
 import Axios from 'axios';
 
 const Dashboard: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

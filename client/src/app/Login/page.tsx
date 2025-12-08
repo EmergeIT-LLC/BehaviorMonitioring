@@ -8,7 +8,7 @@ import Footer from '../../components/footer';
 import InputFields from '../../components/Inputfield';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
-import { GetLoggedInUserStatus, SetCookies } from '../../function/VerificationCheck'
+import { GetLoggedInUserStatus } from '../../function/VerificationCheck'
 import { CheckUsername, CheckPassword } from '../../function/EntryCheck';
 import { SetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
@@ -58,8 +58,7 @@ const Login: React.FC = () => {
         })
         .then((response) => {
             if (response.data.statusCode === 200) {
-                SetLoggedInUser(response.data.loginStatus, response.data.uName,  response.data.compID, response.data.compName, response.data.isAdmin);
-                SetCookies(response.data.cookie.name, response.data.cookie.value, response.data.cookie.options.expirationTime, response.data.cookie.options.path, response.data.cookie.options.secure, response.data.cookie.options.sameSite);
+                SetLoggedInUser(response.data.loginStatus, response.data.accessToken, response.data.user);
                 setUserStatus(true);
                 navigate.push(previousUrl || '/');
             }

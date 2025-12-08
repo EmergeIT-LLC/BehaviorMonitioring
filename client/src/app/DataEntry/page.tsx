@@ -14,8 +14,10 @@ import Button from '../../components/Button';
 import TextareaInput from '../../components/TextareaInput';
 import Tab from '../../components/Tab';
 import Loading from '../../components/loading';
-import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
+import { api } from '../../lib/Api';
+import type { GetAllClientInfoResponse } from '../../dto/aba/GetAllClientInfoResponse';
 import Axios from 'axios';
 
 const DataEntry: React.FC = () => {
@@ -44,7 +46,6 @@ const DataEntry: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [activeTab, setActiveTab] = useState<string>('Behavior');
@@ -101,36 +102,36 @@ const DataEntry: React.FC = () => {
 
     const getClientNames = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
-            navigate.push(`/Login?previousUrl=${previousUrl}`);        
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
-
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
         try {
-            const response = await Axios.post(url, { "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
-                setSelectedClient(response.data.clientData[0].fName + " " + response.data.clientData[0].lName);
-                setSelectedClientID(response.data.clientData[0].clientID);
-                const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: clientData.clientID,
+            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            if (data.statusCode === 200) {
+                setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
+                setSelectedClientID(data.clientData[0].clientID);
+                const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
+                    value: String(clientData.clientID),
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                setStatusMessage(response.data.serverMessage);
+                throw new Error(data.serverMessage);
             }
         } catch (error) {
-            console.error(error);
+            return setStatusMessage(String(error));
         }
-        setIsLoading(false);
+        finally {
+            setIsLoading(false);
+        }
     };
 
     const getClientTargetBehaviors = async () => {
         if (selectedClientID === 0) return;
 
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -164,7 +165,7 @@ const DataEntry: React.FC = () => {
         if (selectedClientID === 0) return;
 
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -443,7 +444,7 @@ const DataEntry: React.FC = () => {
     
     const submitDataEntryForm = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

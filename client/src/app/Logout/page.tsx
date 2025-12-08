@@ -7,7 +7,7 @@ import Header from '../../components/header';
 import Footer from '../../components/footer';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
-import { ClearLoggedInUser, GetLoggedInUser, GetLoggedInUserStatus, DeleteCookies } from '../../function/VerificationCheck';
+import { ClearLoggedInUser, GetLoggedInUser, GetLoggedInUserStatus } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import Axios from 'axios';
 
@@ -37,7 +37,9 @@ const Logout: React.FC = () => {
         })
         .then((response) => {
             if (response.data.statusCode === 200) {
-                DeleteCookies(response.data.cookie.name, response.data.cookie.options.expirationTime, response.data.cookie.options.path);
+                localStorage.removeItem('bmAccessToken');
+                localStorage.removeItem('bmRefreshToken');
+                localStorage.removeItem('bmUserData');
             }
             else {
                 throw new Error(response.data.serverMessage);

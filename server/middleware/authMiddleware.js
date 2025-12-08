@@ -35,8 +35,6 @@ function authMiddleware(req, res, next) {
         req.user = payload;
         next();
     } catch (err) {
-        console.error('JWT verification failed:', err.message);
-
         logAuthEvent("JWT_VERIFY_FAILED", {
             ip: req.ip,
             userAgent: req.headers['user-agent'],

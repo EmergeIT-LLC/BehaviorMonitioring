@@ -8,8 +8,10 @@ import Loading from '../../components/loading';
 import SelectDropdown from '../../components/Selectdropdown';
 import Checkbox from '../../components/Checkbox';
 import Link from '../../components/Link';
-import { GetLoggedInUserStatus, GetLoggedInUser, isCookieValid } from '../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetLoggedInUser, RetrieveAccessToken } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
+import { api } from '../../lib/Api';
+import type { GetAllClientInfoResponse } from '../../dto/aba/GetAllClientInfoResponse';
 import Axios from 'axios';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
@@ -19,7 +21,6 @@ const TargetBehavior: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
@@ -65,24 +66,22 @@ const TargetBehavior: React.FC = () => {
 
     const getClientNames = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
-        
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
         try {
-            const response = await Axios.post(url, { "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
-                setSelectedClient(response.data.clientData[0].fName + " " + response.data.clientData[0].lName);
-                setSelectedClientID(response.data.clientData[0].clientID);
-                const fetchedOptions = response.data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: clientData.clientID,
+            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            if (data.statusCode === 200) {
+                setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
+                setSelectedClientID(data.clientData[0].clientID);
+                const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
+                    value: String(clientData.clientID),
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(data.serverMessage);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -94,7 +93,7 @@ const TargetBehavior: React.FC = () => {
 
     const getClientTargetBehaviors = async () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -104,7 +103,9 @@ const TargetBehavior: React.FC = () => {
             const response = await Axios.post(url, {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
-            });
+            },
+            { headers: {'Authorization': `${RetrieveAccessToken()}`} }
+            );
             if (response.data.statusCode === 200) {
                 setTargetOptions([]);
                 setCheckedState([]);
@@ -259,7 +260,7 @@ const TargetBehavior: React.FC = () => {
     const handleMergeConfirm = async (targetBehaviorId: string) => {
         setIsPopupVisible(false);
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
@@ -274,7 +275,9 @@ const TargetBehavior: React.FC = () => {
                     .map((behavior) => behavior.id),
                 "employeeUsername": loggedInUser
 
-            });
+            },
+            { headers: {'Authorization': `${RetrieveAccessToken()}`} }
+            );
     
             if (response.data.statusCode === 200) {
                 setStatusMessage('Behaviors merged successfully.');
@@ -303,14 +306,14 @@ const TargetBehavior: React.FC = () => {
 
     const archiveBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
         
         try {
             const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/archiveBehavior';
-            const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser }, { headers: {'Authorization': `${RetrieveAccessToken()}`} });
             if (response.data.statusCode === 200) {
                 setStatusMessage(<> Behavior "{behaviorName}" has been archived successfully. <br /> "{behaviorName}" will be archived for 7 years before deletion.</>);
                 debounceAsync(getClientTargetBehaviors, 300)();
@@ -329,14 +332,14 @@ const TargetBehavior: React.FC = () => {
 
     const deleteBehaviorCall = async (behaviorId: string, behaviorName: string) => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
         
         try {
             const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser }, { headers: {'Authorization': `${RetrieveAccessToken()}`} });
             if (response.data.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 debounceAsync(getClientTargetBehaviors, 300)();
