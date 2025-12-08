@@ -12,7 +12,8 @@ import { GetLoggedInUserStatus } from '../../function/VerificationCheck'
 import { CheckUsername, CheckPassword } from '../../function/EntryCheck';
 import { SetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
-import Axios from 'axios';
+import { api } from '../../lib/Api';
+import type { LoginResponse } from '../../dto/auth/LoginResponse';
 
 const Login: React.FC = () => {
     const searchParams = useSearchParams();
@@ -52,26 +53,24 @@ const Login: React.FC = () => {
             return setStatusMessage('Password is incorrect')  
         }
 
-        await Axios.post(process.env.NEXT_PUBLIC_BACKEND_UR + '/auth/verifyEmployeeLogin', {
-            username: uName,
-            password: pWord
-        })
-        .then((response) => {
-            if (response.data.statusCode === 200) {
-                SetLoggedInUser(response.data.loginStatus, response.data.accessToken, response.data.user);
+        try {
+            const response = await api<LoginResponse>('post','/auth/verifyEmployeeLogin', { username: uName, password: pWord });
+
+            if (response.statusCode === 200) {
+                SetLoggedInUser(response.loginStatus, response.accessToken, response.refreshToken, response.user);
                 setUserStatus(true);
                 navigate.push(previousUrl || '/');
             }
             else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
-        })
-        .catch((error) => {
-            return setStatusMessage(error.message);
-        })
-        .finally(() => {
+        }
+        catch (error) {
+            return setStatusMessage(String(error));
+        }
+        finally {
             setIsLoading(false);
-        });
+        }
     };
 
   return (

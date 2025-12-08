@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const logAuthEvent = require('../middleware/helpers/authLog');
-const createJWTToken = require('../middleware/auth/createJWTToken');
+const { createJWTToken, createRefreshToken } = require('../middleware/auth/createJWTToken');
 const employeeQueries = require('../middleware/helpers/EmployeeQueries');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;

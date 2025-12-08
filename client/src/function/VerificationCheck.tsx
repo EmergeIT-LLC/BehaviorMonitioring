@@ -1,4 +1,4 @@
-export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, user: { uName: string, compID: string | number, compName: string, isAdmin: boolean }) => {
+export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, refreshToken: string, user: { uName: string, compID: string | number, compName: string, isAdmin: boolean }) => {
     if (typeof window === 'undefined') return true;
     
     if (loginSuccessful) {
@@ -12,7 +12,7 @@ export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, u
 
         localStorage.setItem('bmUserData', JSON.stringify(dataToStore));
         localStorage.setItem('bmAccessToken', accessToken);
-        localStorage.setItem('bmRefreshToken', '');
+        localStorage.setItem('bmRefreshToken', refreshToken);
     }
     else {
         ClearLoggedInUser();
