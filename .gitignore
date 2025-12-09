@@ -62,6 +62,7 @@
 /client/npm-debug.log*
 /client/yarn-debug.log*
 /client/yarn-error.log*
+/server/logs/*.log
 
 # entire project
 .DS_STORE*

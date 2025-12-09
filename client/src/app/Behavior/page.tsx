@@ -11,8 +11,14 @@ import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser, RetrieveAccessToken } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
+import type { clientLists } from '../../dto/choices/clientLists';
+import type { behaviorOptions } from '../../dto/choices/behaviorOptions';
+import type { checkedBehaviors } from '../../dto/choices/checkedBehaviors';
 import type { GetAllClientInfoResponse } from '../../dto/aba/GetAllClientInfoResponse';
-import Axios from 'axios';
+import type { GetClientTargetBehaviorResponse } from '../../dto/aba/GetClientTargetBehaviorResponse';
+import type { MergeBehaviorsResponse } from '../../dto/aba/MergeBehaviorsResponse';
+import type { DeleteBehaviorsResponse } from '../../dto/aba/DeleteBehaviorsResponse';
+import type { ArchiveBehaviorsResponse } from '../../dto/aba/ArchiveBehaviorsResponse';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
@@ -23,11 +29,11 @@ const TargetBehavior: React.FC = () => {
     const loggedInUser = GetLoggedInUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
+    const [clientLists, setClientLists] = useState<clientLists[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; dataToday?: number; }[]>([]);
-    const [checkedBehaviors, setCheckedBehaviors] = useState<{ id: string; name: string; measurementType: string | undefined }[]>([]);
+    const [targetOptions, setTargetOptions] = useState<behaviorOptions[]>([]);
+    const [checkedBehaviors, setCheckedBehaviors] = useState<checkedBehaviors[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
@@ -98,36 +104,36 @@ const TargetBehavior: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getClientTargetBehavior';
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetClientTargetBehaviorResponse>('post','/aba/getClientTargetBehavior', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
-            },
-            { headers: {'Authorization': `${RetrieveAccessToken()}`} }
-            );
-            if (response.data.statusCode === 200) {
+            });
+
+            if (response.statusCode === 200) {
                 setTargetOptions([]);
                 setCheckedState([]);
                 setCheckedBehaviors([]);
                 sessionStorage.removeItem('checkedBehaviors');
 
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string }) => ({
+                const fetchedOptions = response.behaviorSkillData.map((behavior) => ({
                     value: behavior.bsID,
                     label: behavior.name,
                     definition: behavior.definition,
-                    dateCreated: behavior.dateCreated,
+                    dateCreated: behavior.date_entered,
                     measurementType: behavior.measurement,
-                    behaviorCategory: behavior.behaviorCategory,
+                    behaviorCategory: behavior.category,
                 }));
                 setTargetOptions(fetchedOptions);
                 setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
-        } catch (error) {
+        }
+        catch (error) {
             return setStatusMessage(String(error));
-        } finally {
+        }
+        finally {
             setIsLoading(false);
         }
     };
@@ -264,30 +270,23 @@ const TargetBehavior: React.FC = () => {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
-        
-        try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/mergeBehaviors';
-            const response = await Axios.post(url, {
-                "clientID": selectedClientID,
-                targetBehaviorId,
-                mergeBehaviorIds: checkedBehaviors
-                    .filter((behavior) => behavior.id !== targetBehaviorId)
-                    .map((behavior) => behavior.id),
-                "employeeUsername": loggedInUser
 
-            },
-            { headers: {'Authorization': `${RetrieveAccessToken()}`} }
+        try {
+            const response = await api<MergeBehaviorsResponse>('post','/aba/mergeBehaviors', { "clientID": selectedClientID, targetBehaviorId, mergeBehaviorIds: checkedBehaviors
+                    .filter((behavior) => behavior.id !== targetBehaviorId)
+                    .map((behavior) => behavior.id), "employeeUsername": loggedInUser },
             );
-    
-            if (response.data.statusCode === 200) {
+
+            if (response.statusCode === 200) {
                 setStatusMessage('Behaviors merged successfully.');
                 debounceAsync(getClientTargetBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
             } else {
-                throw new Error(response.data.serverMessage || 'Merge failed');
+                throw new Error(response.serverMessage || 'Merge failed');
             }
-        } catch (error) {
+        }
+        catch (error) {
             return setStatusMessage(String(error));
         }
         finally {
@@ -312,20 +311,19 @@ const TargetBehavior: React.FC = () => {
         }
         
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/archiveBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser }, { headers: {'Authorization': `${RetrieveAccessToken()}`} });
-            if (response.data.statusCode === 200) {
-                setStatusMessage(<> Behavior "{behaviorName}" has been archived successfully. <br /> "{behaviorName}" will be archived for 7 years before deletion.</>);
-                debounceAsync(getClientTargetBehaviors, 300)();
-                setTimerCount(3);
-                setClearMessageStatus(true);                                   
+            const response = await api<ArchiveBehaviorsResponse>('post', '/aba/checkBehaviorArchiveStatus', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
+                if (!response.isArchived) {
+                    setIsLoading(false);
+                    setStatusMessage(`Behavior "${behaviorName}" must be archived before it can be deleted.`);
+                    return;
+                }
             } else {
-                throw new Error(`Failed to archive "${behaviorName}".`);
+                throw new Error(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -336,22 +334,20 @@ const TargetBehavior: React.FC = () => {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
-        
+
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser }, { headers: {'Authorization': `${RetrieveAccessToken()}`} });
-            if (response.data.statusCode === 200) {
+            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 debounceAsync(getClientTargetBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
-        } else {
+            } else {
                 throw new Error(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     };

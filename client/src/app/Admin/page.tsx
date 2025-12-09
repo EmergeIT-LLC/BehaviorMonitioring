@@ -7,18 +7,17 @@ import Header from '../../components/header';
 import InputFields from '../../components/Inputfield';
 import Link from '../../components/Link';
 import Loading from '../../components/loading';
-import { GetLoggedInUserStatus, GetAdminStatus, isCookieValid } from '../../function/VerificationCheck';
+import { GetLoggedInUserStatus, GetAdminStatus } from '../../function/VerificationCheck';
 import Axios from 'axios';
 
 const Admin: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const userIsAdmin = GetAdminStatus();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }

@@ -10,20 +10,13 @@ import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/Verifi
 import { debounceAsync } from '../../../function/debounce';
 import type { GetAllClientInfoResponse } from '../../../dto/aba/GetAllClientInfoResponse';
 import { api } from '../../../lib/Api';
-import Axios from 'axios';
+import { clientLists } from '../../../dto/choices/clientLists';
+import type { Behavior } from '../../../dto/aba/Behavior';
+import type { AddNewTargetBehaviorResponse } from '../../../dto/aba/AddNewTargetBehaviorResponse';
+import type { AddNewTargetBehaviorRequest } from '../../../dto/aba/AddNewTargetBehaviorRequest';
 import SelectDropdown from '../../../components/Selectdropdown';
 import InputFields from '../../../components/Inputfield';
 import TextareaInput from '../../../components/TextareaInput';
-
-interface Behavior {
-    behaviorName: string;
-    behaviorDefinition: string;
-    behaviorMeasurement: string;
-    behaviorCategory: string;
-    type: string;
-    clientID: number;
-    clientName: string;
-}
 
 const AddTargetBehavior: React.FC = () => {
     const navigate = useRouter();
@@ -36,7 +29,7 @@ const AddTargetBehavior: React.FC = () => {
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
-    const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
+    const [clientLists, setClientLists] = useState<clientLists[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [behaviorName, setBehaviorName] = useState<string>('');
@@ -44,7 +37,7 @@ const AddTargetBehavior: React.FC = () => {
     const [otherBehaviorCategories, setOtherBehaviorCategory] = useState<string>('');
     const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
     const [behaviorMeasurementSelected, setBehaviorMeasurementSelected] = useState<string>('');
-    const [behaviorsToAdd, setBehaviorsToAdd] = useState<{ clientName: string, clientID: number, behaviorName: string, behaviorCategory: string, behaviorDefinition: string, behaviorMeasurement: string, type: string }[]>([]);
+    const [behaviorsToAdd, setBehaviorsToAdd] = useState<Behavior[]>([]);
 
     useEffect(() => {
         debounceAsync(getClientNames, 300)();
@@ -123,28 +116,25 @@ const AddTargetBehavior: React.FC = () => {
 
         }
         
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/addNewTargetBehavior';
         try {
-            const response = await Axios.post(url, {
+            const response = await api<AddNewTargetBehaviorResponse>('post', '/aba/addNewTargetBehavior', {
                 "employeeUsername": loggedInUser,
                 "behaviors": behaviorsToAdd
-            });
-            if (response.data.statusCode === 204) {
-                setStatusMessage(response.data.serverMessage);
+            } as AddNewTargetBehaviorRequest);
+            if (response.statusCode === 204) {
+                setStatusMessage(response.serverMessage);
                 setBehaviorsToAdd([]);
                 setClearMessageStatus(true);
                 setTimerCount(5);
-            } else if (response.data.statusCode === 500 && response.data.failedBehaviors) {
-                setStatusMessage(response.data.serverMessage);
-                const failedBehaviors: Behavior[] = response.data.failedBehaviors;
-                setBehaviorsToAdd(failedBehaviors);
+            } else if (response.statusCode === 500 && response.failedBehaviors) {
+                setStatusMessage(response.serverMessage);
+                setBehaviorsToAdd(response.failedBehaviors);
             } else {
-                throw new Error(response.data.serverMessage)
+                throw new Error(response.serverMessage)
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     }

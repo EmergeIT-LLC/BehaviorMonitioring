@@ -8,9 +8,13 @@ import Loading from '../../../components/loading';
 import SelectDropdown from '../../../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import type { GetAllClientInfoResponse } from '../../../dto/aba/GetAllClientInfoResponse';
 import { api } from '../../../lib/Api';
-import Axios from 'axios';
+import type { clientLists } from '../../../dto/choices/clientLists';
+import type { behaviorOptions } from '../../../dto/choices/behaviorOptions';
+import type { GetAllClientInfoResponse } from '../../../dto/aba/GetAllClientInfoResponse';
+import type { GetClientArchivedBehaviorResponse } from '../../../dto/aba/GetClientArchivedBehaviorResponse';
+import type { ActivateBehaviorResponse } from '../../../dto/aba/ActivateBehaviorRespones';
+import type { DeleteBehaviorsResponse } from '../../../dto/aba/DeleteBehaviorsResponse';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 
@@ -23,10 +27,10 @@ const Archive: React.FC = () => {
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
+    const [clientLists, setClientLists] = useState<clientLists[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [archivedBehaviors, setArchivedBehaviors] = useState<{ value: string | number; label: string; definition?: string; dateCreated?: string; measurementType?: string; behaviorCat?: string; }[]>([]);
+    const [archivedBehaviors, setArchivedBehaviors] = useState<behaviorOptions[]>([]);
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
@@ -90,27 +94,27 @@ const Archive: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getClientArchivedBehavior';
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetClientArchivedBehaviorResponse>('post', '/aba/getClientArchivedBehavior', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
-            if (response.data.statusCode === 200) {
+
+            if (response.statusCode === 200) {
                 setArchivedBehaviors([]);
 
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, definition: string, dateCreated: string, measurement: string, behaviorCategory: string }) => ({
+                const fetchedOptions = response.behaviorSkillData.map((behavior) => ({
                     value: behavior.bsID,
                     label: behavior.name,
                     definition: behavior.definition,
-                    dateCreated: behavior.dateCreated,
+                    dateCreated: behavior.date_entered,
                     measurementType: behavior.measurement,
-                    behaviorCategory: behavior.behaviorCategory,
+                    behaviorCategory: behavior.category,
                 }));
 
                 setArchivedBehaviors(fetchedOptions);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -157,9 +161,8 @@ const Archive: React.FC = () => {
         }
 
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/activateBehavior';
-            const response = await Axios.post(url, {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
+            const response = await api<ActivateBehaviorResponse>('post', 'aba/activateBehavior', {  "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been reactived successfully.`);
                 debounceAsync(getClientArchivedBehaviors, 300)();
                 setTimerCount(3);
@@ -169,8 +172,7 @@ const Archive: React.FC = () => {
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -183,20 +185,18 @@ const Archive: React.FC = () => {
         }
 
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehavior';
-            const response = await Axios.post(url, { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
+            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 debounceAsync(getClientArchivedBehaviors, 300)();
                 setTimerCount(3);
                 setClearMessageStatus(true);                                   
-        } else {
+            } else {
                 throw new Error(`Failed to delete "${behaviorName}".`);
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     };
