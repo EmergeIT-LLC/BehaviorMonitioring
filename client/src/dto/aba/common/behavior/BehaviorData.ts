@@ -1,4 +1,4 @@
-export type behaviorSkillData = {
+export type behaviorData = {
     bsID: number;
     name: string;
     definition: string;
@@ -7,6 +7,7 @@ export type behaviorSkillData = {
     type: string;
     clientID: number;
     clientName: string;
+    dataToday: number;
     entered_by: string;
     date_entered: string;
     time_entered: string;

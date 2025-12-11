@@ -1,4 +1,4 @@
-import type { ClientDTO } from '../common/ClientDTO';
+import type { ClientDTO } from '../../../common/ClientDTO';
 
 export type GetAllClientInfoResponse = {
   statusCode: number;

@@ -9,12 +9,12 @@ import SelectDropdown from '../../../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
-import type { clientLists } from '../../../dto/choices/clientLists';
-import type { behaviorOptions } from '../../../dto/choices/behaviorOptions';
-import type { GetAllClientInfoResponse } from '../../../dto/aba/GetAllClientInfoResponse';
-import type { GetClientArchivedBehaviorResponse } from '../../../dto/aba/GetClientArchivedBehaviorResponse';
-import type { ActivateBehaviorResponse } from '../../../dto/aba/ActivateBehaviorRespones';
-import type { DeleteBehaviorsResponse } from '../../../dto/aba/DeleteBehaviorsResponse';
+import type { clientLists } from '../../../dto/choices/dto/clientLists';
+import type { behaviorOptions } from '../../../dto/choices/dto/behaviorOptions';
+import type { GetAllClientInfoResponse } from '../../../dto/aba/responses/behavior/GetAllClientInfoResponse';
+import type { GetClientArchivedBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientArchivedBehaviorResponse';
+import type { ActivateBehaviorResponse } from '../../../dto/aba/responses/behavior/ActivateBehaviorRespones';
+import type { DeleteBehaviorsResponse } from '../../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 

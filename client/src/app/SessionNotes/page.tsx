@@ -12,7 +12,7 @@ import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/Verificat
 import { debounceAsync } from '../../function/debounce';
 import { debouncedGetClientNames } from '../../function/ApiCalls';
 import { api } from '../../lib/Api';
-import type { GetAllClientInfoResponse } from '../../dto/aba/GetAllClientInfoResponse';
+import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
 import Axios from 'axios';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';

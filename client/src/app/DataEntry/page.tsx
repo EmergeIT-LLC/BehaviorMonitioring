@@ -17,7 +17,12 @@ import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
-import type { GetAllClientInfoResponse } from '../../dto/aba/GetAllClientInfoResponse';
+import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
+import type { clientLists } from '../../dto/choices/dto/clientLists';
+import type { behaviorOptions } from '../../dto/choices/dto/behaviorOptions';
+import type { skillOptions } from '../../dto/choices/dto/skillOptions';
+import type { GetAClientTargetBehaviorResponse } from '../../dto/aba/responses/behavior/GetAClientTargetBehavior';
+import type { GetAClientSkillBehaviorResponse } from '../../dto/aba/responses/skill/GetAClientSkillBehavior';
 import Axios from 'axios';
 
 const DataEntry: React.FC = () => {
@@ -51,7 +56,7 @@ const DataEntry: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>('Behavior');
     const [targetAmt, setTargetAmt] = useState<number>(1);
     const [skillAmt, setSkillAmt] = useState<number>(1);
-    const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
+    const [clientLists, setClientLists] = useState<clientLists[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
@@ -59,8 +64,8 @@ const DataEntry: React.FC = () => {
     const [selectedMeasurementTypes, setSelectedMeasurementTypes] = useState<string[]>([]);
     const [dates, setDates] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
-    const [targetOptions, setTargetOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
-    const [skillOptions, setSkillOptions] = useState<{ value: string | number; label: string; measurementType?: string; }[]>([]);
+    const [targetOptions, setTargetOptions] = useState<behaviorOptions[]>([]);
+    const [skillOptions, setSkillOptions] = useState<skillOptions[]>([]);
     const [sessionNoteDate, setSessionNoteDate] = useState<string>(getCurrentDate());
     const [sessionNoteTime, setSessionNoteTime] = useState<string>(getCurrentTime());
     const [sessionNotes, setSessionNotes] = useState<string>('');
@@ -136,27 +141,22 @@ const DataEntry: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getClientTargetBehavior';
         try {
-            const response = await Axios.post(url, {
-                "clientID": selectedClientID,
-                "employeeUsername": loggedInUser
-            });
+            const response = await api<GetAClientTargetBehaviorResponse>('post', '/aba/getClientTargetBehavior', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
 
-            if (response.data.statusCode === 200) {
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
+            if (response.statusCode === 200) {
+                const fetchedOptions = response.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
                     value: behavior.bsID,
                     label: behavior.name,
                     measurementType: behavior.measurement
                 }));
-                setTargetOptions([{ value: 'null', label: 'Select A Behavior' }, ...fetchedOptions]);
+                setTargetOptions([targetOptions[0], ...fetchedOptions]);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
-            return setStatusMessage(String(error));
-        }
-        finally {
+            setStatusMessage(String(error));
+        } finally {
             setIsLoading(false);
         }
     };
@@ -170,27 +170,23 @@ const DataEntry: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getClientSkillAquisition';
         try {
-            const response = await Axios.post(url, {
-                "clientID": selectedClientID,
-                "employeeUsername": loggedInUser
-            });
-
-            if (response.data.statusCode === 200) {
-                const fetchedOptions = response.data.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
-                    value: behavior.bsID,
-                    label: behavior.name,
-                    measurementType: behavior.measurement
+            const response = await api<GetAClientSkillBehaviorResponse>('post', '/aba/getClientSkillAquisition', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
+                const fetchedOptions = response.behaviorSkillData.map((skill: { bsID: number, name: string, measurement: string }) => ({
+                    value: skill.bsID,
+                    label: skill.name,
+                    measurementType: skill.measurement
                 }));
-                setSkillOptions([{ value: 'null', label: 'Select A Skill' }, ...fetchedOptions]);
+                setSkillOptions([skillOptions[0], ...fetchedOptions]);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
-            return setStatusMessage(String(error));
+            setStatusMessage(String(error));
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const handleTargetAMTChange = (input: number | React.ChangeEvent<HTMLInputElement>) => {
@@ -451,9 +447,7 @@ const DataEntry: React.FC = () => {
 
         try {
             if (activeTab === 'Behavior') {
-                const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/submitTargetBehavior';
-
-                const response = await Axios.post(url, {
+                const response = await api<>('post', '/aba/submitTargetBehavior', {
                     "clientID": selectedClientID,
                     "targetAmt": targetAmt,
                     "selectedTargets": selectedTargets,

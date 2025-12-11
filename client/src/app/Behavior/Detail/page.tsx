@@ -7,8 +7,12 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
+import type { behaviorData } from '../../../dto/aba/common/behavior/BehaviorData';
+import type { TargetBehaviorData } from '../../../dto/aba/common/behavior/TargetBehaviorData';
+import type { DeleteBehaviorsResponse } from '../../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
+import type { GetClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientTargetBehaviorResponse';
+import type { GetAClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetAClientTargetBehavior';
 import { api } from '../../../lib/Api';
-import Axios from 'axios';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 
@@ -20,8 +24,8 @@ const TargetbehaviorDetails: React.FC = () => {
     const [bID, setBID] = useState<string | null>(sessionStorage.getItem('behaviorID'));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [behaviorBase, setBehaviorBase] = useState<{  bsID: string | number; name: string; definition?: string; dateCreated?: string; measurement?: string; behaviorCat?: string; dataToday?: number; clientName: string; clientID: string | number; }[]>([]);
-    const [targetBehaviorData, setTargetBehaviorData] = useState<{ behaviorDataID: string; clientName: string; sessionDate: string; sessionTime: string; count: string | number; duration: string | number; trial: string; entered_by: string; date_entered: string; time_entered: string; }[]>([]);
+    const [behaviorBase, setBehaviorBase] = useState<behaviorData[]>([]);
+    const [targetBehaviorData, setTargetBehaviorData] = useState<TargetBehaviorData[]>([]);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
     const [popupAction, setPopupAction] = useState<string>('');
     const [dataIdToActOn, setDataIdToActOn] = useState<string>('');
@@ -77,24 +81,22 @@ const TargetbehaviorDetails: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAClientTargetBehavior';
-
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetAClientTargetBehaviorResponse>('post', '/aba/getAClientTargetBehavior', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });
-            if (response.data.statusCode === 200) {
-                setBehaviorBase(response.data.behaviorSkillData);
-                generateTargetTableHeaders(response.data.behaviorSkillData[0].measurement);
+
+            if (response.statusCode === 200) {
+                setBehaviorBase(response.behaviorSkillData);
+                generateTargetTableHeaders(response.behaviorSkillData[0].measurement);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }    
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     }
@@ -105,26 +107,22 @@ const TargetbehaviorDetails: React.FC = () => {
         if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);
-
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getTargetBehavior';
-
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetClientTargetBehaviorResponse>('post', '/aba/getTargetBehavior', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });
-            if (response.data.statusCode === 200) {
-                return setTargetBehaviorData(response.data.behaviorSkillData.reverse());
+            if (response.statusCode === 200) {
+                return setTargetBehaviorData(response.behaviorSkillData.reverse());
             } else {
-                throw new Error(response.data.serverMessage);
-            }    
+                throw new Error(response.serverMessage);
+            }
         } catch (error) {
-            return setStatusMessage(String(error));
-        }
-        finally {
+            setStatusMessage(String(error));
+        } finally {
             setIsLoading(false);
         }
     }
@@ -183,11 +181,10 @@ const TargetbehaviorDetails: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
 
         }
-        
+
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteBehaviorData';
-            const response = await Axios.post(url, { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
+            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorDataId}" has been deleted successfully.`);
                 setClientID(String(behaviorBase[0].clientID));
                 setBID(String(behaviorBase[0].bsID));
@@ -200,8 +197,7 @@ const TargetbehaviorDetails: React.FC = () => {
             }
         } catch (error) {
             return setStatusMessage(String(error));
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -278,9 +274,13 @@ const TargetbehaviorDetails: React.FC = () => {
                                         </tbody>
                                     </table>
                                     <div className={componentStyles.pagination}>
-                                        <Button nameOfClass='paginationLeftButton' placeholder='&lt;' btnType='button' onClick={() => handlePageChange(currentPage - 1)} disabled = {currentPage <= 1}/>
-                                        {getPageNumbers().map((page, index) => (<button key={index} onClick={() => typeof page === 'number' && handlePageChange(page)} className={`${componentStyles.paginationButton} ${currentPage === page ? componentStyles.active : ''}`} disabled={currentPage === page}> {page} </button>))}
-                                        <Button nameOfClass='paginationRightButton' placeholder='&gt;' btnType='button' onClick={() => handlePageChange(currentPage + 1)} disabled = {currentPage >= totalPages}/>
+                                        {getPageNumbers().length > 0 && (
+                                            <>
+                                            <Button nameOfClass='paginationLeftButton' placeholder='&lt;' btnType='button' onClick={() => handlePageChange(currentPage - 1)} disabled = {currentPage <= 1}/>
+                                            {getPageNumbers().map((page, index) => (<button key={index} onClick={() => typeof page === 'number' && handlePageChange(page)} className={`${componentStyles.paginationButton} ${currentPage === page ? componentStyles.active : ''}`} disabled={currentPage === page}> {page} </button>))}
+                                            <Button nameOfClass='paginationRightButton' placeholder='&gt;' btnType='button' onClick={() => handlePageChange(currentPage + 1)} disabled = {currentPage >= totalPages}/>
+                                            </>
+                                        )}
                                     </div>
                                     <PopoutPrompt title={`${popupAction} Behavior Data`} message={`Are you sure you want to ${popupAction.toLowerCase()} the behavior "${dataIdToActOn}"?`} onConfirm={handleDelete} onCancel={() => handleDeleteCancel()} isVisible={isPopoutVisible} behaviorNameSelected={dataIdToActOn} />
                                 </div>

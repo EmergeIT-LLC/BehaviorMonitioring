@@ -7,17 +7,13 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import Axios from 'axios';
+import { SelectedData } from '../../../dto/choices/dto/selectedData';
+import { GetClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientTargetBehaviorResponse';
 import { api } from '../../../lib/Api';
+import { DateRangeOptions } from '../../../dto/choices/values/dateRanges';
 import SelectDropdown from '../../../components/Selectdropdown';
 import GraphDataProcessor from '../../../function/GraphDataProcessor';
 import Button from '../../../components/Button';
-
-// Define an interface for the selected behavior items
-interface SelectedBehavior {
-    id: number;
-    name: string;
-}
 
 const Graph: React.FC = () => {
     const foundData = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
@@ -25,17 +21,16 @@ const Graph: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const cookieIsValid = isCookieValid();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const clientName = foundData.length > 0 ? foundData[0].clientName : '';
     const measurementType = foundData.length > 0 ? foundData[0].measurementType : '';
-    const [selectedData, setSelectedData] = useState<{ id: number; name: string }[]>([]);
+    const [selectedData, setSelectedData] = useState<SelectedData[]>([]);
     const [fetchedData, setFetchedData] = useState<any[]>([]);
-    const [behaviorNames, setBehaviorNames] = useState<Record<number, string>>({}); // New state for behavior names
-    const [dateRangeLabel, setDateRangeLabel] = useState<string>("Last 7 Days"); // Default to 7 days
+    const [behaviorNames, setBehaviorNames] = useState<Record<string, string>>({}); // New state for behavior names
+    const [dateRangeLabel, setDateRangeLabel] = useState<string>(DateRangeOptions[0].label); // Default to 7 days
     const [dateRange, setDateRange] = useState<number>(7); // Default to 7 days
-    const dateRanges = [ { label: 'Last 7 Days', value: 7 }, { label: 'Last 2 Weeks', value: 14 }, { label: 'Last Month', value: 30 }, { label: 'Last 3 Months', value: 90 }, { label: 'Last 6 Months', value: 180 }, { label: 'Last 9 Months', value: 270 }, { label: 'Last Year', value: 365 } ];
+    const dateRanges = DateRangeOptions.map(option => ({ value: Number(option.value), label: option.label }));
 
     useEffect(() => {
         checkSelectedId();
@@ -55,19 +50,19 @@ const Graph: React.FC = () => {
 
     const checkSelectedId = () => {
         setIsLoading(true);
-        if (!userLoggedIn || !cookieIsValid) {
+        if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
         
         try {
-            const selectedIDs: SelectedBehavior[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]'); // Specify the type here
+            const selectedIDs: SelectedData[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
             setSelectedData(selectedIDs);
             
             // Create a mapping of behavior names based on selected IDs
-            const namesMap: Record<number, string> = {};
-            selectedIDs.forEach((item: SelectedBehavior) => { // Specify the type for item here
-                namesMap[item.id] = item.name; // Use the item.id and item.name
+            const namesMap: Record<string, string> = {};
+            selectedIDs.forEach((item: SelectedData) => {
+                namesMap[item.id] = item.name;
             });
             return setBehaviorNames(namesMap); // Update the state with the behavior names
         } catch (error) {
@@ -84,24 +79,21 @@ const Graph: React.FC = () => {
             const previousUrl = encodeURIComponent(location.pathname);
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
-        
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getTargetBehavior';
 
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetClientTargetBehaviorResponse>('post', '/aba/getTargetBehavior', {
                 "clientID": sessionStorage.getItem('clientID'),
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });
-            if (response.data.statusCode === 200) {
-                return response.data.behaviorSkillData;
+            if (response.statusCode === 200) {
+                return response.behaviorSkillData;
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
-            return setStatusMessage(String(error));
-        }
-        finally {
+            setStatusMessage(String(error));
+        } finally {
             setIsLoading(false);
         }
     };
@@ -128,7 +120,7 @@ const Graph: React.FC = () => {
             // Create a mapping of behavior names based on selectedData
             const behaviorNames = Object.fromEntries(selectedData.map(item => [item.id, item.name]));
 
-            Promise.all([...new Set(selectedData.map(item => item.id))].map(id => debounceAsync(() => getTargetData(id), 300)()))
+            Promise.all([...new Set(selectedData.map(item => item.id))].map(id => debounceAsync(() => getTargetData(Number(id)), 300)()))
                 .then((allData) => {
                     const flattenedData = allData.flat().filter(entry => entry !== null);
                     const filteredData = filterDataByDateRange(flattenedData); // Filter data based on date range
