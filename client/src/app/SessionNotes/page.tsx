@@ -13,10 +13,19 @@ import { debounceAsync } from '../../function/debounce';
 import { debouncedGetClientNames } from '../../function/ApiCalls';
 import { api } from '../../lib/Api';
 import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
-import Axios from 'axios';
+import type { GetSessionNotesDataResponse } from '../../dto/aba/requests/notes/GetSessionNotesDataResponse';
+import type { DeleteSessionNotesResponse } from '../../dto/aba/responses/notes/DeleteSessionNotesResponse';
+import type { Notes } from '@/dto/aba/common/notes/notes';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
+
+// Extended type for display options that includes computed fields
+type SessionNotesOption = Notes & {
+    value: string;
+    label: string;
+    sessionNotes: string;
+};
 
 const SessionNotes: React.FC = () => {
     const navigate = useRouter();
@@ -27,7 +36,7 @@ const SessionNotes: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [notesOptions, setNotesOptions] = useState<{  value: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, label: string, entered_by: string }[]>([]);
+    const [notesOptions, setNotesOptions] = useState<SessionNotesOption[]>([]);
     const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
@@ -98,31 +107,29 @@ const SessionNotes: React.FC = () => {
 
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getSessionNotes';
         try {
-            const response = await Axios.post(url, {
+            const response = await api<GetSessionNotesDataResponse>('post', '/aba/getSessionNotes', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
-            if (response.data.statusCode === 200) {
+
+            if (response.statusCode === 200) {
                 const labelLength = 50;
                 setNotesOptions([]);
                 setCheckedState([]);
                 setCheckedNotes([]);
                 sessionStorage.removeItem('checkedNotes');
 
-                const fetchedOptions = response.data.sessionNotesData.map((notes: { sessionNoteDataID: number, clientID: number, clientName: string, sessionDate: string, sessionTime: string, sessionNotes: string, entered_by: string }) => ({
-                    value: notes.sessionNoteDataID,
-                    label: notes.sessionNotes.length > labelLength ? notes.sessionNotes.substring(0, labelLength) + '...' : notes.sessionNotes,
-                    clientID: notes.clientID,
-                    clientName: notes.clientName,
-                    sessionDate: notes.sessionDate,
-                    sessionTime: notes.sessionTime,
-                    sessionNotes: notes.sessionNotes,
+                const fetchedOptions: SessionNotesOption[] = response.sessionNotesData.map((notes) => ({
+                    ...notes,
+                    value: notes.noteID,
+                    label: notes.notes.length > labelLength ? notes.notes.substring(0, labelLength) + '...' : notes.notes,
+                    sessionNotes: notes.notes,
                     entered_by: notes.entered_by,
                 }));
                 setNotesOptions(fetchedOptions);
                 setCheckedState(new Array(fetchedOptions.length).fill(false));
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
             return setStatusMessage(String(error));
@@ -234,9 +241,13 @@ const SessionNotes: React.FC = () => {
         }
         
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
-            const response = await Axios.post(url, { "clientID": selectedClientID, "sessionNoteId": sessionNoteId, "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
+            const response = await api<DeleteSessionNotesResponse>('post', '/aba/deleteSessionNote', {
+                "clientID": selectedClientID, 
+                "sessionNoteId": sessionNoteId, 
+                "employeeUsername": loggedInUser 
+            });
+
+            if (response.statusCode === 200) {
                 setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
                 setTimerCount(3);

@@ -10,7 +10,10 @@ import Checkbox from '../../../components/Checkbox';
 import Link from '../../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import Axios from 'axios';
+import { api } from '../../../lib/Api';
+import type { GetSessionNotesDataResponse } from '../../../dto/aba/requests/notes/GetSessionNotesDataResponse';
+import type { DeleteSessionNotesResponse } from '../../../dto/aba/responses/notes/DeleteSessionNotesResponse';
+import type { Notes } from '../../../dto/aba/common/notes/notes';
 import Button from '../../../components/Button';
 import PromptForMerge from '../../../components/PromptForMerge';
 import PopoutPrompt from '../../../components/PopoutPrompt';
@@ -23,7 +26,7 @@ const Page: React.FC = () => {
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteId'));
     const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [sessionNotesData, setSessionNotesData] = useState<{ clientID: string; clientName: string; entered_by: string; label: string; sessionDate: string; sessionNotes: string; sessionTime: string; }[]>([]);
+    const [sessionNotesData, setSessionNotesData] = useState<Notes[]>([]);
     const [sessionNotesToActOn, setSessionNotesToActOn] = useState<string>('');
     const [sessionNotesIdToActOn, setSessionNotesIdToActOn] = useState<string>('');
     const [timerCount, setTimerCount] = useState<number>(0);
@@ -73,11 +76,11 @@ const Page: React.FC = () => {
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getASessionNote';
 
         try {
-            const response = await Axios.post(url, { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
-            if (response.data.statusCode === 200) {
-                return setSessionNotesData(response.data.sessionNoteData);
+            const response = await api<GetSessionNotesDataResponse>('post', '/aba/getASessionNote', { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
+            if (response.statusCode === 200) {
+                return setSessionNotesData(response.sessionNotesData);
             } else {
-                throw new Error(response.data.serverMessage);
+                throw new Error(response.serverMessage);
             }
         } catch (error) {
             setStatusMessage(String(error));
@@ -100,13 +103,12 @@ const Page: React.FC = () => {
         }
         
         try {
-            const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/deleteSessionNote';
-            const response = await Axios.post(url, {
+            const response = await api<DeleteSessionNotesResponse>('post', '/aba/deleteSessionNote', {
                 "clientID": clientID, 
                 "sessionNoteId": sessionNoteId, 
                 "employeeUsername": loggedInUser 
             });
-            if (response.data.statusCode === 200) {
+            if (response.statusCode === 200) {
                 setStatusMessage(`Session Note "${sessionNoteName}" has been deleted successfully.`);
                 // Update the notesOptions state to remove the deleted behavior
                 setTimerCount(3);

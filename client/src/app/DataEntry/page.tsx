@@ -22,7 +22,7 @@ import type { clientLists } from '../../dto/choices/dto/clientLists';
 import type { behaviorOptions } from '../../dto/choices/dto/behaviorOptions';
 import type { skillOptions } from '../../dto/choices/dto/skillOptions';
 import type { GetAClientTargetBehaviorResponse } from '../../dto/aba/responses/behavior/GetAClientTargetBehavior';
-import type { GetAClientSkillBehaviorResponse } from '../../dto/aba/responses/skill/GetAClientSkillBehavior';
+import type { GetAClientSkillBehaviorResponse } from '../../dto/aba/requests/skill/GetAClientSkillBehavior';
 import type { TargetDataEntryResponse } from '../../dto/aba/responses/behavior/TargetDataEntryResponse';
 import type { SkillDataEntryResponse } from '../../dto/aba/responses/skill/SkillDataEntryResponse';
 import type { SessionNotesEntryResponse } from '../../dto/aba/responses/notes/SessionNotesEntryResponse';
