@@ -23,7 +23,9 @@ import type { behaviorOptions } from '../../dto/choices/dto/behaviorOptions';
 import type { skillOptions } from '../../dto/choices/dto/skillOptions';
 import type { GetAClientTargetBehaviorResponse } from '../../dto/aba/responses/behavior/GetAClientTargetBehavior';
 import type { GetAClientSkillBehaviorResponse } from '../../dto/aba/responses/skill/GetAClientSkillBehavior';
-import Axios from 'axios';
+import type { TargetDataEntryResponse } from '../../dto/aba/responses/behavior/TargetDataEntryResponse';
+import type { SkillDataEntryResponse } from '../../dto/aba/responses/skill/SkillDataEntryResponse';
+import type { SessionNotesEntryResponse } from '../../dto/aba/responses/notes/SessionNotesEntryResponse';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {
@@ -447,7 +449,7 @@ const DataEntry: React.FC = () => {
 
         try {
             if (activeTab === 'Behavior') {
-                const response = await api<>('post', '/aba/submitTargetBehavior', {
+                const response = await api<TargetDataEntryResponse>('post', '/aba/submitTargetBehavior', {
                     "clientID": selectedClientID,
                     "targetAmt": targetAmt,
                     "selectedTargets": selectedTargets,
@@ -459,8 +461,8 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
 
-                if (response.data.statusCode === 201) {
-                    setStatusMessage(<>{response.data.serverMessage}</>);
+                if (response.statusCode === 201) {
+                    setStatusMessage(<>{response.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
                     setSelectedTargets([]);
@@ -469,19 +471,21 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    throw new Error(response.data.serverMessage);
+                    throw new Error(response.serverMessage);
                 }    
             }
             else if (activeTab === 'Skill') {
-                const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/submitSkillAquisition';
-
-                const response = await Axios.post(url, {
+                const response = await api<SkillDataEntryResponse>('post', '/aba/submitSkillAquisition', {
                     "clientID": selectedClientID,
+                    "skillAmt": skillAmt,
+                    "selectedSkills": selectedSkills,
+                    "dates": dates,
+                    "times": times,
                     "employeeUsername": loggedInUser
                 });
 
-                if (response.data.statusCode === 201) {
-                    setStatusMessage(<>{response.data.serverMessage}</>);
+                if (response.statusCode === 201) {
+                    setStatusMessage(<>{response.serverMessage}</>);
                     setTargetAmt(1);
                     setSkillAmt(1);
                     setSelectedTargets([]);
@@ -490,13 +494,11 @@ const DataEntry: React.FC = () => {
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    throw new Error(response.data.serverMessage);
+                    throw new Error(response.serverMessage);
                 }
             }
             else if (activeTab === 'Session Notes') {
-                const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/submitSessionNotes';
-
-                const response = await Axios.post(url, {
+                const response = await api<SessionNotesEntryResponse>('post', '/aba/submitSessionNotes', {
                     "clientID": selectedClientID,
                     "sessionDate": sessionNoteDate,
                     "sessionTime": sessionNoteTime,
@@ -504,13 +506,13 @@ const DataEntry: React.FC = () => {
                     "employeeUsername": loggedInUser
                 });
 
-                if (response.data.statusCode === 201) {
-                    setStatusMessage(<>{response.data.serverMessage}</>);
+                if (response.statusCode === 201) {
+                    setStatusMessage(<>{response.serverMessage}</>);
                     setSessionNotes('');
                     setTimerCount(3);
                     setClearMessageStatus(true);                                   
                 } else {
-                    throw new Error(response.data.serverMessage);
+                    throw new Error(response.serverMessage);
                 }
             }
         } catch (error) {

@@ -1,4 +1,4 @@
-export type TargetDataEntryResponse = {
+export type SessionNotesEntryResponse = {
     statusCode: number;
     serverMessage?: string;
 };
