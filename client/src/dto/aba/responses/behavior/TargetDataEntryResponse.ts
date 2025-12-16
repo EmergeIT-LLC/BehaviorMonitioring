@@ -1,4 +1,0 @@
-export type TargetDataEntryResponse = {
-    statusCode: number;
-    serverMessage?: string;
-};

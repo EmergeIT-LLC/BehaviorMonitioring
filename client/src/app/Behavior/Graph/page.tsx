@@ -7,10 +7,9 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import { SelectedData } from '../../../dto/choices/dto/selectedData';
-import { GetClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientTargetBehaviorResponse';
 import { api } from '../../../lib/Api';
-import { DateRangeOptions } from '../../../dto/choices/values/dateRanges';
+import type { SelectedBehaviorSkill, DropdownOption, GetBehaviorDataResponse } from '../../../dto';
+import { DATE_RANGES } from '../../../dto';
 import SelectDropdown from '../../../components/Selectdropdown';
 import GraphDataProcessor from '../../../function/GraphDataProcessor';
 import Button from '../../../components/Button';
@@ -25,12 +24,12 @@ const Graph: React.FC = () => {
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const clientName = foundData.length > 0 ? foundData[0].clientName : '';
     const measurementType = foundData.length > 0 ? foundData[0].measurementType : '';
-    const [selectedData, setSelectedData] = useState<SelectedData[]>([]);
+    const [selectedData, setSelectedData] = useState<SelectedBehaviorSkill[]>([]);
     const [fetchedData, setFetchedData] = useState<any[]>([]);
     const [behaviorNames, setBehaviorNames] = useState<Record<string, string>>({}); // New state for behavior names
-    const [dateRangeLabel, setDateRangeLabel] = useState<string>(DateRangeOptions[0].label); // Default to 7 days
+    const [dateRangeLabel, setDateRangeLabel] = useState<string>(DATE_RANGES[0].label); // Default to 7 days
     const [dateRange, setDateRange] = useState<number>(7); // Default to 7 days
-    const dateRanges = DateRangeOptions.map(option => ({ value: Number(option.value), label: option.label }));
+    const dateRanges = DATE_RANGES.map(option => ({ value: Number(option.value), label: option.label }));
 
     useEffect(() => {
         checkSelectedId();
@@ -56,12 +55,12 @@ const Graph: React.FC = () => {
         }
         
         try {
-            const selectedIDs: SelectedData[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
+            const selectedIDs: SelectedBehaviorSkill[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
             setSelectedData(selectedIDs);
             
             // Create a mapping of behavior names based on selected IDs
             const namesMap: Record<string, string> = {};
-            selectedIDs.forEach((item: SelectedData) => {
+            selectedIDs.forEach((item: SelectedBehaviorSkill) => {
                 namesMap[item.id] = item.name;
             });
             return setBehaviorNames(namesMap); // Update the state with the behavior names
@@ -81,7 +80,7 @@ const Graph: React.FC = () => {
         }
 
         try {
-            const response = await api<GetClientTargetBehaviorResponse>('post', '/aba/getTargetBehavior', {
+            const response = await api<GetBehaviorDataResponse>('post', '/aba/getTargetBehavior', {
                 "clientID": sessionStorage.getItem('clientID'),
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser

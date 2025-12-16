@@ -8,29 +8,43 @@ import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import { BehaviorCategoryDropdown, BehaviorMeasurementDropdown } from '../../../dto/choices/values/behaviorDropdown';
-import type { GetAllClientInfoResponse } from '../../../dto/aba/responses/behavior/GetAllClientInfoResponse';
+import { 
+  BEHAVIOR_CATEGORIES, 
+  MEASUREMENT_TYPES,
+  GetAllClientsResponse,
+  ClientOption,
+  BehaviorSkill,
+  AddBehaviorResponse,
+  AddBehaviorRequest
+} from '../../../dto';
 import { api } from '../../../lib/Api';
-import { clientLists } from '../../../dto/choices/dto/clientLists';
-import type { Behavior } from '../../../dto/aba/common/behavior/Behavior';
-import type { AddNewTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/AddNewTargetBehaviorResponse';
-import type { AddNewTargetBehaviorRequest } from '../../../dto/aba/requests/behavior/AddNewTargetBehaviorRequest';
 import SelectDropdown from '../../../components/Selectdropdown';
 import InputFields from '../../../components/Inputfield';
 import TextareaInput from '../../../components/TextareaInput';
+
+// Local type for behaviors being added (matches AddBehaviorRequest structure)
+type BehaviorToAdd = {
+    clientName: string;
+    clientID: number;
+    behaviorName: string;
+    behaviorCategory: string;
+    behaviorDefinition: string;
+    behaviorMeasurement: string;
+    type: 'Behavior' | 'Skill';
+};
 
 const AddTargetBehavior: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
     const behaviorOrSkill = 'Behavior';
-    const behaviorCategories = BehaviorCategoryDropdown.map((category) => ({ value: category, label: category }));
-    const behaviorMeasurements = BehaviorMeasurementDropdown.map((measurement) => ({ value: measurement, label: measurement }));
+    const behaviorCategories = BEHAVIOR_CATEGORIES.map((category) => ({ value: category, label: category }));
+    const behaviorMeasurements = MEASUREMENT_TYPES.map((measurement) => ({ value: measurement, label: measurement }));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
-    const [clientLists, setClientLists] = useState<clientLists[]>([]);
+    const [clientLists, setClientLists] = useState<ClientOption[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [behaviorName, setBehaviorName] = useState<string>('');
@@ -38,7 +52,7 @@ const AddTargetBehavior: React.FC = () => {
     const [otherBehaviorCategories, setOtherBehaviorCategory] = useState<string>('');
     const [behaviorDefinition, setBehaviorDefinition] = useState<string>('');
     const [behaviorMeasurementSelected, setBehaviorMeasurementSelected] = useState<string>('');
-    const [behaviorsToAdd, setBehaviorsToAdd] = useState<Behavior[]>([]);
+    const [behaviorsToAdd, setBehaviorsToAdd] = useState<BehaviorToAdd[]>([]);
 
     useEffect(() => {
         debounceAsync(getClientNames, 300)();
@@ -51,12 +65,12 @@ const AddTargetBehavior: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
         try {
-            const response = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            const response = await api<GetAllClientsResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 setSelectedClient(response.clientData[0].fName + " " + response.clientData[0].lName);
                 setSelectedClientID(response.clientData[0].clientID);
                 const fetchedOptions = response.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: String(clientData.clientID),
+                    value: clientData.clientID,
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
@@ -94,18 +108,26 @@ const AddTargetBehavior: React.FC = () => {
     };
 
     const addBehavior = () => {
-        if (behaviorName.length < 3 || behaviorCategorySelected === BehaviorCategoryDropdown[0] || behaviorDefinition.length < 3 || behaviorMeasurementSelected === BehaviorMeasurementDropdown[0]) {
+        if (behaviorName.length < 3 || behaviorCategorySelected === BEHAVIOR_CATEGORIES[0] || behaviorDefinition.length < 3 || behaviorMeasurementSelected === MEASUREMENT_TYPES[0]) {
             setStatusMessage('Please fill out all fields');
         } else {
-            const newBehavior = { clientName: selectedClient, clientID: selectedClientID, behaviorName: behaviorName, behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, behaviorDefinition: behaviorDefinition, behaviorMeasurement: behaviorMeasurementSelected, type: behaviorOrSkill };
+            const newBehavior: BehaviorToAdd = { 
+                clientName: selectedClient, 
+                clientID: selectedClientID, 
+                behaviorName: behaviorName, 
+                behaviorCategory: behaviorCategorySelected === 'Other' ? otherBehaviorCategories : behaviorCategorySelected, 
+                behaviorDefinition: behaviorDefinition, 
+                behaviorMeasurement: behaviorMeasurementSelected, 
+                type: behaviorOrSkill as 'Behavior' | 'Skill'
+            };
             setBehaviorsToAdd([...behaviorsToAdd, newBehavior]);
             setBehaviorName('');
-            setBehaviorCategorySelected(BehaviorCategoryDropdown[0]);
+            setBehaviorCategorySelected(BEHAVIOR_CATEGORIES[0]);
             if (otherBehaviorCategories.length > 0) {
                 setOtherBehaviorCategory('');
             }
             setBehaviorDefinition('');
-            setBehaviorMeasurementSelected(BehaviorMeasurementDropdown[0]);
+            setBehaviorMeasurementSelected(MEASUREMENT_TYPES[0]);
         }
     }
 
@@ -118,10 +140,10 @@ const AddTargetBehavior: React.FC = () => {
         }
         
         try {
-            const response = await api<AddNewTargetBehaviorResponse>('post', '/aba/addNewTargetBehavior', {
+            const response = await api<AddBehaviorResponse>('post', '/aba/addNewTargetBehavior', {
                 "employeeUsername": loggedInUser,
                 "behaviors": behaviorsToAdd
-            } as AddNewTargetBehaviorRequest);
+            } as AddBehaviorRequest);
             if (response.statusCode === 204) {
                 setStatusMessage(response.serverMessage);
                 setBehaviorsToAdd([]);

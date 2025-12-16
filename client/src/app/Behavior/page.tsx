@@ -11,14 +11,17 @@ import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
-import type { clientLists } from '../../dto/choices/dto/clientLists';
-import type { behaviorOptions } from '../../dto/choices/dto/behaviorOptions';
-import type { checkedBehaviors } from '../../dto/choices/dto/checkedBehaviors';
-import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
-import type { GetClientTargetBehaviorResponse } from '../../dto/aba/responses/behavior/GetClientTargetBehaviorResponse';
-import type { MergeBehaviorsResponse } from '../../dto/aba/responses/behavior/MergeBehaviorsResponse';
-import type { DeleteBehaviorsResponse } from '../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
-import type { ArchiveBehaviorsResponse } from '../../dto/aba/responses/behavior/ArchiveBehaviorsResponse';
+import type { 
+  ClientOption,
+  BehaviorSkillOption, 
+  SelectedBehaviorSkill,
+  GetAllClientsResponse,
+  GetBehaviorResponse,
+  GetBehaviorDataResponse,
+  MergeBehaviorsResponse,
+  DeleteBehaviorResponse,
+  ArchiveBehaviorResponse
+} from '../../dto';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
@@ -29,11 +32,11 @@ const TargetBehavior: React.FC = () => {
     const loggedInUser = GetLoggedInUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientLists, setClientLists] = useState<clientLists[]>([]);
+    const [clientLists, setClientLists] = useState<ClientOption[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [targetOptions, setTargetOptions] = useState<behaviorOptions[]>([]);
-    const [checkedBehaviors, setCheckedBehaviors] = useState<checkedBehaviors[]>([]);
+    const [targetOptions, setTargetOptions] = useState<BehaviorSkillOption[]>([]);
+    const [checkedBehaviors, setCheckedBehaviors] = useState<SelectedBehaviorSkill[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
@@ -77,12 +80,12 @@ const TargetBehavior: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
         try {
-            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            const data = await api<GetAllClientsResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
             if (data.statusCode === 200) {
                 setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
                 setSelectedClientID(data.clientData[0].clientID);
                 const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: String(clientData.clientID),
+                    value: clientData.clientID,
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
@@ -105,7 +108,7 @@ const TargetBehavior: React.FC = () => {
         }
 
         try {
-            const response = await api<GetClientTargetBehaviorResponse>('post','/aba/getClientTargetBehavior', {
+            const response = await api<GetBehaviorResponse>('post','/aba/getClientTargetBehavior', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
@@ -311,7 +314,7 @@ const TargetBehavior: React.FC = () => {
         }
         
         try {
-            const response = await api<ArchiveBehaviorsResponse>('post', '/aba/checkBehaviorArchiveStatus', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const response = await api<ArchiveBehaviorResponse>('post', '/aba/checkBehaviorArchiveStatus', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 if (!response.isArchived) {
                     setIsLoading(false);
@@ -336,7 +339,7 @@ const TargetBehavior: React.FC = () => {
         }
 
         try {
-            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const response = await api<DeleteBehaviorResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 debounceAsync(getClientTargetBehaviors, 300)();

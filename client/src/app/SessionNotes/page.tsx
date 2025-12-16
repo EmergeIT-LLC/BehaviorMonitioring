@@ -12,10 +12,7 @@ import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/Verificat
 import { debounceAsync } from '../../function/debounce';
 import { debouncedGetClientNames } from '../../function/ApiCalls';
 import { api } from '../../lib/Api';
-import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
-import type { GetSessionNotesDataResponse } from '../../dto/aba/requests/notes/GetSessionNotesDataResponse';
-import type { DeleteSessionNotesResponse } from '../../dto/aba/responses/notes/DeleteSessionNotesResponse';
-import type { Notes } from '../../dto/aba/common/notes/Notes';
+import type { GetAllClientsResponse, GetSessionNotesResponse, DeleteSessionNoteResponse, SessionNote } from '../../dto';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
@@ -29,7 +26,7 @@ const SessionNotes: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [notesOptions, setNotesOptions] = useState<Notes[]>([]);
+    const [notesOptions, setNotesOptions] = useState<SessionNote[]>([]);
     const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
@@ -71,7 +68,7 @@ const SessionNotes: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
         try {
-            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            const data = await api<GetAllClientsResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
             if (data.statusCode === 200) {
                 setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
                 setSelectedClientID(data.clientData[0].clientID);
@@ -100,7 +97,7 @@ const SessionNotes: React.FC = () => {
 
         const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getSessionNotes';
         try {
-            const response = await api<GetSessionNotesDataResponse>('post', '/aba/getSessionNotes', {
+            const response = await api<GetSessionNotesResponse>('post', '/aba/getSessionNotes', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
@@ -155,8 +152,8 @@ const SessionNotes: React.FC = () => {
                     const newCheckedBehaviors = [
                         ...prev, 
                         {
-                            id: String(selectedNotes.value),
-                            name: selectedNotes.label,
+                            id: String(selectedNotes.value || ''),
+                            name: selectedNotes.label || '',
                             clientName: selectedClient,  // Add clientName
                         }
                     ];
@@ -233,7 +230,7 @@ const SessionNotes: React.FC = () => {
         }
         
         try {
-            const response = await api<DeleteSessionNotesResponse>('post', '/aba/deleteSessionNote', {
+            const response = await api<DeleteSessionNoteResponse>('post', '/aba/deleteSessionNote', {
                 "clientID": selectedClientID, 
                 "sessionNoteId": sessionNoteId, 
                 "employeeUsername": loggedInUser 
@@ -292,10 +289,10 @@ const SessionNotes: React.FC = () => {
                                     <tbody>
                                         {notesOptions.map((option, index) => (
                                             <tr key={index}>
-                                                <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.sessionDate}</div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.label}</div></td>
-                                                <td onClick={() => openNotesDetail(option.value)}><div>{option.entered_by}</div></td>
+                                                <td><div><Checkbox nameOfClass='tbGraphTable' label={option.label || ''} isChecked={checkedState[index]} onChange={handleCheckBoxChange(index)} disabled={isCheckboxDisabled(index)}/></div></td>
+                                                <td onClick={() => openNotesDetail(option.value || '')}><div>{option.sessionDate}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value || '')}><div>{option.label}</div></td>
+                                                <td onClick={() => openNotesDetail(option.value || '')}><div>{option.entered_by}</div></td>
                                                 <td><div><Button nameOfClass='tbHRSEllipsesButton' btnName='More options' placeholder='...' btnType='button' isLoading={isLoading} onClick={(e) => {e.stopPropagation(); handleEllipsisClick(index)}}/></div></td>
                                             </tr>
                                         ))}
@@ -304,7 +301,7 @@ const SessionNotes: React.FC = () => {
                                 {activeMenu !== null && (
                                     <div className={componentStyles.popoutMenu} style={getMenuPosition(activeMenu)}>
                                         <ul>
-                                            <li onClick={() => { const selectedNotes = notesOptions[activeMenu]; closeMenu(); openPopout('Delete', String(selectedNotes.value), selectedNotes.label); }}>Delete</li>
+                                            <li onClick={() => { const selectedNotes = notesOptions[activeMenu]; closeMenu(); openPopout('Delete', String(selectedNotes.value || ''), selectedNotes.label || ''); }}>Delete</li>
                                             <li onClick={closeMenu}>Close Menu</li>
                                         </ul>
                                     </div>

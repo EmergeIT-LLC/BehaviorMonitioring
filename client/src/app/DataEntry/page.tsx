@@ -17,15 +17,7 @@ import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
-import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
-import type { clientLists } from '../../dto/choices/dto/clientLists';
-import type { behaviorOptions } from '../../dto/choices/dto/behaviorOptions';
-import type { skillOptions } from '../../dto/choices/dto/skillOptions';
-import type { GetAClientTargetBehaviorResponse } from '../../dto/aba/responses/behavior/GetAClientTargetBehavior';
-import type { GetAClientSkillBehaviorResponse } from '../../dto/aba/requests/skill/GetAClientSkillBehavior';
-import type { TargetDataEntryResponse } from '../../dto/aba/responses/behavior/TargetDataEntryResponse';
-import type { SkillDataEntryResponse } from '../../dto/aba/responses/skill/SkillDataEntryResponse';
-import type { SessionNotesEntryResponse } from '../../dto/aba/responses/notes/SessionNotesEntryResponse';
+import type { GetAllClientsResponse, ClientOption, BehaviorSkillOption, GetBehaviorResponse, CreateBehaviorDataResponse, CreateSessionNoteResponse } from '../../dto';
 
 const DataEntry: React.FC = () => {
     useEffect(() => {
@@ -58,7 +50,7 @@ const DataEntry: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>('Behavior');
     const [targetAmt, setTargetAmt] = useState<number>(1);
     const [skillAmt, setSkillAmt] = useState<number>(1);
-    const [clientLists, setClientLists] = useState<clientLists[]>([]);
+    const [clientLists, setClientLists] = useState<ClientOption[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
     const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
@@ -66,8 +58,8 @@ const DataEntry: React.FC = () => {
     const [selectedMeasurementTypes, setSelectedMeasurementTypes] = useState<string[]>([]);
     const [dates, setDates] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
-    const [targetOptions, setTargetOptions] = useState<behaviorOptions[]>([]);
-    const [skillOptions, setSkillOptions] = useState<skillOptions[]>([]);
+    const [targetOptions, setTargetOptions] = useState<BehaviorSkillOption[]>([]);
+    const [skillOptions, setSkillOptions] = useState<BehaviorSkillOption[]>([]);
     const [sessionNoteDate, setSessionNoteDate] = useState<string>(getCurrentDate());
     const [sessionNoteTime, setSessionNoteTime] = useState<string>(getCurrentTime());
     const [sessionNotes, setSessionNotes] = useState<string>('');
@@ -114,12 +106,12 @@ const DataEntry: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
         try {
-            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            const data = await api<GetAllClientsResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
             if (data.statusCode === 200) {
                 setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
                 setSelectedClientID(data.clientData[0].clientID);
                 const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: String(clientData.clientID),
+                    value: clientData.clientID,
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
@@ -144,7 +136,7 @@ const DataEntry: React.FC = () => {
         }
 
         try {
-            const response = await api<GetAClientTargetBehaviorResponse>('post', '/aba/getClientTargetBehavior', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
+            const response = await api<GetBehaviorResponse>('post', '/aba/getClientTargetBehavior', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
 
             if (response.statusCode === 200) {
                 const fetchedOptions = response.behaviorSkillData.map((behavior: { bsID: number, name: string, measurement: string }) => ({
@@ -173,7 +165,7 @@ const DataEntry: React.FC = () => {
         }
 
         try {
-            const response = await api<GetAClientSkillBehaviorResponse>('post', '/aba/getClientSkillAquisition', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
+            const response = await api<GetBehaviorResponse>('post', '/aba/getClientSkillAquisition', { "clientID": selectedClientID, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 const fetchedOptions = response.behaviorSkillData.map((skill: { bsID: number, name: string, measurement: string }) => ({
                     value: skill.bsID,
@@ -449,7 +441,7 @@ const DataEntry: React.FC = () => {
 
         try {
             if (activeTab === 'Behavior') {
-                const response = await api<TargetDataEntryResponse>('post', '/aba/submitTargetBehavior', {
+                const response = await api<CreateBehaviorDataResponse>('post', '/aba/submitTargetBehavior', {
                     "clientID": selectedClientID,
                     "targetAmt": targetAmt,
                     "selectedTargets": selectedTargets,
@@ -475,7 +467,7 @@ const DataEntry: React.FC = () => {
                 }    
             }
             else if (activeTab === 'Skill') {
-                const response = await api<SkillDataEntryResponse>('post', '/aba/submitSkillAquisition', {
+                const response = await api<CreateBehaviorDataResponse>('post', '/aba/submitSkillAquisition', {
                     "clientID": selectedClientID,
                     "skillAmt": skillAmt,
                     "selectedSkills": selectedSkills,
@@ -498,7 +490,7 @@ const DataEntry: React.FC = () => {
                 }
             }
             else if (activeTab === 'Session Notes') {
-                const response = await api<SessionNotesEntryResponse>('post', '/aba/submitSessionNotes', {
+                const response = await api<CreateSessionNoteResponse>('post', '/aba/submitSessionNotes', {
                     "clientID": selectedClientID,
                     "sessionDate": sessionNoteDate,
                     "sessionTime": sessionNoteTime,

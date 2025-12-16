@@ -8,11 +8,13 @@ import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
-import type { behaviorData } from '../../../dto/aba/common/behavior/BehaviorData';
-import type { TargetBehaviorData } from '../../../dto/aba/common/behavior/TargetBehaviorData';
-import type { GetClientArchivedBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientArchivedBehaviorResponse';
-import type { GetArchivedBehaviorDataResponse } from '../../../dto/aba/responses/behavior/GetArchivedBehaviorDataResponse';
-import type { DeleteBehaviorsResponse } from '../../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
+import type { 
+  BehaviorSkill,
+  BehaviorSkillData,
+  GetBehaviorResponse,
+  GetBehaviorDataResponse,
+  DeleteBehaviorResponse
+} from '../../../dto';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 
@@ -24,8 +26,8 @@ const ArchiveDetails: React.FC = () => {
     const [bID, setBID] = useState<string | null>(sessionStorage.getItem('archivedBehaviorID'));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [behaviorBase, setBehaviorBase] = useState<behaviorData[]>([]);
-    const [targetBehaviorData, setTargetBehaviorData] = useState<TargetBehaviorData[]>([]);
+    const [behaviorBase, setBehaviorBase] = useState<BehaviorSkill[]>([]);
+    const [targetBehaviorData, setTargetBehaviorData] = useState<BehaviorSkillData[]>([]);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
     const [popupAction, setPopupAction] = useState<string>('');
     const [dataIdToActOn, setDataIdToActOn] = useState<string>('');
@@ -82,15 +84,16 @@ const ArchiveDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<GetClientArchivedBehaviorResponse>('POST', '/aba/getAClientArchivedBehavior', {
+            const response = await api<GetBehaviorResponse>('POST', '/aba/getAClientArchivedBehavior', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });
 
             if (response.statusCode === 200) {
-                setBehaviorBase(response.behaviorSkillData);
-                generateTargetTableHeaders(response.behaviorSkillData[0].measurement);
+                setBehaviorBase(Array.isArray(response.behaviorSkillData) ? response.behaviorSkillData : [response.behaviorSkillData]);
+                const behaviors = Array.isArray(response.behaviorSkillData) ? response.behaviorSkillData : [response.behaviorSkillData];
+                generateTargetTableHeaders(behaviors[0].measurement);
             } else {
                 throw new Error(response.errorMessage);
             }
@@ -110,7 +113,7 @@ const ArchiveDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<GetArchivedBehaviorDataResponse>('POST', '/aba/getAArchivedBehaviorData', {
+            const response = await api<GetBehaviorDataResponse>('POST', '/aba/getAArchivedBehaviorData', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
@@ -183,7 +186,7 @@ const ArchiveDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteArchivedBehaviorData', { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
+            const response = await api<DeleteBehaviorResponse>('post', '/aba/deleteArchivedBehaviorData', { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorDataId}" has been deleted successfully.`);
                 setClientID(String(behaviorBase[0].clientID));

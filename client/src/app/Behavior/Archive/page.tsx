@@ -9,12 +9,14 @@ import SelectDropdown from '../../../components/Selectdropdown';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
-import type { clientLists } from '../../../dto/choices/dto/clientLists';
-import type { behaviorOptions } from '../../../dto/choices/dto/behaviorOptions';
-import type { GetAllClientInfoResponse } from '../../../dto/aba/responses/behavior/GetAllClientInfoResponse';
-import type { GetClientArchivedBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientArchivedBehaviorResponse';
-import type { ActivateBehaviorResponse } from '../../../dto/aba/responses/behavior/ActivateBehaviorRespones';
-import type { DeleteBehaviorsResponse } from '../../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
+import type { 
+  ClientOption,
+  BehaviorSkillOption,
+  GetAllClientsResponse,
+  GetBehaviorResponse,
+  ActivateBehaviorResponse,
+  DeleteBehaviorResponse
+} from '../../../dto';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 
@@ -27,10 +29,10 @@ const Archive: React.FC = () => {
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [clientLists, setClientLists] = useState<clientLists[]>([]);
+    const [clientLists, setClientLists] = useState<ClientOption[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [archivedBehaviors, setArchivedBehaviors] = useState<behaviorOptions[]>([]);
+    const [archivedBehaviors, setArchivedBehaviors] = useState<BehaviorSkillOption[]>([]);
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
@@ -67,12 +69,12 @@ const Archive: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
         try {
-            const data = await api<GetAllClientInfoResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
+            const data = await api<GetAllClientsResponse>('post','/aba/getAllClientInfo', { "employeeUsername": loggedInUser });
             if (data.statusCode === 200) {
                 setSelectedClient(data.clientData[0].fName + " " + data.clientData[0].lName);
                 setSelectedClientID(data.clientData[0].clientID);
                 const fetchedOptions = data.clientData.map((clientData: { clientID: number, fName: string, lName: string }) => ({
-                    value: String(clientData.clientID),
+                    value: clientData.clientID,
                     label: `${clientData.fName} ${clientData.lName}`,
                 }));
                 setClientLists(fetchedOptions);
@@ -95,7 +97,7 @@ const Archive: React.FC = () => {
         }
 
         try {
-            const response = await api<GetClientArchivedBehaviorResponse>('post', '/aba/getClientArchivedBehavior', {
+            const response = await api<GetBehaviorResponse>('post', '/aba/getClientArchivedBehavior', {
                 "clientID": selectedClientID,
                 "employeeUsername": loggedInUser
             });
@@ -185,7 +187,7 @@ const Archive: React.FC = () => {
         }
 
         try {
-            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
+            const response = await api<DeleteBehaviorResponse>('post', '/aba/deleteBehavior', { "clientID": selectedClientID, behaviorId, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorName}" has been deleted successfully.`);
                 debounceAsync(getClientArchivedBehaviors, 300)();

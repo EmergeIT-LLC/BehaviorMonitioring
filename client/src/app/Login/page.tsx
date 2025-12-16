@@ -13,7 +13,7 @@ import { CheckUsername, CheckPassword } from '../../function/EntryCheck';
 import { SetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
-import type { LoginResponse } from '../../dto/auth/LoginResponse';
+import type { LoginResponse } from '../../dto';
 
 const Login: React.FC = () => {
     const searchParams = useSearchParams();

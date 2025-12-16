@@ -7,11 +7,13 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import type { behaviorData } from '../../../dto/aba/common/behavior/BehaviorData';
-import type { TargetBehaviorData } from '../../../dto/aba/common/behavior/TargetBehaviorData';
-import type { DeleteBehaviorsResponse } from '../../../dto/aba/responses/behavior/DeleteBehaviorsResponse';
-import type { GetClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetClientTargetBehaviorResponse';
-import type { GetAClientTargetBehaviorResponse } from '../../../dto/aba/responses/behavior/GetAClientTargetBehavior';
+import type { 
+  BehaviorSkill,
+  BehaviorSkillData,
+  DeleteBehaviorResponse,
+  GetBehaviorDataResponse,
+  GetBehaviorResponse
+} from '../../../dto';
 import { api } from '../../../lib/Api';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
@@ -24,8 +26,8 @@ const TargetbehaviorDetails: React.FC = () => {
     const [bID, setBID] = useState<string | null>(sessionStorage.getItem('behaviorID'));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [behaviorBase, setBehaviorBase] = useState<behaviorData[]>([]);
-    const [targetBehaviorData, setTargetBehaviorData] = useState<TargetBehaviorData[]>([]);
+    const [behaviorBase, setBehaviorBase] = useState<BehaviorSkill[]>([]);
+    const [targetBehaviorData, setTargetBehaviorData] = useState<BehaviorSkillData[]>([]);
     const [isPopoutVisible, setIsPopoutVisible] = useState<boolean>(false);
     const [popupAction, setPopupAction] = useState<string>('');
     const [dataIdToActOn, setDataIdToActOn] = useState<string>('');
@@ -82,7 +84,7 @@ const TargetbehaviorDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<GetAClientTargetBehaviorResponse>('post', '/aba/getAClientTargetBehavior', {
+            const response = await api<GetBehaviorResponse>('post', '/aba/getAClientTargetBehavior', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
@@ -110,7 +112,7 @@ const TargetbehaviorDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<GetClientTargetBehaviorResponse>('post', '/aba/getTargetBehavior', {
+            const response = await api<GetBehaviorDataResponse>('post', '/aba/getTargetBehavior', {
                 "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
@@ -183,7 +185,7 @@ const TargetbehaviorDetails: React.FC = () => {
         }
 
         try {
-            const response = await api<DeleteBehaviorsResponse>('post', '/aba/deleteBehavior', { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
+            const response = await api<DeleteBehaviorResponse>('post', '/aba/deleteBehavior', { "clientID": behaviorBase[0].clientID, "behaviorId": behaviorBase[0].bsID, behaviorDataId, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
                 setStatusMessage(`Behavior "${behaviorDataId}" has been deleted successfully.`);
                 setClientID(String(behaviorBase[0].clientID));
