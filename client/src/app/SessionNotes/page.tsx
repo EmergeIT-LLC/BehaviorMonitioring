@@ -15,17 +15,10 @@ import { api } from '../../lib/Api';
 import type { GetAllClientInfoResponse } from '../../dto/aba/responses/behavior/GetAllClientInfoResponse';
 import type { GetSessionNotesDataResponse } from '../../dto/aba/requests/notes/GetSessionNotesDataResponse';
 import type { DeleteSessionNotesResponse } from '../../dto/aba/responses/notes/DeleteSessionNotesResponse';
-import type { Notes } from '@/dto/aba/common/notes/notes';
+import type { Notes } from '../../dto/aba/common/notes/Notes';
 import Button from '../../components/Button';
 import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
-
-// Extended type for display options that includes computed fields
-type SessionNotesOption = Notes & {
-    value: string;
-    label: string;
-    sessionNotes: string;
-};
 
 const SessionNotes: React.FC = () => {
     const navigate = useRouter();
@@ -36,7 +29,7 @@ const SessionNotes: React.FC = () => {
     const [clientLists, setClientLists] = useState<{ value: string; label: string }[]>([]);
     const [selectedClient, setSelectedClient] = useState<string>('');
     const [selectedClientID, setSelectedClientID] = useState<number>(0);
-    const [notesOptions, setNotesOptions] = useState<SessionNotesOption[]>([]);
+    const [notesOptions, setNotesOptions] = useState<Notes[]>([]);
     const [checkedNotes, setCheckedNotes] = useState<{ id: string; name: string; }[]>([]);
     const [checkedState, setCheckedState] = useState<boolean[]>([]); // Track checked state
     const maxCheckedLimit = 4; // Define a limit for checkboxes
@@ -119,11 +112,10 @@ const SessionNotes: React.FC = () => {
                 setCheckedNotes([]);
                 sessionStorage.removeItem('checkedNotes');
 
-                const fetchedOptions: SessionNotesOption[] = response.sessionNotesData.map((notes) => ({
+                const fetchedOptions = response.sessionNotesData.map((notes) => ({
                     ...notes,
-                    value: notes.noteID,
-                    label: notes.notes.length > labelLength ? notes.notes.substring(0, labelLength) + '...' : notes.notes,
-                    sessionNotes: notes.notes,
+                    value: notes.sessionNoteDataID,
+                    label: notes.sessionNotes.length > labelLength ? notes.sessionNotes.substring(0, labelLength) + '...' : notes.sessionNotes,
                     entered_by: notes.entered_by,
                 }));
                 setNotesOptions(fetchedOptions);

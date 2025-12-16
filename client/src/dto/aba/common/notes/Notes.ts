@@ -1,9 +1,13 @@
 export type Notes = {
-    noteID: string;
+    sessionNoteDataID: string;
     sessionDate: string;
     sessionTime: string;
-    notes: string;
-    clinetID: string;
+    sessionNotes: string;
+    clientID: string;
     clientName: string;
-    entered_by?: string; // Alias for enteredBy (backend might use this)
+    entered_by?: string;
+    date_entered?: string;
+    time_entered?: string;
+    value: string;
+    label: string;
 }

@@ -2,6 +2,10 @@
 export type TargetBehaviorData = {
     behaviorDataID: string;
     bsID: number;
+    name: string;
+    definition: string;
+    measurement: string;
+    category: string;
     clientID: number;
     clientName: string;
     sessionDate: string;

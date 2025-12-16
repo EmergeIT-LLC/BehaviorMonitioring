@@ -1,4 +1,4 @@
-import { Notes } from "../../common/notes/notes";
+import { Notes } from "../../common/notes/Notes";
 
 export type GetSessionNotesDataResponse = {
     statusCode: number;

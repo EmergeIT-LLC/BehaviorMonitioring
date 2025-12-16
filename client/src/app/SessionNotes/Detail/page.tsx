@@ -13,7 +13,7 @@ import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
 import type { GetSessionNotesDataResponse } from '../../../dto/aba/requests/notes/GetSessionNotesDataResponse';
 import type { DeleteSessionNotesResponse } from '../../../dto/aba/responses/notes/DeleteSessionNotesResponse';
-import type { Notes } from '../../../dto/aba/common/notes/notes';
+import type { Notes } from '../../../dto/aba/common/notes/Notes';
 import Button from '../../../components/Button';
 import PromptForMerge from '../../../components/PromptForMerge';
 import PopoutPrompt from '../../../components/PopoutPrompt';
