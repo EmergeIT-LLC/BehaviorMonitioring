@@ -153,8 +153,7 @@ router.post("/refresh", async (req, res) => {
             sub: employeeData.employeeID,
             email: employeeData.email,
             companyID: employeeData.companyID,
-            roles: [employeeData.role],
-            permissions: [] // Add permissions if applicable
+            roles: [employeeData.role]
         });
 
         await touchRefreshToken(db, refreshToken);

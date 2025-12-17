@@ -4,11 +4,11 @@ function addDaysISO(days) {
     return d.toISOString();
 }
 
-async function insertRefreshToken(db, { userId, token, ttlDays, userAgent, ipAddress }) {
+async function insertRefreshToken(db, { userId, token, ttlDays, userAgent, ipAddress, deviceId, lastUsedAt }) {
     const expiresAt = addDaysISO(ttlDays);
 
     await db.run(
-        `INSERT INTO refresh_tokens (user_id, token, expires_at, user_agent, ip_address, device_id, last_used_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [userId, token, expiresAt, userAgent || null, ipAddress || null, deviceId || null, new Date().toISOString()]
+        `INSERT INTO refresh_tokens (user_id, token, expires_at, user_agent, ip_address, device_id, last_used_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [userId, token, expiresAt, userAgent || null, ipAddress || null, deviceId || null, lastUsedAt ? (lastUsedAt instanceof Date ? lastUsedAt.toISOString() : lastUsedAt) : new Date().toISOString()]
     );
 
     return expiresAt;
