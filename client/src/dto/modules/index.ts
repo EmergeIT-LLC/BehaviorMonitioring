@@ -7,6 +7,7 @@ export * from './client/GetAllClientsResponse';
 
 // Behavior - Requests
 export * from './behavior/requests/AddBehaviorRequest';
+export * from './behavior/requests/BehaviorToAdd';
 export * from './behavior/requests/SubmitBehaviorDataRequest';
 
 // Behavior - Responses

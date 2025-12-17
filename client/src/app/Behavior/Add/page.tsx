@@ -15,23 +15,13 @@ import {
   ClientOption,
   BehaviorSkill,
   AddBehaviorResponse,
-  AddBehaviorRequest
+  AddBehaviorRequest,
+  BehaviorToAdd
 } from '../../../dto';
 import { api } from '../../../lib/Api';
 import SelectDropdown from '../../../components/Selectdropdown';
 import InputFields from '../../../components/Inputfield';
 import TextareaInput from '../../../components/TextareaInput';
-
-// Local type for behaviors being added (matches AddBehaviorRequest structure)
-type BehaviorToAdd = {
-    clientName: string;
-    clientID: number;
-    behaviorName: string;
-    behaviorCategory: string;
-    behaviorDefinition: string;
-    behaviorMeasurement: string;
-    type: 'Behavior' | 'Skill';
-};
 
 const AddTargetBehavior: React.FC = () => {
     const navigate = useRouter();
