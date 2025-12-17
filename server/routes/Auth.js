@@ -5,7 +5,8 @@ const db = require('../middleware/database/dbConnection');
 const logAuthEvent = require('../middleware/helpers/authLog');
 const { createAccessToken, createRefreshToken, verifyRefreshToken } = require('../auth/tokens');
 const { setRefreshCookie, clearRefreshCookie } = require('../auth/cookies');
-const { insertRefreshToken, findRefreshToken, revokeRefreshToken, rotateRefreshToken } = require('../auth/refreshTokenStore');
+const { insertRefreshToken, findRefreshToken, revokeRefreshToken, rotateRefreshToken, touchRefreshToken } = require('../auth/refreshTokenStore');
+const { getOrCreateDeviceId } = require('../auth/device');
 const employeeQueries = require('../middleware/helpers/EmployeeQueries');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
@@ -71,8 +72,11 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
                     };
                     const accessToken = createAccessToken(accessPayload);
                     const refreshToken = createRefreshToken(employeeData.employeeID);
+                    const deviceId = getOrCreateDeviceId(req, res);
 
-                    await insertRefreshToken(db, { userId: employeeData.employeeID, token: refreshToken, ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7), userAgent: req.headers['user-agent'], ipAddress: req.ip });
+
+
+                    await insertRefreshToken(db, { userId: employeeData.employeeID, token: refreshToken, ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7), userAgent: req.headers['user-agent'], ipAddress: req.ip, deviceId, lastUsedAt: new Date() });
 
                     setRefreshCookie(res, refreshToken);
                     await logAuthEvent("EMPLOYEE_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
@@ -149,8 +153,11 @@ router.post("/refresh", async (req, res) => {
             sub: employeeData.employeeID,
             email: employeeData.email,
             companyID: employeeData.companyID,
-            roles: [employeeData.role]
+            roles: [employeeData.role],
+            permissions: [] // Add permissions if applicable
         });
+
+        await touchRefreshToken(db, refreshToken);
 
         const newRefreshToken = createRefreshToken(employeeData.employeeID);
         await rotateRefreshToken(db, refreshToken, newRefreshToken);
@@ -160,7 +167,9 @@ router.post("/refresh", async (req, res) => {
             token: newRefreshToken,
             ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7),
             userAgent: req.headers['user-agent'],
-            ipAddress: req.ip
+            ipAddress: req.ip,
+            deviceId: row.device_id,
+            lastUsedAt: new Date()
         });
 
         setRefreshCookie(res, newRefreshToken);

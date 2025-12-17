@@ -8,7 +8,7 @@ async function insertRefreshToken(db, { userId, token, ttlDays, userAgent, ipAdd
     const expiresAt = addDaysISO(ttlDays);
 
     await db.run(
-        `INSERT INTO refresh_tokens (user_id, token, expires_at, user_agent, ip_address) VALUES (?, ?, ?, ?, ?)`, [userId, token, expiresAt, userAgent || null, ipAddress || null]
+        `INSERT INTO refresh_tokens (user_id, token, expires_at, user_agent, ip_address, device_id, last_used_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [userId, token, expiresAt, userAgent || null, ipAddress || null, deviceId || null, new Date().toISOString()]
     );
 
     return expiresAt;
@@ -30,4 +30,11 @@ async function rotateRefreshToken(db, oldToken, newToken) {
     );
 }
 
-module.exports = { insertRefreshToken, findRefreshToken, revokeRefreshToken, rotateRefreshToken };
+async function touchRefreshToken(db, token) {
+    return db.run(
+        `UPDATE refresh_tokens SET last_used_at = ? WHERE token = ?`,
+        [new Date().toISOString(), token]
+    );
+}
+
+module.exports = { insertRefreshToken, findRefreshToken, revokeRefreshToken, rotateRefreshToken, touchRefreshToken };

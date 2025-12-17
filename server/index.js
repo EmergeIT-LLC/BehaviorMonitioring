@@ -11,6 +11,7 @@ const express = require('express');
 const app = express();
 const cookieParser = require("cookie-parser");
 const authMiddleware = require('./middleware/authMiddleware');
+const { requireRole } = require('./middleware/rbac');
 const requestLogger = require('./middleware/requestLogger');
 let prodHost = prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ''}`;
 

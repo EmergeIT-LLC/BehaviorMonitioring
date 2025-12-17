@@ -6,6 +6,7 @@ function createAccessToken(payload) {
         expiresIn: process.env.ACCESS_TOKEN_TTL || "15m",
         issuer: prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ""}`,
         audience: process.env.ClientHost,
+        permissions: [], // permissions can be added here if needed
     });
 }
 
@@ -15,6 +16,7 @@ function createRefreshToken(userId) {
         expiresIn: process.env.REFRESH_TOKEN_TTL_DAYS ? `${process.env.REFRESH_TOKEN_TTL_DAYS}d` : "7d",
         issuer: prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ""}`,
         audience: process.env.ClientHost,
+        permissions: [], // permissions can be added here if needed
     });
 }
 
@@ -22,6 +24,7 @@ function verifyRefreshToken(token) {
     return jwt.verify(token, process.env.JWT_REFRESH_SECRET, {
         issuer: prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ""}`,
         audience: process.env.ClientHost,
+        permissions: [], // permissions can be checked here if needed
     });
 }
 
