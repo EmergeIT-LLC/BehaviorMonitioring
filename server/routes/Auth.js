@@ -138,7 +138,7 @@ router.post("/refresh", async (req, res) => {
             return res.status(401).json({ error: "Invalid refresh token" });
         }
 
-        const employeeData = await employeeQueries.employeeDataByEmployeeId(decoded.sub);
+        const employeeData = await employeeQueries.employeeDataById(decoded.sub);
 
         if (!employeeData) {
             clearRefreshCookie(res);

@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from "./tokenStore";
 import { ClearLoggedInUser } from '../function/VerificationCheck';
+import { scheduleSilentRefresh } from './authScheduler';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_UR;
 
@@ -15,6 +16,7 @@ async function refreshAccessToken(): Promise<string | null> {
         const { accessToken } = res.data;
 
         setAccessToken(accessToken);
+        scheduleSilentRefresh(accessToken);
         return accessToken;
     } catch {
         clearAccessToken();

@@ -85,7 +85,6 @@ const Page: React.FC = () => {
         }
         finally {
             setIsLoading(false);
-            console.log(sessionNotesData);
         }
     };
 

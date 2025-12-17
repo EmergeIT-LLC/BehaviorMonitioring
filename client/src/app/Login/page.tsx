@@ -14,6 +14,8 @@ import { SetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
 import { api } from '../../lib/Api';
 import type { LoginResponse } from '../../dto';
+import { setAccessToken } from '../../lib/tokenStore';
+import { scheduleSilentRefresh } from "../../lib/authScheduler";
 
 const Login: React.FC = () => {
     const searchParams = useSearchParams();
@@ -56,6 +58,10 @@ const Login: React.FC = () => {
             const response = await api<LoginResponse>('post','/auth/verifyEmployeeLogin', { username: uName, password: pWord });
 
             if (response.statusCode === 200) {
+                if (response.accessToken) {
+                    setAccessToken(response.accessToken);
+                    scheduleSilentRefresh(response.accessToken);
+                }
                 SetLoggedInUser(response.loginStatus, response.user);
                 setUserStatus(true);
                 navigate.push(previousUrl || '/');
@@ -65,7 +71,6 @@ const Login: React.FC = () => {
             }
         }
         catch (error) {
-            console.error('Login error:', error);
             return setStatusMessage(String(error));
         }
         finally {
