@@ -39,7 +39,6 @@ const Login: React.FC = () => {
 
     const submitLoginForm = async () => {
         setIsLoading(true);
-
         if (uName.length < 1 || pWord.length < 1) {
             setIsLoading(false);
             return setStatusMessage('All fields must be filled out');
@@ -57,15 +56,16 @@ const Login: React.FC = () => {
             const response = await api<LoginResponse>('post','/auth/verifyEmployeeLogin', { username: uName, password: pWord });
 
             if (response.statusCode === 200) {
-                SetLoggedInUser(response.loginStatus, response.accessToken, response.refreshToken, response.user);
+                SetLoggedInUser(response.loginStatus, response.user);
                 setUserStatus(true);
                 navigate.push(previousUrl || '/');
             }
             else {
-                throw new Error(response.serverMessage);
+                throw new Error(response.serverMessage || 'Login failed');
             }
         }
         catch (error) {
+            console.error('Login error:', error);
             return setStatusMessage(String(error));
         }
         finally {

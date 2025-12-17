@@ -7,9 +7,11 @@ import Header from '../../components/header';
 import Footer from '../../components/footer';
 import Button from '../../components/Button';
 import Loading from '../../components/loading';
+import { clearAccessToken } from '../../lib/tokenStore';
 import { ClearLoggedInUser, GetLoggedInUser, GetLoggedInUserStatus } from '../../function/VerificationCheck';
+import type { LogoutResponse } from '../../dto/modules/auth/LogoutResponse';
+import { api } from '../../lib/Api';
 import { debounceAsync } from '../../function/debounce';
-import Axios from 'axios';
 
 const Logout: React.FC = () => {
     const navigate = useRouter();
@@ -30,32 +32,23 @@ const Logout: React.FC = () => {
     const submitLogoutForm = async() => {
         setIsLoading(true);
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/auth/verifyEmployeeLogout';
-
-        await Axios.post(url, {
-            username : loggedInUser
-        })
-        .then((response) => {
-            if (response.data.statusCode === 200) {
-                localStorage.removeItem('bmAccessToken');
-                localStorage.removeItem('bmRefreshToken');
-                localStorage.removeItem('bmUserData');
+        try {
+            const response = await api<LogoutResponse>('post','/auth/verifyEmployeeLogout', { username: loggedInUser });
+            
+            if (response.statusCode !== 200) {
+                throw new Error(response.serverMessage);
             }
-            else {
-                throw new Error(response.data.serverMessage);
-            }
-        })
-        .catch((error) => {
+        } catch (error) {
             return setStatusMessage(String(error));
-        })
-        .finally(() => {
+        } finally {
             setIsLoading(false);
-        });
+        }
     };
 
     const executeLogout = () => {
         if (GetLoggedInUserStatus()) {
             debounceAsync(submitLogoutForm, 300)();
+            clearAccessToken();
             ClearLoggedInUser();
         }
     }

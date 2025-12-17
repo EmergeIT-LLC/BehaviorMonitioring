@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AuthBootstrap from "../components/AuthBootstrap";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
   title: "BMetrics",
   description:
     "BMetrics is a dynamic and intuitive software application designed to track and analyze behavior data, specifically in the context of Applied Behavior Analysis (ABA)...",
+  icons: {
+    icon: "/BMetrics-logo-removebg.ico",
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <link rel="icon" href="/BMetrics-logo-removebg.ico" sizes="any" />
+        <AuthBootstrap />
         {children}
       </body>
     </html>

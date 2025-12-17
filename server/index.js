@@ -9,6 +9,7 @@ const amplifyOrigin = process.env.AmplifyHost;
 const cors = require('cors');
 const express = require('express');
 const app = express();
+const cookieParser = require("cookie-parser");
 const authMiddleware = require('./middleware/authMiddleware');
 const requestLogger = require('./middleware/requestLogger');
 let prodHost = prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ''}`;
@@ -20,10 +21,11 @@ const allowedOrigins = [clientOrigin, amplifyOrigin].filter(Boolean);
 const corsOptions = {
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With', 'Custom-Header', 'X-Requested-With', 'Origin'],
+  credentials: true,
 };
 
 app.use(requestLogger);
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 

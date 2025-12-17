@@ -1,4 +1,4 @@
-export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, refreshToken: string, user: { uName: string, compID: string | number, compName: string, isAdmin: boolean }) => {
+export const SetLoggedInUser = (loginSuccessful: boolean, user: { uName: string, compID: string | number, compName: string, isAdmin: boolean }) => {
     if (typeof window === 'undefined') return true;
     
     if (loginSuccessful) {
@@ -11,8 +11,6 @@ export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, r
         };
 
         localStorage.setItem('bmUserData', JSON.stringify(dataToStore));
-        localStorage.setItem('bmAccessToken', accessToken);
-        localStorage.setItem('bmRefreshToken', refreshToken);
     }
     else {
         ClearLoggedInUser();
@@ -22,7 +20,7 @@ export const SetLoggedInUser = (loginSuccessful: boolean, accessToken: string, r
 export const ClearLoggedInUser = () => {
     if (typeof window === 'undefined') return true;
 
-    localStorage.clear();
+    localStorage.removeItem('bmUserData');
 }
 
 export const GetLoggedInUserStatus = () => {
@@ -61,27 +59,6 @@ export const GetAdminStatus = () => {
     }
     return false;
 }
-
-export const RetrieveAccessToken = () => {
-    if (typeof window === 'undefined') return true;
-
-    const accessToken = localStorage.getItem('bmAccessToken');
-    if (accessToken) {
-        return `Bearer ${String(accessToken)}`;
-    }
-    return null;
-}
-
-export const RetrieveRefreshToken = () => {
-    if (typeof window === 'undefined') return true;
-
-    const refreshToken = localStorage.getItem('bmRefreshToken');
-    if (refreshToken) {
-        return `Bearer ${String(refreshToken)}`;
-    }
-    return null;
-}
-
 
 export const NeedToLogout = (uName: string) => {
     if (typeof window === 'undefined') return true;

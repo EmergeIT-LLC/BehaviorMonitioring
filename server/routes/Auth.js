@@ -1,30 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
+const db = require('../middleware/database/dbConnection');
 const logAuthEvent = require('../middleware/helpers/authLog');
-const { createJWTToken, createRefreshToken } = require('../middleware/auth/createJWTToken');
+const { createAccessToken, createRefreshToken, verifyRefreshToken } = require('../auth/tokens');
+const { setRefreshCookie, clearRefreshCookie } = require('../auth/cookies');
+const { insertRefreshToken, findRefreshToken, revokeRefreshToken, rotateRefreshToken } = require('../auth/refreshTokenStore');
 const employeeQueries = require('../middleware/helpers/EmployeeQueries');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
 /*--------------------------------------------Authentication---------------------------------------------*/
-router.post('/validateEmployeeAccount', async (req, res) => {
-    try {
-        const uName = req.body.username;
-
-        if (await employeeQueries.employeeExistByUsername(uName)) {
-            const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-
-            if (employeeData.account_status === "In Verification") {
-                return res.json({ statusCode: 200, locatedAccount: true });
-            }
-            return res.json({ statusCode: 401, locatedAccount: false });
-        }
-    } catch (error) {
-        return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
-    }
-});
-
 router.post('/validateEmployeeAccount', async (req, res) => {
     try {
         const uName = req.body.username;
@@ -63,7 +49,7 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
         if (await employeeQueries.employeeExistByUsername(uName.toLowerCase())) {
             const employeePassword = await employeeQueries.employeePasswordByUsername(uName.toLowerCase());
 
-            if (employeePassword.password.length > 0 || employeePassword.password !== null) {
+            if (employeePassword?.password && employeePassword.password.length > 0) {
                 const bcryptResult = await new Promise((resolve, reject) => {
                     bcrypt.compare(password, employeePassword.password, (err, result) => {
                         if (err) {
@@ -77,17 +63,20 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
 
                 if (bcryptResult) {
                     const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-                    const authToken = createJWTToken(employeeData);
-                    const refreshToken = createRefreshToken(employeeData);
+                    const accessPayload = {
+                        sub: employeeData.employeeID,
+                        email: employeeData.email,
+                        companyID: employeeData.companyID,
+                        roles: [employeeData.role],
+                    };
+                    const accessToken = createAccessToken(accessPayload);
+                    const refreshToken = createRefreshToken(employeeData.employeeID);
 
-                    if (employeeData.role === "root" || employeeData.role === "admin") {
-                        await logAuthEvent("ADMIN_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
-                        return res.json({ statusCode: 200, loginStatus: true, accessToken: authToken, refreshToken: refreshToken, user: { uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: true } });
-                    }
-                    else {
-                        await logAuthEvent("EMPLOYEE_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
-                        return res.json({ statusCode: 200, loginStatus: true, accessToken: authToken, refreshToken: refreshToken, user: { uName: uName.toLowerCase(), compName: employeeData.compName, compID: employeeData.compID, isAdmin: false } });
-                    }
+                    await insertRefreshToken(db, { userId: employeeData.employeeID, token: refreshToken, ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7), userAgent: req.headers['user-agent'], ipAddress: req.ip });
+
+                    setRefreshCookie(res, refreshToken);
+                    await logAuthEvent("EMPLOYEE_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
+                    return res.json({ statusCode: 200, loginStatus: true, accessToken: accessToken, user: { uName: uName.toLowerCase(), compName: employeeData.companyName, compID: employeeData.companyID, isAdmin: employeeData.role === "root" || employeeData.role === "admin" } });                
                 }
                 else {
                     await logAuthEvent("EMPLOYEE_LOGIN_FAILED", { email: uName.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'], details: 'Incorrect password' });
@@ -112,70 +101,74 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
 
 router.post('/verifyEmployeeLogout', async (req, res) => {
     try {
-        const uName = req.body.username;
+        const cookieName = process.env.COOKIE_NAME || "bmRefreshToken";
+        const refreshToken = req.cookies?.[cookieName];
 
-        await logAuthEvent("EMPLOYEE_LOGOUT", { email: uName.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'] });
+        if (refreshToken) {
+            await revokeRefreshToken(db, refreshToken);
+        }
+
+        clearRefreshCookie(res);
+
+        await logAuthEvent("EMPLOYEE_LOGOUT", { email: req.body.username?.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'] });
         return res.json({ statusCode: 200, loginStatus: false, isAdmin: false });
     } catch (error) {
-        await logAuthEvent("EMPLOYEE_LOGOUT_ERROR", { email: req.body.username.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'], details: error.message });
+        await logAuthEvent("EMPLOYEE_LOGOUT_ERROR", { email: req.body.username?.toLowerCase(), ip: req.ip, userAgent: req.headers['user-agent'], details: error.message });
         return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
     }
 });
 
 router.post("/refresh", async (req, res) => {
+    const cookieName = process.env.COOKIE_NAME || "bmRefreshToken";
+    const refreshToken = req.cookies?.[cookieName];;
+
+    if (!refreshToken) {
+        return res.status(401).json({ error: "Missing refresh token" });
+    }
+
     try {
-        const { refreshToken } = req.body;
+        const decoded = verifyRefreshToken(refreshToken);
 
-        if (!refreshToken) {
-            return res.status(401).json({ error: "Missing refresh token" });
+        const row = await findRefreshToken(db, refreshToken);
+        if (!row) return res.status(401).json({ error: "Refresh token not recognized" });
+
+        const isExpired = new Date(row.expires_at).getTime() <= Date.now();
+        if (row.revoked || isExpired) {
+            clearRefreshCookie(res);
+            return res.status(401).json({ error: "Invalid refresh token" });
         }
 
-        let decoded;
+        const employeeData = await employeeQueries.employeeDataByEmployeeId(decoded.sub);
 
-        try {
-            decoded = jwt.verify(
-                refreshToken,
-                process.env.JWT_REFRESH_SECRET,
-                {
-                    issuer: process.env.HOST,
-                    audience: process.env.ClientHost
-                }
-            );
-        } catch (err) {
-            await logAuthEvent("REFRESH_TOKEN_INVALID", {
-                token: refreshToken,
-                ip: req.ip
-            });
-            return res.status(401).json({ error: "Invalid or expired refresh token" });
+        if (!employeeData) {
+            clearRefreshCookie(res);
+            return res.status(401).json({ error: "User not found" });
         }
 
-        // decoded payload contains: { sub, email, roles, ... , exp }
-        const userPayload = {
-            sub: decoded.sub,
-            email: decoded.email,
-            roles: decoded.roles,
-            companyID: decoded.companyID
-        };
-
-        const newAccessToken = createJWTToken(userPayload);
-        const newRefreshToken = createRefreshToken(userPayload);
-
-        await logAuthEvent("REFRESH_TOKEN_SUCCESS", {
-            userId: decoded.sub,
-            ip: req.ip
+        const newAccessToken = createAccessToken({
+            sub: employeeData.employeeID,
+            email: employeeData.email,
+            companyID: employeeData.companyID,
+            roles: [employeeData.role]
         });
 
-        return res.json({
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken
+        const newRefreshToken = createRefreshToken(employeeData.employeeID);
+        await rotateRefreshToken(db, refreshToken, newRefreshToken);
+
+        await insertRefreshToken(db, {
+            userId: employeeData.employeeID,
+            token: newRefreshToken,
+            ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7),
+            userAgent: req.headers['user-agent'],
+            ipAddress: req.ip
         });
 
+        setRefreshCookie(res, newRefreshToken);
+
+        return res.json({ accessToken: newAccessToken });
     } catch (err) {
-        await logAuthEvent("REFRESH_TOKEN_ERROR", {
-            ip: req.ip,
-            details: err.message
-        });
-        return res.status(500).json({ error: "Server error" });
+        clearRefreshCookie(res);
+        return res.status(401).json({ error: "Invalid refresh token" });
     }
 });
 module.exports = router;
