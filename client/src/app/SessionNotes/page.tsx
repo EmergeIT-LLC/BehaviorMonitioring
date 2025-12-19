@@ -95,7 +95,6 @@ const SessionNotes: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);        
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getSessionNotes';
         try {
             const response = await api<GetSessionNotesResponse>('post', '/aba/getSessionNotes', {
                 "clientID": selectedClientID,

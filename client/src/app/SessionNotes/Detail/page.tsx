@@ -72,7 +72,6 @@ const Page: React.FC = () => {
         try {
             const response = await api<GetSessionNotesResponse>('post', '/aba/getASessionNote', { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
-                console.log('response.sessionNotesData', response.sessionNotesData);
                 return setSessionNotesData(response.sessionNotesData);
             } else {
                 throw new Error(response.serverMessage);
@@ -81,7 +80,6 @@ const Page: React.FC = () => {
             setStatusMessage(String(error));
         }
         finally {
-            console.log('sessionNoteData', sessionNotesData);
             setIsLoading(false);
         }
     };
