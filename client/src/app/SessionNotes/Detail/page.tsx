@@ -12,6 +12,7 @@ import { api } from '../../../lib/Api';
 import type { GetSessionNotesResponse, DeleteSessionNoteResponse, SessionNote } from '../../../dto';
 import Button from '../../../components/Button';
 import PopoutPrompt from '../../../components/PopoutPrompt';
+import { Session } from 'inspector/promises';
 
 const Page: React.FC = () => {
     const navigate = useRouter();
@@ -35,7 +36,7 @@ const Page: React.FC = () => {
         ) {
             navigate.push('/SessionNotes');
         }
-        debounceAsync(getSessionNoteDetails, 300)();
+        debounceAsync(getASessionNoteDetails, 300)();
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('sessionNoteId');
     }, [userLoggedIn]);
@@ -61,7 +62,7 @@ const Page: React.FC = () => {
         navigate.back();
     };
 
-    const getSessionNoteDetails = async () => {
+    const getASessionNoteDetails = async () => {
         setIsLoading(true);
         if (!userLoggedIn) {
             const previousUrl = encodeURIComponent(location.pathname);
@@ -71,7 +72,8 @@ const Page: React.FC = () => {
         try {
             const response = await api<GetSessionNotesResponse>('post', '/aba/getASessionNote', { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
-                return setSessionNotesData(response.sessionNoteData);
+                console.log('response.sessionNotesData', response.sessionNotesData);
+                return setSessionNotesData(response.sessionNotesData);
             } else {
                 throw new Error(response.serverMessage);
             }
@@ -79,6 +81,7 @@ const Page: React.FC = () => {
             setStatusMessage(String(error));
         }
         finally {
+            console.log('sessionNoteData', sessionNotesData);
             setIsLoading(false);
         }
     };

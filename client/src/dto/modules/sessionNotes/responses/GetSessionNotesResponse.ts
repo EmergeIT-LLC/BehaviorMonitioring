@@ -2,7 +2,7 @@ import type { SessionNote } from '../../../common/entities/SessionNote';
 
 export type GetSessionNotesResponse = {
   statusCode: number;
-  sessionNoteData: SessionNote[];
+  sessionNotesData: SessionNote[];
   serverMessage?: string;
   errorMessage?: string;
 };
