@@ -141,9 +141,11 @@ const Page: React.FC = () => {
                                                     <p><b>Client Name:</b> {note.clientName}</p>
                                                     <p><b>Session Date:</b> {note.sessionDate}</p>
                                                     <p><b>Session Time:</b> {note.sessionTime}</p>
-                                                </div>
                                                     <p><b>Session Notes:</b></p>
-                                                    <p className={componentStyles.preWrap}>{note.sessionNotes}</p>
+                                                </div>
+                                                <div className={componentStyles.detailSection}>
+                                                    <p>{note.sessionNotes}</p>
+                                                </div>
                                                 <div className={componentStyles.tbHeaderDetails}>
                                                     <p><b>Entered By:</b> {note.entered_by}</p>
                                                     <p><b>Date Entered:</b> {note.date_entered}</p>

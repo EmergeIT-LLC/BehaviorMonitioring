@@ -1,4 +1,43 @@
+/* components.module.scss */
 @use './colors.scss' as *;
+
+/* --- Global polish helpers --- */
+%surface {
+    border-radius: $radius-md;
+    box-shadow: $shadow-md;
+    border: 1px solid $border-light;
+    background-color: $form-background;
+}
+
+%control {
+    border-radius: $radius-sm;
+    border: 1px solid $border-light;
+    background: $color6;
+    color: $font-color;
+}
+
+%controlFocus {
+    outline: none;
+    border-color: $color5;
+    box-shadow: $focus-ring;
+}
+
+%buttonPrimary {
+    border-radius: $radius-sm;
+    background-color: $button-background-color;
+    color: $button-font-color;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: $shadow-sm;
+    transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+%buttonPrimaryHover {
+    background-color: $button-background-color-hover;
+    color: $buttonHover-font-color;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+}
+
 
 .headerBody {
     display: block;
@@ -9,7 +48,7 @@
     line-height: 1.875em;
     background-color: $header-footer-background;
     color: $nav-font-color;
-    border: .012em solid $color6;
+    border-bottom: 1px solid $border-dark;
     position: sticky;
     top: 0;
     z-index: 1000; // Ensure the header is above other elements
@@ -39,19 +78,18 @@
         float: right;
         display: flex;
         text-decoration: none;
-        background-color: $button-background-color;
-        color: $button-font-color;
         font-size: 1em;
-        font-weight: bold;
-        padding: 0.50em;
-        margin: 2em 1.25em 0 -5em;
-        border: 0.15em solid $color1;
+        font-weight: 700;
+        padding: 0.55em 0.9em;
+        margin: 1.6em 1.25em 0 -5em;
+
+        @extend %buttonPrimary;
+        border: 1px solid rgba(255, 255, 255, 0.14);
     }
 
     button:hover {
-        background-color: $button-background-color-hover;
-        color: $buttonHover-font-color;
-        border-color: $color6;
+        @extend %buttonPrimaryHover;
+        border-color: rgba(255, 255, 255, 0.20);
     }
 
     nav {
@@ -83,7 +121,8 @@
 
                 a:hover {
                     color: $navHover-font-color;
-                    background-color: $nav-background-color-hover;
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border-radius: 10px;
                 }
             }
         }
@@ -131,7 +170,7 @@
             display: block;
             position: absolute;
             width: 100%;
-            border: .012em solid $color6;
+            border: 1px solid $border-dark;
 
             ul {
                 display: inline-block;
@@ -171,7 +210,7 @@
     margin: 0 auto;
     background-color: $header-footer-background;
     color: $nav-font-color;
-    border: .012em solid $color6;
+    border-top: 1px solid $border-dark;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -215,7 +254,8 @@
 
         a:hover {
             color: $navHover-font-color;
-            background-color: $color1;
+            background-color: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;        
         }
     }
 
@@ -244,7 +284,7 @@
     background-color: $page-background;
     margin: 0 auto;
     width: 100%;
-    border: .012em solid $color6;
+    border: 1px solid $border-light;
 
     h1 {
         font-size: 2.5em;
@@ -270,26 +310,31 @@
     }
 
     input {
-        margin: 0 auto 2em;
-        height: 2em;
+        margin: 0 auto 1.25em;
+        height: 2.5em;
+        width: min(28rem, 90%);
+        padding: 0 0.9em;
         display: block;
+        @extend %control;
     }
 
     input::placeholder {
-        text-align: center;
-        color: $color1;
-        font-weight: bold;
+        text-align: left;
+        color: rgba(15, 23, 42, 0.55);
+        font-weight: 600;
     }
 
     input:focus {
-        outline: none;
-        border: .25em solid $color2;
+        @extend %controlFocus;
     }
 
     select {
-        margin: 0 auto 2em;
-        height: 2em;
+        margin: 0 auto 1.25em;
+        height: 2.5em;
+        width: min(28rem, 90%);
+        padding: 0 0.9em;
         display: block;
+        @extend %control;
     }
 
     select::placeholder {
@@ -299,46 +344,44 @@
     }
 
     select:focus {
-        outline: none;
-        border: .25em solid $color2;
+        @extend %controlFocus;
     }
 
     button {
         display: block;
-        margin: 0 auto 2em;
-        background-color: $color7;
-        color: $button-font-color;
+        margin: 0 auto 1.25em;
+        height: 2.6em;
+        width: 10.5em;
         font-size: 1em;
-        font-weight: bold;
-        height: 2em;
-        width: 9em;
-        border: 0.15em solid $color1;
+        font-weight: 800;
+
+        @extend %buttonPrimary;
     }
 
     button:hover {
-        background-color: $color1;
-        color: $buttonHover-font-color;
-        border-color: $color6;
+        @extend %buttonPrimaryHover;
     }
 
     a {
-        display: block;
-        margin: 2em auto;
-        background-color: $color7;
-        color: $nav-font-color;
+        display: inline-block;
+        margin: 1.25em auto;
         font-size: 1em;
-        font-weight: bold;
+        font-weight: 800;
         text-decoration: none;
         text-align: center;
-        width: 9em;
-        padding: 0.50em;
-        border: 0.15em solid $color1;
+
+        padding: 0.55em 0.9em;
+        border-radius: $radius-sm;
+
+        background-color: rgba(59, 130, 246, 0.10);
+        border: 1px solid rgba(59, 130, 246, 0.30);
+        color: $color5;
+        transition: transform 120ms ease, background-color 120ms ease;
     }
 
     a:hover {
-        background-color: $color1;
-        color: $navHover-font-color;
-        border-color: $color6;
+        background-color: rgba(59, 130, 246, 0.18);
+        transform: translateY(-1px);
     }
 
     .statusMessage {
@@ -352,22 +395,30 @@
         -ms-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        margin: 2em auto;
-        width: 20em;
-        height: 10em;
-        border: 0.015em solid $color7;
+
+        margin: 1.25em auto;
+        width: min(42rem, 90%);
+        min-height: 10em;
+        max-height: 18em;
+        padding: 0.9em;
+
         font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-        min-height: 5em;
-        max-height: 5em;
-        min-width: 20em;
-        max-width: 20em;
+        resize: vertical;
+
+        @extend %control;
+    }
+
+    textarea:focus {
+        @extend %controlFocus;
     }
 
     form {
         background-color: $form-background;
         margin: 0 auto;
         width: 75%;
-        border: .012em solid $color6;
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        box-shadow: $shadow-md;
 
         .pageHeader {
             font-size: 1.75em;
@@ -386,8 +437,9 @@
         background-color: $form-background;
         margin: 0 auto;
         width: 90%;
-        border: .012em solid $color6;
         height: 100%;
+
+        @extend %surface;
 
         .pageHeader {
             font-size: 1.75em;
@@ -406,21 +458,21 @@
             color: $font-color;
 
             button, a {
-                display: inline;
-                background-color: $button-background-color;
-                color: $button-font-color;
-                border: 0.15em solid $color1;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 width: 10em;
                 margin: 0;
-                padding: 0.2em;
+                padding: 0.45em 0.8em;
                 font-size: 1em;
-                font-weight: bold;
+                font-weight: 800;
+                text-decoration: none;
+
+                @extend %buttonPrimary;
             }
         
             button:hover, a:hover {
-                background-color: $button-background-color-hover;
-                color: $buttonHover-font-color;
-                border-color: $color6;
+                @extend %buttonPrimaryHover;
                 cursor: pointer;
             }
 
@@ -437,21 +489,13 @@
             color: $font-color;
 
             button {
-                display: inline;
-                background-color: $nav-background-page-color;
-                color: $button-font-color;
-                border: 0.15em solid $color1;
+                @extend %buttonPrimary;
                 width: 5em;
-                margin: 0;
-                font-size: 1em;
-                font-weight: bold;
+                font-weight: 800;
             }
         
             button:hover {
-                background-color: $nav-background-page-color-hover;
-                color: $buttonHover-font-color;
-                border-color: $color6;
-                cursor: pointer;
+                @extend %buttonPrimaryHover;
             }
             
             button:first-child {
@@ -485,13 +529,14 @@
     }
 
     .popoutMenu {
-        position: absolute; // Ensures positioning relative to the parent
-        background-color: $color1;
-        border: 1px solid $color2;
-        box-shadow: 0 4px 6px $color7;
+        position: absolute;
+        background-color: $color6;
+        border: 1px solid $border-light;
+        box-shadow: $shadow-md;
+        border-radius: $radius-sm;
         z-index: 1000;
         padding: 10px;
-        min-width: 150px; // Adjust for the menu width
+        min-width: 170px;
         display: flex;
         flex-direction: column;
     }
@@ -503,14 +548,15 @@
     }
     
     .popoutMenu li {
-        padding: 8px 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
         cursor: pointer;
         white-space: nowrap;
-        color: $button-font-color;
+        color: $font-color;
 
         &:hover {
-            background-color: $button-background-color-hover2;
-            color: $buttonHover-font-color;
+            background-color: rgba(59, 130, 246, 0.10);
+            color: $font-color;
         }
     }
 
@@ -528,11 +574,12 @@
     }
       
     .popupContent {
-        background: $color3;
+        background: $color6;
         padding: 20px;
-        border-radius: 5px;
-        width: 400px;
-        box-shadow: 0 2px 10px $color6;
+        border-radius: $radius-md;
+        width: min(420px, 92vw);
+        box-shadow: $shadow-md;
+        border: 1px solid $border-light;
     }
       
     .popupDropdown {
@@ -550,7 +597,10 @@
         background-color: $color3;
         margin: 5% auto;
         width: 85%;
-        border: .012em solid $color6;
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        box-shadow: $shadow-md;
+
     }
 
     .innerBlock {
@@ -558,7 +608,10 @@
         background-color: $page-background;
         margin: 5% auto;
         width: 85%;
-        border: .012em solid $color6;
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        box-shadow: $shadow-md;
+
 
         .statusMessage {
             color: $color1;
@@ -621,28 +674,26 @@
             width: 100%;
             table-layout: fixed; /* Ensures the columns are evenly distributed */
 
-            tr: {
+            tr {
                 position: relative;
             }
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid $color7;
+                border-bottom: 1px solid $border-light;
             }
 
             //Row hover settings
             tr:hover td{
-                background-color: $color2;
-                color: $color6;
+                background-color: rgba(59, 130, 246, 0.08);
+                color: $font-color;
                 cursor: pointer;
             }
             
             th {
-                margin: 0; 
-                padding: 0 1em;
                 color: $color6;
                 background-color: $color2;
-                border: .012em solid $color7;
+                border: 1px solid rgba(255,255,255,0.10);
             }
 
             td {
@@ -651,15 +702,14 @@
                     min-height: 2.50em;
 
                     button {
-                        margin: 5% auto;
-                        width: 100%;
-                        border: none;
-                        background-color: $color2;
+                        background-color: transparent;
+                        color: $font-color;
+                        border-radius: 10px;
                     }
 
                     button:hover {
-                        background-color: $color3;
-                        color: $color7;
+                        background-color: rgba(59, 130, 246, 0.10);
+                        color: $font-color;
                     }
                 }
             }
@@ -672,8 +722,12 @@
                 width: 5em;
             }
 
-            th:first-child, td:first-child, th:nth-last-child(-n+3), td:nth-last-child(-n+3) {
+            th:first-child, td:first-child {
                 width: 3em; /* Auto width for the last three columns */
+            }
+
+            th:nth-last-child(-n+2), td:nth-last-child(-n+2) {
+                width: 12em; /* Auto width for the last three columns */
             }
     
             th:not(:nth-last-child(-n+3)), td:not(:nth-last-child(-n+3)) {
@@ -701,21 +755,19 @@
             width: 100%;
             table-layout: fixed; /* Ensures the columns are evenly distributed */
 
-            tr: {
+            tr {
                 position: relative;
             }
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid $color7;
+                border-bottom: 1px solid $border-light;
             }
             
             th {
-                margin: 0; 
-                padding: 0 1em;
                 color: $color6;
                 background-color: $color2;
-                border: .012em solid $color7;
+                border: 1px solid rgba(255,255,255,0.10);
                 width: calc(100% / auto); /* Distribute other columns evenly */
             }
 
@@ -727,16 +779,14 @@
                     min-height: 2.50em;
 
                     button {
-                        margin: 5% auto;
-                        width: 100%;
-                        border: none;
-                        background-color: $color2;
-                        color: $color6;
+                        background-color: transparent;
+                        color: $font-color;
+                        border-radius: 10px;
                     }
 
                     button:hover {
-                        background-color: $color1;
-                        color: $color6;
+                        background-color: rgba(59, 130, 246, 0.10);
+                        color: $font-color;
                     }
                 }
             }
@@ -746,28 +796,26 @@
             width: 100%;
             table-layout: fixed; /* Ensures the columns are evenly distributed */
 
-            tr: {
+            tr {
                 position: relative;
             }
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid $color7;
+                border-bottom: 1px solid $border-light;
             }
 
             //Row hover settings
             tr:hover td{
-                background-color: $color2;
-                color: $color6;
+                background-color: rgba(59, 130, 246, 0.08);
+                color: $font-color;
                 cursor: pointer;
             }
             
             th {
-                margin: 0; 
-                padding: 0 1em;
                 color: $color6;
                 background-color: $color2;
-                border: .012em solid $color7;
+                border: 1px solid rgba(255,255,255,0.10);
             }
 
             td {
@@ -776,15 +824,14 @@
                     min-height: 2.50em;
 
                     button {
-                        margin: 5% auto;
-                        width: 100%;
-                        border: none;
-                        background-color: $color2;
+                        background-color: transparent;
+                        color: $font-color;
+                        border-radius: 10px;
                     }
 
                     button:hover {
-                        background-color: $color3;
-                        color: $color7;
+                        background-color: rgba(59, 130, 246, 0.10);
+                        color: $font-color;
                     }
                 }
             }
@@ -792,6 +839,7 @@
             th:first-child, td:first-child {
                 width: 6em;
             }
+            
             th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) {
                 width: 10em;
             }
@@ -801,7 +849,7 @@
             }
 
             th:nth-last-child(-n+2), td:nth-last-child(-n+2) {
-                width: 3em;
+                width: 6em;
             }
     
             th:not(:nth-last-child(-n+3)), td:not(:nth-last-child(-n+3)) {
@@ -829,28 +877,26 @@
             width: 100%;
             table-layout: fixed; /* Ensures the columns are evenly distributed */
 
-            tr: {
+            tr {
                 position: relative;
             }
     
             //Boarder
             tr:not(:last-child) td {
-                border-bottom: .012em solid $color7;
+                border-bottom: 1px solid $border-light;
             }
 
             //Row hover settings
             tr:hover td{
-                background-color: $color2;
-                color: $color6;
+                background-color: rgba(59, 130, 246, 0.08);
+                color: $font-color;
                 cursor: pointer;
             }
             
             th {
-                margin: 0; 
-                padding: 0 1em;
                 color: $color6;
                 background-color: $color2;
-                border: .012em solid $color7;
+                border: 1px solid rgba(255,255,255,0.10);
                 width: calc(100% / auto); /* Distribute other columns evenly */
             }
 
@@ -862,16 +908,14 @@
                     min-height: 2.50em;
 
                     button {
-                        margin: 5% auto;
-                        width: 100%;
-                        border: none;
-                        background-color: $color2;
-                        color: $color6;
+                        background-color: transparent;
+                        color: $font-color;
+                        border-radius: 10px;
                     }
 
                     button:hover {
-                        background-color: $color1;
-                        color: $color6;
+                        background-color: rgba(59, 130, 246, 0.10);
+                        color: $font-color;
                     }
                 }
             }
@@ -1114,26 +1158,30 @@
     }
 
     .loginForm, .logoutForm {
-        background-color: $color1;
+        background-color: rgba(255, 255, 255, 0.06);
         color: $font-color2;
         margin: 5% auto;
-        width: 25%;
-        border: .25em solid $color2;
+        width: min(420px, 92%);
+        padding: 1.5em;
+        border-radius: $radius-md;
+        border: 1px solid $border-dark;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.35);
 
         h2 {
             text-align: center;
             color: $font-color2;
+            margin-top: 0;
         }
 
         p {
             margin: 1em auto 2em;
             text-align: center;
-            color: $font-color2;
+            color: rgba(248, 250, 252, 0.85);
         }
 
         .statusMessage {
             margin: 1em auto 1em;
-            color: $font-color2;
+            color: rgba(248, 250, 252, 0.9);
         }
     }
 

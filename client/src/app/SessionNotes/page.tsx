@@ -109,7 +109,7 @@ const SessionNotes: React.FC = () => {
                 setCheckedNotes([]);
                 sessionStorage.removeItem('checkedNotes');
 
-                const fetchedOptions = response.sessionNotesData.map((notes) => ({
+                const fetchedOptions = response.sessionNoteData.map((notes) => ({
                     ...notes,
                     value: notes.sessionNoteDataID,
                     label: notes.sessionNotes.length > labelLength ? notes.sessionNotes.substring(0, labelLength) + '...' : notes.sessionNotes,

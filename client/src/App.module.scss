@@ -1,9 +1,20 @@
+/* App.module.scss */
 @use './styles/colors.scss' as *;
 
-body{
+:global(html),
+:global(body) {
   padding: 0;
   margin: 0;
+}
+
+:global(body) {
   background-color: $website-background;
+  color: $font-color2; /* default on dark body bg */
   text-align: center;
   font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-} 
+}
+
+/* Optional: make overall feel nicer on large screens */
+:global(*) {
+  box-sizing: border-box;
+}

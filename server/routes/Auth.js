@@ -156,20 +156,28 @@ router.post("/refresh", async (req, res) => {
             roles: [employeeData.role]
         });
 
-        await touchRefreshToken(db, refreshToken);
-
         const newRefreshToken = createRefreshToken(employeeData.employeeID);
+        
+        // Revoke old token
         await rotateRefreshToken(db, refreshToken, newRefreshToken);
-
-        await insertRefreshToken(db, {
-            userId: employeeData.employeeID,
-            token: newRefreshToken,
-            ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7),
-            userAgent: req.headers['user-agent'],
-            ipAddress: req.ip,
-            deviceId: row.device_id,
-            lastUsedAt: new Date()
-        });
+        
+        // Insert new token (catch duplicate error in case of concurrent requests)
+        try {
+            await insertRefreshToken(db, {
+                userId: employeeData.employeeID,
+                token: newRefreshToken,
+                ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7),
+                userAgent: req.headers['user-agent'],
+                ipAddress: req.ip,
+                deviceId: row.device_id,
+                lastUsedAt: new Date()
+            });
+        } catch (insertError) {
+            if (insertError.code !== 'SQLITE_CONSTRAINT') {
+                throw insertError;
+            }
+            // Token already exists (concurrent request), continue anyway
+        }
 
         setRefreshCookie(res, newRefreshToken);
 

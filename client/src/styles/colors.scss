@@ -1,31 +1,48 @@
-$color1: #1F3247;
-$color2: #475464;
-$color3: #F1FCFD;
-$color4: #4BC0A4;
-$color5: #41ABF9;
-$color6: #fefefe;
-$color7: #000000;
+/* Modern SaaS Blue theme */
+$color1: #0F172A; // deep slate (app background / header/footer)
+$color2: #334155; // slate (table headers / secondary)
+$color3: #F8FAFC; // near-white (page background)
+$color4: #22C55E; // green accent (success)
+$color5: #3B82F6; // primary blue (actions/links)
+$color6: #FFFFFF; // surface
+$color7: #0B1220; // near-black (text)
 
+/* Core mapping */
 $website-background: $color1;
 $header-footer-background: $color1;
-//Page & form
+
+/* Surfaces */
 $page-background: $color3;
 $form-background: $color6;
-//Font
+
+/* Typography */
 $font-color: $color7;
 $font-color2: $color6;
 $font-color-hover: $color7;
-//Nav
+
+/* Nav */
 $nav-background-color: $color1;
-$nav-background-color-hover: $color1;
+$nav-background-color-hover: #111C33;
 $nav-background-page-color: $color7;
 $nav-background-page-color-hover: $color1;
 $nav-font-color: $color3;
-$navHover-font-color: $color4;
-//Buttons
-$button-background-color: $color7;
-$button-background-color-hover: $color1;
+$navHover-font-color: $color5;
+
+/* Buttons */
+$button-background-color: $color5;
+$button-background-color-hover: #2563EB;
 $button-background-color-hover2: $color2;
-$button-font-color: $color3;
+$button-font-color: $color6;
 $button-font-color2: $color7;
-$buttonHover-font-color: $color4;
+$buttonHover-font-color: $color6;
+
+/* New tokens (optional but recommended) */
+$border-light: rgba(15, 23, 42, 0.10);
+$border-dark: rgba(255, 255, 255, 0.14);
+$shadow-sm: 0 2px 10px rgba(2, 6, 23, 0.08);
+$shadow-md: 0 12px 28px rgba(2, 6, 23, 0.14);
+
+$radius-sm: 10px;
+$radius-md: 14px;
+
+$focus-ring: 0 0 0 4px rgba(59, 130, 246, 0.25); // blue focus glow
