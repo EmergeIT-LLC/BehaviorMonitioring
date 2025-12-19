@@ -5,15 +5,12 @@ import { useRouter } from 'next/navigation';
 import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
-import SelectDropdown from '../../../components/Selectdropdown';
-import Checkbox from '../../../components/Checkbox';
 import Link from '../../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
 import type { GetSessionNotesResponse, DeleteSessionNoteResponse, SessionNote } from '../../../dto';
 import Button from '../../../components/Button';
-import PromptForMerge from '../../../components/PromptForMerge';
 import PopoutPrompt from '../../../components/PopoutPrompt';
 
 const Page: React.FC = () => {
@@ -71,12 +68,10 @@ const Page: React.FC = () => {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         }
 
-        const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getASessionNote';
-
         try {
             const response = await api<GetSessionNotesResponse>('post', '/aba/getASessionNote', { "clientID": clientID, "sessionNoteId": selectedSessionNoteID, "employeeUsername": loggedInUser });
             if (response.statusCode === 200) {
-                return setSessionNotesData(response.sessionNotesData);
+                return setSessionNotesData(response.sessionNoteData);
             } else {
                 throw new Error(response.serverMessage);
             }
@@ -139,7 +134,24 @@ const Page: React.FC = () => {
                                 </div>
                                 <div className={componentStyles.innerBlock}>
                                     <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
-
+                                    <div className={componentStyles.detailBlock}>
+                                        {sessionNotesData.map((note: SessionNote) => (
+                                            <div key={note.sessionNoteDataID}>
+                                                <div className={componentStyles.tbHeaderDetails}>
+                                                    <p><b>Client Name:</b> {note.clientName}</p>
+                                                    <p><b>Session Date:</b> {note.sessionDate}</p>
+                                                    <p><b>Session Time:</b> {note.sessionTime}</p>
+                                                </div>
+                                                    <p><b>Session Notes:</b></p>
+                                                    <p className={componentStyles.preWrap}>{note.sessionNotes}</p>
+                                                <div className={componentStyles.tbHeaderDetails}>
+                                                    <p><b>Entered By:</b> {note.entered_by}</p>
+                                                    <p><b>Date Entered:</b> {note.date_entered}</p>
+                                                    <p><b>Time Entered:</b> {note.time_entered}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                         </div>
                     }
