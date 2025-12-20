@@ -1035,7 +1035,7 @@ router.post('/getASessionNote', async (req, res) => {
                     const sessionNoteData = await abaQueries.abaGetSessionNoteByID(cID, sessionNoteId, employeeData.companyID);
                     
                     if (sessionNoteData.length > 0){
-                        return res.json({ statusCode: 200, sessionNoteData: sessionNoteData });
+                        return res.json({ statusCode: 200, sessionNotesData: sessionNoteData });
                     }
                     else {
                         return res.json({ statusCode: 400, serverMessage: 'Unable to locate client data' });
