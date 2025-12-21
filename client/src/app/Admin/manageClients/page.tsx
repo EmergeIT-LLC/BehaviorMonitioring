@@ -1,0 +1,162 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/navigation';
+import componentStyles from '../../../styles/components.module.scss';
+import Header from '../../../components/header';
+import Loading from '../../../components/loading';
+import Button from '../../../components/Button';
+import Link from '../../../components/Link';
+import { GetLoggedInUserStatus, GetAdminStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
+import { debounceAsync } from '../../../function/debounce';
+import { api } from '../../../lib/Api';
+import type { GetAllClientsResponse, DeleteClientResponse, Client } from '../../../dto';
+
+const ManageClients: React.FC = () => {
+    const navigate = useRouter();
+    const userLoggedIn = GetLoggedInUserStatus();
+    const userIsAdmin = GetAdminStatus();
+    const loggedInUser = GetLoggedInUser();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
+    const [clients, setClients] = useState<Client[]>([]);
+    const [timerCount, setTimerCount] = useState<number>(0);
+    const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (!userLoggedIn) {
+            const previousUrl = encodeURIComponent(location.pathname);
+            navigate.push(`/Login?previousUrl=${previousUrl}`);
+        } else if (!userIsAdmin) {
+            navigate.push('/');
+        } else {
+            debounceAsync(fetchClients, 300)();
+        }
+    }, [userLoggedIn, userIsAdmin]);
+
+    useEffect(() => {
+        if (timerCount > 0) {
+            const timer = setTimeout(() => setTimerCount(timerCount - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+        if (timerCount === 0 && clearMessageStatus) {
+            setClearMessageStatus(false);
+            setStatusMessage('');
+        }
+    }, [timerCount, clearMessageStatus]);
+
+    const fetchClients = async () => {
+        setIsLoading(true);
+        try {
+            const response = await api<GetAllClientsResponse>('post', '/aba/getAllClientInfo', {
+                employeeUsername: loggedInUser
+            });
+            
+            if (response.statusCode === 200) {
+                setClients(response.clientData);
+            } else {
+                throw new Error(response.serverMessage || 'Failed to fetch clients');
+            }
+        } catch (error) {
+            setStatusMessage(String(error));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteClick = async (client: Client) => {
+        if (!window.confirm(`Are you sure you want to delete client "${client.fName} ${client.lName}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        setIsLoading(true);
+        
+        try {
+            const response = await api<DeleteClientResponse>('post', '/admin/deleteClient', {
+                clientID: client.clientID,
+                employeeUsername: loggedInUser
+            });
+            
+            if (response.statusCode === 200) {
+                setStatusMessage(`Client "${client.fName} ${client.lName}" has been deleted successfully.`);
+                setTimerCount(3);
+                setClearMessageStatus(true);
+                await fetchClients();
+            } else {
+                throw new Error(response.serverMessage || 'Failed to delete client');
+            }
+        } catch (error) {
+            setStatusMessage(String(error));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleEditClick = (clientID: number) => {
+        navigate.push(`/Admin/manageClients/edit?id=${clientID}`);
+    };
+
+    return (
+        <>
+            <Header />
+            <Head>
+                <title>Manage Clients - BMetrics</title>
+            </Head>
+            <div className={componentStyles.pageBody}>
+                <main>
+                    {isLoading ? (
+                        <Loading />
+                    ) : (
+                        <div className={componentStyles.bodyBlock}>
+                            <h1 className={componentStyles.pageHeader}>Manage Clients</h1>
+                            <div className={componentStyles.tbHRSButtons}>
+                                <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={() => navigate.back()} />
+                                <Link href='/Admin/manageClients/add' hrefType='link' placeholder='Add Client' />
+                            </div>
+                            <div className={componentStyles.innerBlock}>
+                                <p className={componentStyles.statusMessage}>{statusMessage ? <b>{statusMessage}</b> : null}</p>
+                                
+                                {clients.length === 0 ? (
+                                    <p>No clients found. Click "Add Client" to create one.</p>
+                                ) : (
+                                    <table className={componentStyles.tbHRSTable}>
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Client Name</th>
+                                                <th>Company</th>
+                                                <th>Edit</th>
+                                                <th>Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {clients.map((client) => (
+                                                <tr key={client.clientID}>
+                                                    <td><div>{client.clientID}</div></td>
+                                                    <td><div>{client.fName} {client.lName}</div></td>
+                                                    <td><div>{client.companyID}</div></td>
+                                                    <td>
+                                                        <div>
+                                                            <button onClick={() => handleEditClick(client.clientID)}>✏️</button>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>
+                                                            <button onClick={() => handleDeleteClick(client)}>🗑️</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </main>
+            </div>
+        </>
+    );
+};
+
+export default ManageClients;
