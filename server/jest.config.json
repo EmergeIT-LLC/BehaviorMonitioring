@@ -1,0 +1,23 @@
+{
+  "testEnvironment": "node",
+  "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+  "testMatch": [
+    "<rootDir>/tests/**/*.test.js",
+    "<rootDir>/tests/**/*.spec.js"
+  ],
+  "collectCoverageFrom": [
+    "**/*.js",
+    "!node_modules/**",
+    "!tests/**",
+    "!coverage/**"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 70,
+      "functions": 70,
+      "lines": 70,
+      "statements": 70
+    }
+  },
+  "testTimeout": 10000
+}
