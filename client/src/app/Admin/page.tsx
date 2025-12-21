@@ -4,11 +4,9 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import componentStyles from '../../styles/components.module.scss';
 import Header from '../../components/header';
-import InputFields from '../../components/Inputfield';
 import Link from '../../components/Link';
 import Loading from '../../components/loading';
 import { GetLoggedInUserStatus, GetAdminStatus } from '../../function/VerificationCheck';
-import Axios from 'axios';
 
 const Admin: React.FC = () => {
     const navigate = useRouter();

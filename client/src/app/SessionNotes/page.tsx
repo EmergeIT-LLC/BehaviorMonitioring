@@ -10,11 +10,9 @@ import Checkbox from '../../components/Checkbox';
 import Link from '../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../function/VerificationCheck';
 import { debounceAsync } from '../../function/debounce';
-import { debouncedGetClientNames } from '../../function/ApiCalls';
 import { api } from '../../lib/Api';
 import type { GetAllClientsResponse, GetSessionNotesResponse, DeleteSessionNoteResponse, SessionNote } from '../../dto';
 import Button from '../../components/Button';
-import PromptForMerge from '../../components/PromptForMerge';
 import PopoutPrompt from '../../components/PopoutPrompt';
 
 const SessionNotes: React.FC = () => {

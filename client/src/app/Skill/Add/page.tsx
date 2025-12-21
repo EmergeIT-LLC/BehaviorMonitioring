@@ -8,7 +8,6 @@ import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
 import { GetLoggedInUserStatus } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
-import Axios from 'axios';
 
 const AddSkillAquisition: React.FC = () => {
     const navigate = useRouter();

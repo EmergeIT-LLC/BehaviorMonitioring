@@ -13,7 +13,6 @@ import {
   MEASUREMENT_TYPES,
   GetAllClientsResponse,
   ClientOption,
-  BehaviorSkill,
   AddBehaviorResponse,
   AddBehaviorRequest,
   BehaviorToAdd

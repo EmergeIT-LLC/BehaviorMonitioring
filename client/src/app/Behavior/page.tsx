@@ -17,7 +17,6 @@ import type {
   SelectedBehaviorSkill,
   GetAllClientsResponse,
   GetBehaviorResponse,
-  GetBehaviorDataResponse,
   MergeBehaviorsResponse,
   DeleteBehaviorResponse,
   ArchiveBehaviorResponse

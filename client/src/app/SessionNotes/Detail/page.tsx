@@ -5,14 +5,11 @@ import { useRouter } from 'next/navigation';
 import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Loading from '../../../components/loading';
-import Link from '../../../components/Link';
 import { GetLoggedInUserStatus, GetLoggedInUser } from '../../../function/VerificationCheck';
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
 import type { GetSessionNotesResponse, DeleteSessionNoteResponse, SessionNote } from '../../../dto';
 import Button from '../../../components/Button';
-import PopoutPrompt from '../../../components/PopoutPrompt';
-import { Session } from 'inspector/promises';
 
 const Page: React.FC = () => {
     const navigate = useRouter();
