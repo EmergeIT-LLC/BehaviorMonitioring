@@ -149,8 +149,6 @@ const Page: React.FC = () => {
                                                 </div>
                                                 <div className={componentStyles.tbHeaderDetails}>
                                                     <p><b>Entered By:</b> {note.entered_by}</p>
-                                                    <p><b>Date Entered:</b> {note.date_entered}</p>
-                                                    <p><b>Time Entered:</b> {note.time_entered}</p>
                                                 </div>
                                             </div>
                                         ))}
