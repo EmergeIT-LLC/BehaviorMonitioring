@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import componentStyles from '../../../../styles/components.module.scss';
@@ -13,7 +13,7 @@ import { debounceAsync } from '../../../../function/debounce';
 import { api } from '../../../../lib/Api';
 import type { UpdateHomeRequest, UpdateHomeResponse, GetHomesResponse } from '../../../../dto';
 
-const EditHome: React.FC = () => {
+const EditHomeContent: React.FC = () => {
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const homeID = searchParams.get('homeID');
@@ -233,4 +233,10 @@ const EditHome: React.FC = () => {
     );
 };
 
-export default EditHome;
+export default function EditHome() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <EditHomeContent />
+        </Suspense>
+    );
+}

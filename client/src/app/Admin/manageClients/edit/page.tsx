@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import componentStyles from '../../../../styles/components.module.scss';
@@ -16,7 +16,7 @@ import { debounceAsync } from '../../../../function/debounce';
 import { api } from '../../../../lib/Api';
 import type { UpdateClientRequest, UpdateClientResponse, GetAllClientsResponse } from '../../../../dto';
 
-const EditClient: React.FC = () => {
+const EditClientContent: React.FC = () => {
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const clientID = searchParams.get('clientID');
@@ -301,4 +301,10 @@ const EditClient: React.FC = () => {
     );
 };
 
-export default EditClient;
+export default function EditClient() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <EditClientContent />
+        </Suspense>
+    );
+}
