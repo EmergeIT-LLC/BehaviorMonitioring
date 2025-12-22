@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import componentStyles from '../../../../styles/components.module.scss';
@@ -14,7 +14,7 @@ import { debounceAsync } from '../../../../function/debounce';
 import { api } from '../../../../lib/Api';
 import type { UpdateAdminRequest, UpdateAdminResponse, GetAdminsResponse } from '../../../../dto';
 
-const EditAdmin: React.FC = () => {
+function EditAdminContent() {
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const adminID = searchParams.get('adminID');
@@ -221,6 +221,14 @@ const EditAdmin: React.FC = () => {
             </div>
         </>
     );
-};
+}
+
+function EditAdmin() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <EditAdminContent />
+        </Suspense>
+    );
+}
 
 export default EditAdmin;
