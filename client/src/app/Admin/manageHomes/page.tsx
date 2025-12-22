@@ -7,17 +7,42 @@ import Header from '../../../components/header';
 import Loading from '../../../components/loading';
 import Button from '../../../components/Button';
 import { GetLoggedInUserStatus, GetAdminStatus } from '../../../function/VerificationCheck';
-import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
 import type { GetHomesResponse, DeleteHomeResponse } from '../../../dto';
+
+interface Home {
+    homeID: number;
+    homeName: string;
+    address: string;
+    city: string;
+    state: string;
+    capacity: number;
+    currentOccupancy: number;
+}
 
 const ManageHomes: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const userIsAdmin = GetAdminStatus();
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [homes, setHomes] = useState<any[]>([]);
+    const [homes, setHomes] = useState<Home[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>('');
+
+    const fetchHomes = async () => {
+        setIsLoading(true);
+        try {
+            const response = await api<GetHomesResponse>('post', '/admin/getAllHomes', {});
+            if (response.statusCode === 200) {
+                setHomes(response.homes || []);
+            } else {
+                throw new Error(response.serverMessage || 'Failed to fetch homes');
+            }
+        } catch (error) {
+            setStatusMessage(String(error));
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!userLoggedIn) {
@@ -28,23 +53,7 @@ const ManageHomes: React.FC = () => {
         } else {
             fetchHomes();
         }
-    }, [userLoggedIn, userIsAdmin]);
-
-    const fetchHomes = async () => {
-        setIsLoading(true);
-        try {
-            const response = await api<GetHomesResponse>('post', '/admin/getAllHomes', {});
-            if ((response as any).statusCode === 200) {
-                setHomes(response.homes || []);
-            } else {
-                throw new Error((response as any).serverMessage || 'Failed to fetch homes');
-            }
-        } catch (error) {
-            setStatusMessage(String(error));
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    }, [userLoggedIn, userIsAdmin, navigate]);
 
     const handleDeleteClick = async (homeID: number, homeName: string) => {
         if (!window.confirm(`Are you sure you want to delete home "${homeName}"? This action cannot be undone.`)) {
