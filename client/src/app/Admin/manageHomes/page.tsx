@@ -10,7 +10,6 @@ import { GetLoggedInUserStatus, GetAdminStatus } from '../../../function/Verific
 import { debounceAsync } from '../../../function/debounce';
 import { api } from '../../../lib/Api';
 import type { GetHomesResponse, DeleteHomeResponse } from '../../../dto';
-import pencilIcon from '../../../Images/pencil_icon.png';
 
 const ManageHomes: React.FC = () => {
     const navigate = useRouter();
@@ -121,10 +120,11 @@ const ManageHomes: React.FC = () => {
                                                     <td>{home.capacity}</td>
                                                     <td>{home.currentOccupancy}</td>
                                                     <td>
-                                                        <img 
-                                                            src={pencilIcon.src} 
-                                                            alt="Edit" 
-                                                            className={componentStyles.actionIcon}
+                                                        <Button 
+                                                            nameOfClass='editButton' 
+                                                            placeholder='Edit' 
+                                                            btnType='button' 
+                                                            isLoading={false}
                                                             onClick={() => handleEditClick(home.homeID)}
                                                         />
                                                         <Button 
