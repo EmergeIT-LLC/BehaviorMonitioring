@@ -1,5 +1,5 @@
 "use client";
-import React, {useState, useEffect, } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import componentStyles from '../../styles/components.module.scss';
@@ -17,7 +17,7 @@ import type { LoginResponse } from '../../dto';
 import { setAccessToken } from '../../lib/tokenStore';
 import { scheduleSilentRefresh } from "../../lib/authScheduler";
 
-const Login: React.FC = () => {
+const LoginContent: React.FC = () => {
     const searchParams = useSearchParams();
     const previousUrl = searchParams.get('previousUrl');
     const navigate = useRouter();
@@ -83,30 +83,36 @@ const Login: React.FC = () => {
         }
     };
 
-  return (
-    <>
-        <Header />
-        <Head>
-            <title>Login - BMetrics</title>
-        </Head>
-        <div className={componentStyles.pageBody}>
-            <main>
-                {isLoading ? 
-                    <Loading/>
-                    :
-                    <form className={componentStyles.loginForm} onSubmit={submitLoginForm}>
-                        <h2>Login</h2>
-                        <InputFields name="usernameField" type="text" placeholder="Username" requiring={true} value={uName} onChange={(e) => setuName(e.target.value)}/>
-                        <InputFields name="passwordField" type="password" placeholder="Password" requiring={true} value={pWord} onChange={(e) => setPWord(e.target.value)}/>
-                        <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={debounceAsync(submitLoginForm, 300)}/>
-                        <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
-                    </form>
-                }
-            </main>
-        </div>
-        <Footer />
-    </>
-  );
+    return (
+        <>
+            <Header />
+            <Head>
+                <title>Login - BMetrics</title>
+            </Head>
+            <div className={componentStyles.pageBody}>
+                <main>
+                    {isLoading ? 
+                        <Loading/>
+                        :
+                        <form className={componentStyles.loginForm} onSubmit={submitLoginForm}>
+                            <h2>Login</h2>
+                            <InputFields name="usernameField" type="text" placeholder="Username" requiring={true} value={uName} onChange={(e) => setuName(e.target.value)}/>
+                            <InputFields name="passwordField" type="password" placeholder="Password" requiring={true} value={pWord} onChange={(e) => setPWord(e.target.value)}/>
+                            <Button nameOfClass='loginButton' placeholder='Login' btnType='button' isLoading={isLoading} onClick={debounceAsync(submitLoginForm, 300)}/>
+                            <p className={componentStyles.statusMessage}>{statusMessage ? statusMessage : null}</p>
+                        </form>
+                    }
+                </main>
+            </div>
+            <Footer />
+        </>
+    );
 }
 
-export default Login;
+export default function Login() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <LoginContent />
+        </Suspense>
+    );
+}
