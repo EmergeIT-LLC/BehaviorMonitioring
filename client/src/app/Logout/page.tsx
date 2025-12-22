@@ -23,7 +23,7 @@ const Logout: React.FC = () => {
         executeLogout();
     }, []);
 
-    onkeydown = (e) => {
+    onKeyDown = (e) => {
         if (e.key === 'Enter') {
             routeChange();
         }

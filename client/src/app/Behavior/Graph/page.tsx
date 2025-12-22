@@ -35,7 +35,7 @@ const Graph: React.FC = () => {
         checkSelectedId();
     }, [userLoggedIn]);
 
-    onkeydown = (e) => {
+    onKeyDown = (e) => {
         if (e.key === 'Escape') {
             backButtonFuctionality();
         }

@@ -65,7 +65,7 @@ const TargetbehaviorDetails: React.FC = () => {
         }
     }, [timerCount, clearMessageStatus]);
     
-    onkeydown = (e) => {
+    onKeyDown = (e) => {
         if (e.key === 'Escape') {
             backButtonFuctionality();
         }

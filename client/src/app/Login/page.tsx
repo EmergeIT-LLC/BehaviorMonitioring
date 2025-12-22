@@ -33,7 +33,7 @@ const Login: React.FC = () => {
         }
     }, [userStatus, navigate, previousUrl]);
 
-    onkeydown = (e) => {
+    onKeyDown = (e) => {
         if (e.key === 'Enter') {
             debounceAsync(submitLoginForm, 300)();
         }
