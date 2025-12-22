@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
-import componentStyles from '../../styles/components.module.scss';
+import componentStyles from '../../../styles/components.module.scss';
 import Header from '../../../components/header';
 import Button from '../../../components/Button';
 import Loading from '../../../components/loading';
