@@ -68,11 +68,11 @@ app.use((req, res, next) => {
 // Middleware for handling errors and setting CORS headers
 app.use((err, req, res, next) => {
   if (err.status && err.status === 404) {
-    res.redirect(host + '/PageNotFound');
+    return res.redirect(host + '/PageNotFound');
   } 
   
   if (err.status) {
-    res.status(err.status).send(err.message || 'Internal Server Error');
+    return res.status(err.status).send(err.message || 'Internal Server Error');
   }
 
   console.error('Unhandled error:', err);
