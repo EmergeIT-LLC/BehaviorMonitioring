@@ -65,11 +65,16 @@ const ArchiveDetails: React.FC = () => {
         }
     }, [timerCount, clearMessageStatus]);
     
-    onKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            backButtonFuctionality();
-        }
-    }
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                backButtonFuctionality();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const backButtonFuctionality = () => {
         navigate.back();

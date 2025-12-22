@@ -207,11 +207,16 @@ const Archive: React.FC = () => {
         navigate.back();
     };
 
-    onKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            backButtonFuctionality();
-        }
-    }
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                backButtonFuctionality();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <>

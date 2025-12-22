@@ -35,11 +35,16 @@ const Graph: React.FC = () => {
         checkSelectedId();
     }, [userLoggedIn]);
 
-    onKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            backButtonFuctionality();
-        }
-    }
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                backButtonFuctionality();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const handleDateRangeChange = (range: number) => {
         const selectedRange = dateRanges.find(r => r.value === range);

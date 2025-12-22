@@ -22,8 +22,8 @@ const TargetbehaviorDetails: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [bID, setBID] = useState<string | null>(sessionStorage.getItem('behaviorID'));
+    const [clientID, setClientID] = useState<string>('');
+    const [bID, setBID] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [behaviorBase, setBehaviorBase] = useState<BehaviorSkill[]>([]);
@@ -65,11 +65,16 @@ const TargetbehaviorDetails: React.FC = () => {
         }
     }, [timerCount, clearMessageStatus]);
     
-    onKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            backButtonFuctionality();
-        }
-    }
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                backButtonFuctionality();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const backButtonFuctionality = () => {
         navigate.back();

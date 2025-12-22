@@ -23,11 +23,16 @@ const Logout: React.FC = () => {
         executeLogout();
     }, []);
 
-    onKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            routeChange();
-        }
-    }
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                routeChange();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const submitLogoutForm = async() => {
         setIsLoading(true);

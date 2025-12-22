@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react';
-import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import componentStyles from '../../../../styles/components.module.scss';
 import Header from '../../../../components/header';
@@ -14,10 +13,10 @@ import { debounceAsync } from '../../../../function/debounce';
 import { api } from '../../../../lib/Api';
 import type { UpdateAdminRequest, UpdateAdminResponse, GetAdminsResponse } from '../../../../dto';
 
-function EditAdminContent() {
+function EditClientContent() {
     const navigate = useRouter();
     const searchParams = useSearchParams();
-    const adminID = searchParams.get('adminID');
+    const clientID = searchParams.get('clientID');
     const userLoggedIn = GetLoggedInUserStatus();
     const userIsAdmin = GetAdminStatus();
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -45,19 +44,19 @@ function EditAdminContent() {
             navigate.push(`/Login?previousUrl=${previousUrl}`);
         } else if (!userIsAdmin) {
             navigate.push('/');
-        } else if (adminID) {
+        } else if (clientID) {
             fetchAdminData();
         } else {
             navigate.push('/Admin/manageAdmins');
         }
-    }, [userLoggedIn, userIsAdmin, adminID]);
+    }, [userLoggedIn, userIsAdmin, clientID]);
 
     const fetchAdminData = async () => {
         setIsLoading(true);
         try {
             const response = await api<GetAdminsResponse>('post', '/admin/getAllAdmins', {});
             if (response.statusCode === 200) {
-                const admin = response.admins.find(a => a.adminID === parseInt(adminID!));
+                const admin = response.admins.find(a => a.adminID === parseInt(clientID!));
                 if (admin) {
                     setFormData({
                         adminID: admin.adminID,
@@ -133,9 +132,6 @@ function EditAdminContent() {
     return (
         <>
             <Header />
-            <Head>
-                <title>Edit Admin - BMetrics</title>
-            </Head>
             <div className={componentStyles.pageBody}>
                 <main>
                     {isLoading ? (
@@ -223,12 +219,10 @@ function EditAdminContent() {
     );
 }
 
-function EditAdmin() {
+export default function EditClient() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <EditAdminContent />
+        <Suspense fallback={<Loading />}>
+            <EditClientContent />
         </Suspense>
     );
 }
-
-export default EditAdmin;
