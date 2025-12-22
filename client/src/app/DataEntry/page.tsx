@@ -20,35 +20,6 @@ import { api } from '../../lib/Api';
 import type { GetAllClientsResponse, ClientOption, BehaviorSkillOption, GetBehaviorResponse, CreateBehaviorDataResponse, CreateSessionNoteResponse } from '../../dto';
 
 const DataEntry: React.FC = () => {
-    // State declarations first
-    const [activeTab, setActiveTab] = useState<string>('Target');
-    const [targetAmt, setTargetAmt] = useState<number>(0);
-    const [skillAmt, setSkillAmt] = useState<number>(0);
-    const [selectedClient, setSelectedClient] = useState<string>('default');
-    
-    useEffect(() => {
-        // Access sessionStorage only on client side
-        const storedData = sessionStorage.getItem('dataEntryState');
-        if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            setActiveTab(parsedData.activeTab);
-            setTargetAmt(parsedData.targetAmt);
-            setSkillAmt(parsedData.skillAmt);
-            setSelectedClient(parsedData.selectedClient);
-            setSelectedClientID(parsedData.selectedClientID);
-            setSelectedTargets(parsedData.selectedTargets);
-            setSelectedSkills(parsedData.selectedSkills);
-            setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
-            if (selectedTargets.length > 1 || selectedSkills.length > 1) {
-                setDates(parsedData.dates);
-                setTimes(parsedData.times);
-            }
-            setCount(parsedData.count);
-            setDuration(parsedData.duration);
-        }
-        setIsInitialized(true);
-    }, []);
-
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
@@ -76,6 +47,31 @@ const DataEntry: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [timerCount, setTimerCount] = useState<number>(0);
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
+    
+    // Load from sessionStorage on mount
+    useEffect(() => {
+        const storedData = sessionStorage.getItem('dataEntryState');
+        if (storedData) {
+            try {
+                const parsedData = JSON.parse(storedData);
+                if (parsedData.activeTab) setActiveTab(parsedData.activeTab);
+                if (parsedData.targetAmt) setTargetAmt(parsedData.targetAmt);
+                if (parsedData.skillAmt) setSkillAmt(parsedData.skillAmt);
+                if (parsedData.selectedClient) setSelectedClient(parsedData.selectedClient);
+                if (parsedData.selectedClientID) setSelectedClientID(parsedData.selectedClientID);
+                if (parsedData.selectedTargets) setSelectedTargets(parsedData.selectedTargets);
+                if (parsedData.selectedSkills) setSelectedSkills(parsedData.selectedSkills);
+                if (parsedData.selectedMeasurementTypes) setSelectedMeasurementTypes(parsedData.selectedMeasurementTypes);
+                if (parsedData.dates) setDates(parsedData.dates);
+                if (parsedData.times) setTimes(parsedData.times);
+                if (parsedData.count) setCount(parsedData.count);
+                if (parsedData.duration) setDuration(parsedData.duration);
+            } catch (error) {
+                console.error('Failed to parse sessionStorage data:', error);
+            }
+        }
+        setIsInitialized(true);
+    }, []);
         
     // Update storage
     useEffect(() => {
