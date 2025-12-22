@@ -17,8 +17,8 @@ const Page: React.FC = () => {
     const loggedInUser = GetLoggedInUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(sessionStorage.getItem('sessionNoteId'));
-    const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
+    const [selectedSessionNoteID, setSelectedSessionNoteID] = useState<string | null>(null);
+    const [clientID, setClientID] = useState<string | null>(null);
     const [sessionNotesData, setSessionNotesData] = useState<SessionNote[]>([]);
     const [sessionNotesToActOn, setSessionNotesToActOn] = useState<string>('');
     const [sessionNotesIdToActOn, setSessionNotesIdToActOn] = useState<string>('');
@@ -26,14 +26,18 @@ const Page: React.FC = () => {
     const [clearMessageStatus, setClearMessageStatus] = useState<boolean>(false);
 
     useEffect(() => {
-        if ((sessionStorage.getItem('clientID') === null && clientID === null) 
-            || (sessionStorage.getItem('sessionNoteID') === null && selectedSessionNoteID === null)
-            || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
-            || (sessionStorage.getItem('sessionNoteID') === undefined && selectedSessionNoteID === undefined)
-        ) {
+        // Access sessionStorage only on client side
+        const storedSessionNoteID = sessionStorage.getItem('sessionNoteId');
+        const storedClientID = sessionStorage.getItem('clientID');
+        setSelectedSessionNoteID(storedSessionNoteID);
+        setClientID(storedClientID);
+        
+        if (!storedClientID || !storedSessionNoteID) {
             navigate.push('/SessionNotes');
+        } else {
+            debounceAsync(getASessionNoteDetails, 300)();
         }
-        debounceAsync(getASessionNoteDetails, 300)();
+        
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('sessionNoteId');
     }, [userLoggedIn]);

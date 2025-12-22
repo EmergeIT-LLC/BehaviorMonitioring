@@ -15,15 +15,14 @@ import GraphDataProcessor from '../../../function/GraphDataProcessor';
 import Button from '../../../components/Button';
 
 const Graph: React.FC = () => {
-    const foundData = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
-
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
-    const clientName = foundData.length > 0 ? foundData[0].clientName : '';
-    const measurementType = foundData.length > 0 ? foundData[0].measurementType : '';
+    const [clientName, setClientName] = useState<string>('');
+    const [measurementType, setMeasurementType] = useState<string>('');
+    const [clientID, setClientID] = useState<string | null>(null);
     const [selectedData, setSelectedData] = useState<SelectedBehaviorSkill[]>([]);
     const [fetchedData, setFetchedData] = useState<any[]>([]);
     const [behaviorNames, setBehaviorNames] = useState<Record<string, string>>({}); // New state for behavior names
@@ -60,8 +59,18 @@ const Graph: React.FC = () => {
         }
         
         try {
-            const selectedIDs: SelectedBehaviorSkill[] = JSON.parse(sessionStorage.getItem('checkedBehaviors') || '[]');
+            const checkedBehaviors = sessionStorage.getItem('checkedBehaviors');
+            const storedClientID = sessionStorage.getItem('clientID');
+            setClientID(storedClientID);
+            
+            const selectedIDs: SelectedBehaviorSkill[] = JSON.parse(checkedBehaviors || '[]');
             setSelectedData(selectedIDs);
+            
+            // Set client name and measurement type from selected data
+            if (selectedIDs.length > 0) {
+                setClientName(selectedIDs[0].clientName || '');
+                setMeasurementType(selectedIDs[0].measurementType || '');
+            }
             
             // Create a mapping of behavior names based on selected IDs
             const namesMap: Record<string, string> = {};
@@ -86,7 +95,7 @@ const Graph: React.FC = () => {
 
         try {
             const response = await api<GetBehaviorDataResponse>('post', '/aba/getTargetBehavior', {
-                "clientID": sessionStorage.getItem('clientID'),
+                "clientID": clientID,
                 "behaviorID": bID,
                 "employeeUsername": loggedInUser
             });
