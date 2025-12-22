@@ -40,18 +40,21 @@ const TargetbehaviorDetails: React.FC = () => {
     const paginatedData = targetBehaviorData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
-        if ((sessionStorage.getItem('clientID') === null && clientID === null) 
-            || (sessionStorage.getItem('behaviorID') === null && bID === null)
-            || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
-            || (sessionStorage.getItem('behaviorID') === undefined && bID === undefined)
-        ) {
+        // Access sessionStorage only on client side
+        const storedClientID = sessionStorage.getItem('clientID');
+        const storedBehaviorID = sessionStorage.getItem('behaviorID');
+        
+        if (!storedClientID || !storedBehaviorID) {
             navigate.push('/Behavior');
+        } else {
+            setClientID(storedClientID);
+            setBID(storedBehaviorID);
+            debounceAsync(getClientTargetBehaviorBaseData, 300)();
+            debounceAsync(getClientTargetBehaviorData, 300)();
         }
-
+        
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('behaviorID');
-        debounceAsync(getClientTargetBehaviorBaseData, 300)();
-        debounceAsync(getClientTargetBehaviorData, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {

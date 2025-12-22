@@ -22,8 +22,8 @@ const ArchiveDetails: React.FC = () => {
     const navigate = useRouter();
     const userLoggedIn = GetLoggedInUserStatus();
     const loggedInUser = GetLoggedInUser();
-    const [clientID, setClientID] = useState<string | null>(sessionStorage.getItem('clientID'));
-    const [bID, setBID] = useState<string | null>(sessionStorage.getItem('archivedBehaviorID'));
+    const [clientID, setClientID] = useState<string | null>(null);
+    const [bID, setBID] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<React.ReactNode>('');
     const [behaviorBase, setBehaviorBase] = useState<BehaviorSkill[]>([]);
@@ -40,18 +40,21 @@ const ArchiveDetails: React.FC = () => {
     const paginatedData = targetBehaviorData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
-        if ((sessionStorage.getItem('clientID') === null && clientID === null) 
-            || (sessionStorage.getItem('archivedBehaviorID') === null && bID === null)
-            || (sessionStorage.getItem('clientID') === undefined && clientID === undefined)
-            || (sessionStorage.getItem('archivedBehaviorID') === undefined && bID === undefined)
-        ) {
+        // Access sessionStorage only on client side
+        const storedClientID = sessionStorage.getItem('clientID');
+        const storedBehaviorID = sessionStorage.getItem('archivedBehaviorID');
+        setClientID(storedClientID);
+        setBID(storedBehaviorID);
+        
+        if (!storedClientID || !storedBehaviorID) {
             navigate.push('/Behavior');
+        } else {
+            debounceAsync(getClientArchivedBehaviorBaseData, 300)();
+            debounceAsync(getClientTargetBehaviorData, 300)();
         }
-
+        
         sessionStorage.removeItem('clientID');
         sessionStorage.removeItem('archivedBehaviorID');
-        debounceAsync(getClientArchivedBehaviorBaseData, 300)();
-        debounceAsync(getClientTargetBehaviorData, 300)();
     }, [userLoggedIn]);
 
     useEffect(() => {

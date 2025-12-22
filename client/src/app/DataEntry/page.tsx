@@ -20,7 +20,14 @@ import { api } from '../../lib/Api';
 import type { GetAllClientsResponse, ClientOption, BehaviorSkillOption, GetBehaviorResponse, CreateBehaviorDataResponse, CreateSessionNoteResponse } from '../../dto';
 
 const DataEntry: React.FC = () => {
+    // State declarations first
+    const [activeTab, setActiveTab] = useState<string>('Target');
+    const [targetAmt, setTargetAmt] = useState<number>(0);
+    const [skillAmt, setSkillAmt] = useState<number>(0);
+    const [selectedClient, setSelectedClient] = useState<string>('default');
+    
     useEffect(() => {
+        // Access sessionStorage only on client side
         const storedData = sessionStorage.getItem('dataEntryState');
         if (storedData) {
             const parsedData = JSON.parse(storedData);
