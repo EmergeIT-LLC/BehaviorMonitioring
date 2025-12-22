@@ -30,11 +30,12 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 
-if (prodStatus) {
-  prodHost = host;
-  jsonHandler.testJson();
-  AWS_S3_Bucket_Handler.importBackupFromS3();
-}
+// Commented out to prevent automatic S3 import on server start
+// if (prodStatus) {
+//   prodHost = host;
+//   jsonHandler.testJson();
+//   AWS_S3_Bucket_Handler.importBackupFromS3();
+// }
 
 // Define your routes before the middleware for handling 404 errors
 app.get('/', (req, res) => {
