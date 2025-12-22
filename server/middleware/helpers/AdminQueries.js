@@ -1,245 +1,255 @@
-const db = require('../database/dbConnection');
+const { Employee, Home } = require('../../models');
 
 /*-----------------------------------------------Employee-----------------------------------------------*/
 async function adminExistByUsername(uName) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM employee WHERE username = ?', [uName], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
-            }
+    try {
+        const employee = await Employee.findOne({
+            where: { username: uName }
         });
-    });
+        return employee !== null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminExistByID(uID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
-            }
+    try {
+        const employee = await Employee.findOne({
+            where: { employeeID: uID }
         });
-    });
+        return employee !== null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDataByUsername(uName) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, entered_by, date_entered, time_entered FROM employee WHERE username = ?', [uName], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows[0]); // Resolve rows if user found
-            }
+    try {
+        const employee = await Employee.findOne({
+            where: { username: uName },
+            attributes: ['employeeID', 'fName', 'lName', 'username', 'email', 'phone_number', 'role', 'account_status', 'entered_by', 'date_entered', 'time_entered']
         });
-    });
+        return employee ? employee.get({ plain: true }) : null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDataById(uID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT employeeID, fName, lName, username, email, phone_number, role, account_status, entered_by, date_entered, time_entered FROM employee WHERE employeeID = ?', [uID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows[0]); // Resolve rows if user found
-            }
+    try {
+        const employee = await Employee.findOne({
+            where: { employeeID: uID },
+            attributes: ['employeeID', 'fName', 'lName', 'username', 'email', 'phone_number', 'role', 'account_status', 'entered_by', 'date_entered', 'time_entered']
         });
-    });
+        return employee ? employee.get({ plain: true }) : null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminAddNewEmployee(fName, lName, username, email, phone_number, role, account_status, enteredBy, compID, compName, dateEntered, timeEntered) {
-    return new Promise((resolve, reject) => {
-        db.run('INSERT INTO Employee (fName, lName, username, email, phone_number, role, entered_by, companyID, companyName, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [fName, lName, username, email, phone_number, role, account_status, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        await Employee.create({
+            fName, 
+            lName, 
+            username, 
+            email, 
+            phone_number, 
+            role, 
+            account_status,
+            entered_by: enteredBy, 
+            companyID: compID, 
+            companyName: compName, 
+            date_entered: dateEntered, 
+            time_entered: timeEntered
         });
-    });
+        return true;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDeleteAnEmployeeByID(eID, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Employee WHERE employeeID = ? and companyID = ?', [eID, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        const rowsDeleted = await Employee.destroy({
+            where: { employeeID: eID, companyID }
         });
-    });
+        return rowsDeleted > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDeleteAnEmployeeByUsername(uName, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Employee WHERE username = ? and companyID = ?', [uName, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        const rowsDeleted = await Employee.destroy({
+            where: { username: uName, companyID }
         });
-    });
+        return rowsDeleted > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateEmployeeAccountStatusByUsername(accountStatus, uName, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status WHERE username = ? and companyID = ?', [accountStatus, uName, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Employee.update(
+            { account_status: accountStatus },
+            { where: { username: uName, companyID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateEmployeeAccountStatusByID(accountStatus, eID, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET account_status = ? WHERE employeeID = ? and companyID = ?', [accountStatus, eID, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Employee.update(
+            { account_status: accountStatus },
+            { where: { employeeID: eID, companyID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateEmployeeAccountByUsername(fName, lName, email, phone_number, role, uName, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE username = ? and companyID = ?', [fName, lName, username, email, phone_number, role, uName, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Employee.update(
+            { fName, lName, email, phone_number, role },
+            { where: { username: uName, companyID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateEmployeeAccountByID(fName, lName, email, phone_number, role, eID, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET fName = ?, lName = ?, email = ?, phone_number = ?, role = ? WHERE employeeID = ? and companyID = ?', [fName, lName, email, phone_number, role, eID, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Employee.update(
+            { fName, lName, email, phone_number, role },
+            { where: { employeeID: eID, companyID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 /*-----------------------------------------------Home-----------------------------------------------*/
 async function homeExistByName(name, compID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM Home WHERE name = ? and companyID = ?', [name, compID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
-            }
+    try {
+        const home = await Home.findOne({
+            where: { name, companyID: compID }
         });
-    });
+        return home !== null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function homeExistByID(hID, compID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows.length > 0); // Resolve with true if duplicate user found, false otherwise
-            }
+    try {
+        const home = await Home.findOne({
+            where: { homeID: hID, companyID: compID }
         });
-    });
+        return home !== null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function homeDataByName(name, compID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, companyID, companyName, date_entered, time_entered FROM Home WHERE name = ? and companyID = ?', [name, compID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows[0]); // Resolve rows if user found
-            }
+    try {
+        const home = await Home.findOne({
+            where: { name, companyID: compID },
+            attributes: ['homeID', 'name', 'street_address', 'city', 'state', 'zip_code', 'entered_by', 'companyID', 'companyName', 'date_entered', 'time_entered']
         });
-    });
+        return home ? home.get({ plain: true }) : null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function homeDataById(hID, compID) {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT homeID, name, street_address, city, state, zip_code, entered_by, date_entered, companyID, companyName, time_entered FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], (err, rows) => {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(rows[0]); // Resolve rows if user found
-            }
+    try {
+        const home = await Home.findOne({
+            where: { homeID: hID, companyID: compID },
+            attributes: ['homeID', 'name', 'street_address', 'city', 'state', 'zip_code', 'entered_by', 'date_entered', 'companyID', 'companyName', 'time_entered']
         });
-    });
+        return home ? home.get({ plain: true }) : null;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminAddNewHome(name, streetAddress, city, state, zipCode, enteredBy, compID, compName, dateEntered, timeEntered) {
-    return new Promise((resolve, reject) => {
-        db.run('INSERT INTO Home (name, street_address, city, state, zip_code, entered_by, companyID, companyName, date_entered, time_entered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, streetAddress, city, state, zipCode, enteredBy, compID, compName, dateEntered, timeEntered], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        await Home.create({
+            name, 
+            street_address: streetAddress, 
+            city, 
+            state, 
+            zip_code: zipCode, 
+            entered_by: enteredBy, 
+            companyID: compID, 
+            companyName: compName, 
+            date_entered: dateEntered, 
+            time_entered: timeEntered
         });
-    });
+        return true;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDeleteAHomeByID(hID, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Home WHERE homeID = ? and companyID = ?', [hID, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        const rowsDeleted = await Home.destroy({
+            where: { homeID: hID, companyID: compID }
         });
-    });
+        return rowsDeleted > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminDeleteAHomeByName(name, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('DELETE FROM Home WHERE name = ? and companyID = ?', [name, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
+    try {
+        const rowsDeleted = await Home.destroy({
+            where: { name, companyID: compID }
         });
-    });
+        return rowsDeleted > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateHomeByName(name, streetAddress, city, state, zipCode, currentName, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE name = ? and companyID = ?', [name, streetAddress, city, state, zipCode, currentName, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Home.update(
+            { name, street_address: streetAddress, city, state, zip_code: zipCode },
+            { where: { name: currentName, companyID: compID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 async function adminUpdateHomeByID(name, streetAddress, city, state, zipCode, hID, compID) {
-    return new Promise((resolve, reject) => {
-        db.run('UPDATE Employee SET name = ?, street_address = ?, city = ?, state, zip_code = ? WHERE homeID = ? and companyID = ?', [name, streetAddress, city, state, zipCode, hID, compID], function (err) {
-            if (err) {
-                reject({ message: err.message });
-            } else {
-                resolve(this.changes > 0); // Resolve with true if new user is added, false otherwise
-            }
-        });
-    });
+    try {
+        const [rowsUpdated] = await Home.update(
+            { name, street_address: streetAddress, city, state, zip_code: zipCode },
+            { where: { homeID: hID, companyID: compID } }
+        );
+        return rowsUpdated > 0;
+    } catch (err) {
+        throw { message: err.message };
+    }
 }
 
 module.exports = {

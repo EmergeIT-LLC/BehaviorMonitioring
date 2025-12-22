@@ -1,6 +1,7 @@
 require('dotenv').config();
 const AWS_S3_Bucket_Handler = require('./middleware/aws/s3Handler');
 const jsonHandler = require('./functions/base/jsonHandler');
+const { testConnection, syncDatabase } = require('./models');
 const host = process.env.HOST;
 const port = process.env.PORT;
 const prodStatus = process.env.IN_PROD === "true";
@@ -79,6 +80,25 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-app.listen(port, () => {
-  console.log("Server running on port " + port + "...");
-});
+// Initialize database and start server
+const startServer = async () => {
+  try {
+    // Test database connection
+    await testConnection();
+    
+    // Sync database schema (creates/updates tables automatically)
+    await syncDatabase();
+    
+    // Start server
+    app.listen(port, () => {
+      console.log(`✓ Server running on port ${port}...`);
+      console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`✓ Database: ${process.env.DB_TYPE || 'sqlite'}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

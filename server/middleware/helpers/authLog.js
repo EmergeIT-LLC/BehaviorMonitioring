@@ -1,4 +1,4 @@
-const db = require("../database/dbConnection");
+const { AuthLog } = require("../../models");
 
 function logAuthEvent(
   event,
@@ -12,11 +12,17 @@ function logAuthEvent(
 ) {
   const timestamp = new Date().toISOString();
 
-  db.run('INSERT INTO auth_logs (timestamp, event, userId, email, ip, userAgent, details) VALUES (?, ?, ?, ?, ?, ?, ?)', [timestamp, event, userId, email, ip, userAgent, details], (err) => {
-        if (err) {
-            console.error("Failed to insert auth log:", err.message);
-        }
-    });
+  AuthLog.create({
+    timestamp,
+    event,
+    userId,
+    email,
+    ip,
+    userAgent,
+    details
+  }).catch(err => {
+    console.error("Failed to insert auth log:", err.message);
+  });
 }
 
 module.exports = logAuthEvent;
