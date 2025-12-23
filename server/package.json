@@ -8,7 +8,7 @@
     "start": "node index.js",
     "devStart": "nodemon index.js"
   },
-  "author": "EmergeIT LLC",
+  "author": "Devino Labs LLC",
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^8.1.3",

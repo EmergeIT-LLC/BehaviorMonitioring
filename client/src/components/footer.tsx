@@ -9,12 +9,12 @@ const Footer: React.FC = () => {
                 BMetrics <span className={componentStyles.trade}>&trade;</span>
             </h1>
             <div className={componentStyles.rightSide}>
-                <Link href="https://emerge-it.net" hrefType='link' placeholder="EmergeIT LLC"/>
+                <Link href="https://emerge-it.net" hrefType='link' placeholder="Devino Labs LLC"/>
                 <Link href="/privacy-policy" hrefType='link' placeholder="Privacy Policy"/>
                 <Link href="/terms-and-conditions" hrefType='link' placeholder="Terms and Conditions"/>
             </div>
             <p className={componentStyles.copyRight}>
-                Copyright 2024 EmergeIT LLC
+                Copyright 2024 Devino Labs LLC
             </p>
         </div>
     );
