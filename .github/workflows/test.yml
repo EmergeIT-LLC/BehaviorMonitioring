@@ -51,7 +51,7 @@ jobs:
   server-tests:
     name: Server Tests
     runs-on: ubuntu-latest
-    environment: production
+    environment: stellar-reverence / production
     
     services:
       mysql:
