@@ -51,13 +51,14 @@ jobs:
   server-tests:
     name: Server Tests
     runs-on: ubuntu-latest
+    environment: production
     
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: test_password
-          MYSQL_DATABASE: behavior_monitoring_test
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
         ports:
           - 3306:3306
         options: >-
@@ -75,6 +76,20 @@ jobs:
         node-version: [18.x, 20.x]
     
     steps:
+    - name: Debug - Show environment variables
+      run: |
+        echo "DB_TYPE=${{ vars.DB_TYPE }}"
+        echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}"
+        echo "MYSQL_PORT=${{ vars.MYSQL_PORT }}"
+        echo "MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }}"
+        echo "MYSQL_USER=${{ vars.MYSQL_USER }}"
+        echo "MYSQL_PASSWORD length: ${#MYSQL_PASSWORD}"
+        if [ -z "${{ secrets.MYSQL_PASSWORD }}" ]; then
+          echo "MYSQL_PASSWORD is EMPTY or not set"
+        else
+          echo "MYSQL_PASSWORD is set (not empty)"
+        fi
+
     - name: Checkout repository
       uses: actions/checkout@v4
     
@@ -87,19 +102,6 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-    
-    - name: Debug - Show environment variables
-      run: |
-        echo "DB_TYPE=${{ vars.DB_TYPE }}"
-        echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}"
-        echo "MYSQL_PORT=${{ vars.MYSQL_PORT }}"
-        echo "MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }}"
-        echo "MYSQL_USER=${{ vars.MYSQL_USER }}"
-        if [ -z "${{ secrets.MYSQL_PASSWORD }}" ]; then
-          echo "MYSQL_PASSWORD is EMPTY or not set"
-        else
-          echo "MYSQL_PASSWORD is set (not empty)"
-        fi
         
     - name: Wait for MySQL
       run: |
@@ -121,12 +123,12 @@ jobs:
         });
         "
       env:
-        DB_TYPE: mysql
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_PORT: 3306
-        MYSQL_DATABASE: behavior_monitoring_test
-        MYSQL_USER: root
-        MYSQL_PASSWORD: test_password
+        DB_TYPE: ${{ vars.DB_TYPE }}
+        MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+        MYSQL_PORT: ${{ vars.MYSQL_PORT }}
+        MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        MYSQL_USER: ${{ vars.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     
     - name: Run linter
       run: npm run lint --if-present
@@ -138,12 +140,12 @@ jobs:
         NODE_ENV: test
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-        DB_TYPE: mysql
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_PORT: 3306
-        MYSQL_DATABASE: behavior_monitoring_test
-        MYSQL_USER: root
-        MYSQL_PASSWORD: test_password
+        DB_TYPE: ${{ vars.DB_TYPE }}
+        MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+        MYSQL_PORT: ${{ vars.MYSQL_PORT }}
+        MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        MYSQL_USER: ${{ vars.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
