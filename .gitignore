@@ -68,5 +68,3 @@
 # entire project
 .DS_STORE*
 node_modules*
-
-.github
