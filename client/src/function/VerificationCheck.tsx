@@ -89,3 +89,18 @@ export const NeedToLogout = (uName: string) => {
     ClearLoggedInUser();
     return true;
 }
+export const validateEmail = (email: string): boolean => {
+    if (!email) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+export const validatePassword = (password: string): boolean => {
+    if (!password) return false;
+    return password.length >= 8;
+};
+
+export const validateUsername = (username: string): boolean => {
+    if (!username) return false;
+    return username.length >= 3;
+};

@@ -113,7 +113,7 @@ const AddAdmin: React.FC = () => {
                     {isLoading ? (
                         <Loading />
                     ) : (
-                        <form className={componentStyles.bodyBlock} onSubmit={(e) => { e.preventDefault(); debounceAsync(handleSubmit, 300)(); }}>
+                        <form className={componentStyles.bodyBlock} onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                             <h1 className={componentStyles.pageHeader}>Add New Admin</h1>
                             <div className={componentStyles.tbHRSButtons}>
                                 <Button nameOfClass='tbBackButton' placeholder='Back' btnType='button' isLoading={isLoading} onClick={() => navigate.back()} />
@@ -126,7 +126,7 @@ const AddAdmin: React.FC = () => {
                                     name="firstName"
                                     type="text"
                                     placeholder="First Name"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.firstName}
                                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                                 />
@@ -135,7 +135,7 @@ const AddAdmin: React.FC = () => {
                                     name="lastName"
                                     type="text"
                                     placeholder="Last Name"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.lastName}
                                     onChange={(e) => handleInputChange('lastName', e.target.value)}
                                 />
@@ -144,16 +144,16 @@ const AddAdmin: React.FC = () => {
                                     name="username"
                                     type="text"
                                     placeholder="Username"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.username}
                                     onChange={(e) => handleInputChange('username', e.target.value)}
                                 />
                                 
                                 <InputFields
                                     name="email"
-                                    type="email"
+                                    type="text"
                                     placeholder="Email Address"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.email}
                                     onChange={(e) => handleInputChange('email', e.target.value)}
                                 />
@@ -172,7 +172,7 @@ const AddAdmin: React.FC = () => {
                                     options={roleOptions}
                                     value={formData.role}
                                     onChange={(e) => handleInputChange('role', e.target.value)}
-                                    requiring={true}
+                                    requiring={false}
                                 />
                                 
                                 <h2>Security</h2>
@@ -181,7 +181,7 @@ const AddAdmin: React.FC = () => {
                                     name="password"
                                     type="password"
                                     placeholder="Password"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.password}
                                     onChange={(e) => handleInputChange('password', e.target.value)}
                                 />
@@ -190,7 +190,7 @@ const AddAdmin: React.FC = () => {
                                     name="confirmPassword"
                                     type="password"
                                     placeholder="Confirm Password"
-                                    requiring={true}
+                                    requiring={false}
                                     value={formData.confirmPassword}
                                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                                 />
@@ -200,7 +200,7 @@ const AddAdmin: React.FC = () => {
                                     placeholder='Create Admin' 
                                     btnType='submit' 
                                     isLoading={isLoading}
-                                    onClick={(e) => { e.preventDefault(); }}
+                                    onClick={() => {}}
                                 />
                                 
                                 <p className={componentStyles.statusMessage}>{statusMessage}</p>

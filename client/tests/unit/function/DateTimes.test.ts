@@ -1,4 +1,4 @@
-import { formatDate, formatTime, getCurrentDate } from '../../src/function/DateTimes';
+import { formatDate, formatTime, getCurrentDate } from '../../../src/function/DateTimes';
 
 describe('DateTimes Utility Functions', () => {
   describe('formatDate', () => {

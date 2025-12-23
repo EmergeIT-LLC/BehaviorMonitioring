@@ -1,4 +1,4 @@
-import { validateEmail, validatePassword, validateUsername } from '../../src/function/VerificationCheck';
+import { validateEmail, validatePassword, validateUsername } from '../../../src/function/VerificationCheck';
 
 describe('VerificationCheck Utility Functions', () => {
   describe('validateEmail', () => {

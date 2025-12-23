@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Selectdropdown from '../../src/components/Selectdropdown';
+import Selectdropdown from '../../../src/components/Selectdropdown';
 import userEvent from '@testing-library/user-event';
 
 describe('Selectdropdown Component', () => {
