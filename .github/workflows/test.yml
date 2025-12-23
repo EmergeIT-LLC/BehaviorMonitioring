@@ -180,10 +180,12 @@ jobs:
         
     - name: Wait for MySQL
       run: |
-        until mysqladmin ping -h"${{ env.MYSQL_HOST }}" -P"${{ env.MYSQL_PORT }}" --silent; do
+        until mysqladmin ping -h"${{ vars.MYSQL_HOST }}" -P"${{ vars.MYSQL_PORT }}" -uroot -p"${{ secrets.MYSQL_PASSWORD }}" --silent; do
           echo 'waiting for mysql...'
           sleep 1
         done
+      env:
+        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     
     - name: Setup database
       working-directory: ./server
