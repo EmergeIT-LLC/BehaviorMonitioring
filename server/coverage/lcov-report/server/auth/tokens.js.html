@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/16</span>
+                <span class='fraction'>10/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -90,13 +90,40 @@
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -104,26 +131,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span></td><td class="text"><pre class="prettyprint lang-js">const jwt = require("jsonwebtoken");
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">const jwt = require("jsonwebtoken");
 const prodStatus = process.env.IN_PROD === "true";
 &nbsp;
 function createAccessToken(payload) {
     return jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_TTL || "15m",
-        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ""}`,
+        expiresIn: process.env.ACCESS_TOKEN_TTL || <span class="branch-1 cbranch-no" title="branch not covered" >"15m",</span>
+        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : <span class="branch-1 cbranch-no" title="branch not covered" >""}</span>`,
         audience: process.env.ClientHost,
     });
 }
@@ -132,26 +156,38 @@ function createAccessToken(payload) {
 function createRefreshToken(userId) {
     return jwt.sign({ sub: userId }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: process.env.REFRESH_TOKEN_TTL_DAYS ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.REFRESH_TOKEN_TTL_DAYS}d` </span>: "7d",
-        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? <span class="branch-0 cbranch-no" title="branch not covered" >`:${process.env.PORT}` </span>: ""}`,
+        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : <span class="branch-1 cbranch-no" title="branch not covered" >""}</span>`,
         audience: process.env.ClientHost,
     });
 }
 &nbsp;
 function verifyRefreshToken(token) {
     return jwt.verify(token, process.env.JWT_REFRESH_SECRET, {
-        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? <span class="branch-0 cbranch-no" title="branch not covered" >`:${process.env.PORT}` </span>: ""}`,
+        issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : <span class="branch-1 cbranch-no" title="branch not covered" >""}</span>`,
         audience: process.env.ClientHost,
     });
 }
 &nbsp;
-module.exports = { createAccessToken, createRefreshToken, verifyRefreshToken };</pre></td></tr></table></pre>
+function verifyAccessToken(token) {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            issuer: prodStatus ? <span class="branch-0 cbranch-no" title="branch not covered" >`${process.env.HOST}` </span>: `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : <span class="branch-1 cbranch-no" title="branch not covered" >""}</span>`,
+            audience: process.env.ClientHost,
+        });
+        return { valid: true, decoded };
+    } catch (error) {
+        return { valid: false, error: error.message };
+    }
+}
+&nbsp;
+module.exports = { createAccessToken, createRefreshToken, verifyRefreshToken, verifyAccessToken };</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-23T06:48:31.358Z
+                at 2025-12-23T08:19:54.983Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

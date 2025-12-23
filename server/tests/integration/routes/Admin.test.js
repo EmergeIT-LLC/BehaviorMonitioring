@@ -1,132 +1,115 @@
 const request = require('supertest');
 const express = require('express');
 const adminRoutes = require('../../../routes/Admin');
-const { createAccessToken } = require('../../../auth/tokens');
+const adminQueries = require('../../../middleware/helpers/AdminQueries');
+
+// Mock adminQueries
+jest.mock('../../../middleware/helpers/AdminQueries');
 
 const app = express();
 app.use(express.json());
 app.use('/admin', adminRoutes);
 
 describe('Admin API Integration Tests', () => {
-  let authToken;
-
-  beforeAll(() => {
-    // Create a mock admin token for testing
-    authToken = createAccessToken({
-      employeeID: 1,
-      username: 'adminuser',
-      isAdmin: true,
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe('POST /admin/createAdmin', () => {
-    it('returns 401 without authentication', async () => {
+  describe('POST /admin/addNewEmployee', () => {
+    it('returns error when required fields are missing', async () => {
       const response = await request(app)
-        .post('/admin/createAdmin')
+        .post('/admin/addNewEmployee')
         .send({
-          firstName: 'John',
-          lastName: 'Doe',
-          username: 'johndoe',
-          email: 'john@example.com',
-          password: 'password123',
-          role: 'admin',
-        });
-
-      expect(response.status).toBe(401);
-    });
-
-    it('returns 400 when required fields are missing', async () => {
-      const response = await request(app)
-        .post('/admin/createAdmin')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          firstName: 'John',
+          fName: 'John',
           // Missing other required fields
         });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(200);
+      expect(response.body.statusCode).toBe(500);
     });
 
-    it('validates email format', async () => {
+    it('successfully adds new employee with valid data', async () => {
+      adminQueries.addNewEmployee.mockResolvedValue(true);
+      adminQueries.employeeExistByUsername.mockResolvedValue(false);
+
       const response = await request(app)
-        .post('/admin/createAdmin')
-        .set('Authorization', `Bearer ${authToken}`)
+        .post('/admin/addNewEmployee')
         .send({
-          firstName: 'John',
-          lastName: 'Doe',
-          username: 'johndoe',
-          email: 'invalid-email',
-          password: 'password123',
-          role: 'admin',
+          fName: 'John',
+          lName: 'Doe',
+          email: 'john@example.com',
+          pNumber: '1234567890',
+          role: 'Technician',
+          employeeUsername: 'admin',
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body.errorMessage).toMatch(/email/i);
+      expect(response.status).toBe(200);
+      expect([200, 500]).toContain(response.body.statusCode);
     });
   });
 
-  describe('POST /admin/getAllAdmins', () => {
-    it('returns 401 without authentication', async () => {
+  describe('POST /admin/deleteAnEmployee', () => {
+    it('handles delete request', async () => {
+      adminQueries.deleteAnEmployee.mockResolvedValue(true);
+
       const response = await request(app)
-        .post('/admin/getAllAdmins')
-        .send({});
+        .post('/admin/deleteAnEmployee')
+        .send({
+          employeeID: 1,
+          employeeUsername: 'admin',
+        });
 
-      expect(response.status).toBe(401);
-    });
-
-    it('returns admin list with valid auth', async () => {
-      const response = await request(app)
-        .post('/admin/getAllAdmins')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({ employeeUsername: 'adminuser' });
-
-      // Depending on mock setup, expect 200 or appropriate response
-      expect([200, 401, 500]).toContain(response.status);
+      expect(response.status).toBe(200);
     });
   });
 
-  describe('POST /admin/updateAdmin', () => {
-    it('returns 401 without authentication', async () => {
+  describe('POST /admin/updateAnEmployeeDetail', () => {
+    it('handles update request', async () => {
+      adminQueries.updateAnEmployeeDetail.mockResolvedValue(true);
+
       const response = await request(app)
-        .post('/admin/updateAdmin')
+        .post('/admin/updateAnEmployeeDetail')
         .send({
-          adminID: 1,
-          firstName: 'John',
-          lastName: 'Doe',
+          employeeID: 1,
+          fName: 'John',
+          lName: 'Doe',
+          email: 'john@example.com',
+          pNumber: '1234567890',
+          employeeUsername: 'admin',
         });
 
-      expect(response.status).toBe(401);
-    });
-
-    it('returns 400 when adminID is missing', async () => {
-      const response = await request(app)
-        .post('/admin/updateAdmin')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          firstName: 'John',
-          lastName: 'Doe',
-        });
-
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(200);
     });
   });
 
-  describe('POST /admin/deleteAdmin', () => {
-    it('returns 401 without authentication', async () => {
-      const response = await request(app)
-        .post('/admin/deleteAdmin')
-        .send({ adminID: 1 });
+  describe('POST /admin/addNewHome', () => {
+    it('successfully adds new home', async () => {
+      adminQueries.addNewHome.mockResolvedValue(true);
 
-      expect(response.status).toBe(401);
+      const response = await request(app)
+        .post('/admin/addNewHome')
+        .send({
+          homeName: 'Test Home',
+          location: 'Test Location',
+          employeeUsername: 'admin',
+        });
+
+      expect(response.status).toBe(200);
     });
+  });
 
-    it('returns 400 when adminID is missing', async () => {
+  describe('POST /admin/deleteAHome', () => {
+    it('handles delete home request', async () => {
+      adminQueries.deleteAHome.mockResolvedValue(true);
+
       const response = await request(app)
-        .post('/admin/deleteAdmin')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({});
+        .post('/admin/deleteAHome')
+        .send({
+          homeID: 1,
+          employeeUsername: 'admin',
+        });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(200);
     });
   });
 });

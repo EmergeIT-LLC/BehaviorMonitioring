@@ -11,13 +11,13 @@ process.env.REFRESH_TOKEN_TTL = '7d';
 // Mock Sequelize models
 jest.mock('../models', () => {
   const mockModel = {
-    findOne: jest.fn(),
-    findAll: jest.fn(),
-    findByPk: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    destroy: jest.fn(),
-    count: jest.fn(),
+    findOne: jest.fn().mockResolvedValue(null),
+    findAll: jest.fn().mockResolvedValue([]),
+    findByPk: jest.fn().mockResolvedValue(null),
+    create: jest.fn().mockResolvedValue({}),
+    update: jest.fn().mockResolvedValue([1]),
+    destroy: jest.fn().mockResolvedValue(1),
+    count: jest.fn().mockResolvedValue(0),
   };
 
   return {
