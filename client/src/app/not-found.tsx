@@ -7,7 +7,7 @@ import Footer from '../components/footer';
 import Link from '../components/Link';
 import Logo from './BMetrics-logo-removebg.png'
 
-function NotFound() {
+export default function NotFound() {
     return (
         <>
             <Header/>
@@ -23,5 +23,3 @@ function NotFound() {
         </>
     );
 }
-
-export default NotFound;
