@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken } = require('../../auth/tokens');
+const { createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken } = require('../../../auth/tokens');
 
 describe('JWT Token Functions', () => {
   const mockUser = {
@@ -79,18 +79,18 @@ describe('JWT Token Functions', () => {
 
   describe('verifyRefreshToken', () => {
     it('verifies valid refresh token', () => {
-      const token = createRefreshToken(mockUser);
+      const userId = 123;
+      const token = createRefreshToken(userId);
       const result = verifyRefreshToken(token);
       
-      expect(result.valid).toBe(true);
-      expect(result.decoded.employeeID).toBe(mockUser.employeeID);
+      expect(result).toBeTruthy();
+      expect(result.sub).toBe(userId);
     });
 
     it('rejects invalid refresh token', () => {
-      const result = verifyRefreshToken('invalid-token');
-      
-      expect(result.valid).toBe(false);
-      expect(result.error).toBeTruthy();
+      expect(() => {
+        verifyRefreshToken('invalid-token');
+      }).toThrow();
     });
   });
 });

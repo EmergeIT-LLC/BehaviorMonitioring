@@ -25,4 +25,16 @@ function verifyRefreshToken(token) {
     });
 }
 
-module.exports = { createAccessToken, createRefreshToken, verifyRefreshToken };
+function verifyAccessToken(token) {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            issuer: prodStatus ? `${process.env.HOST}` : `${process.env.HOST}${process.env.PORT ? `:${process.env.PORT}` : ""}`,
+            audience: process.env.ClientHost,
+        });
+        return { valid: true, decoded };
+    } catch (error) {
+        return { valid: false, error: error.message };
+    }
+}
+
+module.exports = { createAccessToken, createRefreshToken, verifyRefreshToken, verifyAccessToken };

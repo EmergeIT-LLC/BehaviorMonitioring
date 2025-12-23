@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 describe('Password Hashing', () => {
   it('hashes password correctly', async () => {

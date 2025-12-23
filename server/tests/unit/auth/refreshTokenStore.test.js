@@ -1,103 +1,96 @@
 const { 
   insertRefreshToken, 
   findRefreshToken, 
-  deleteRefreshToken,
-  deleteExpiredTokens 
-} = require('../../auth/refreshTokenStore');
-const db = require('../../config/database/database');
-
-jest.mock('../../config/database/database');
+  revokeRefreshToken,
+  rotateRefreshToken,
+  touchRefreshToken
+} = require('../../../auth/refreshTokenStore');
 
 describe('Refresh Token Store', () => {
+  let mockDb;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDb = {
+      run: jest.fn(),
+      all: jest.fn(),
+      get: jest.fn()
+    };
   });
 
   describe('insertRefreshToken', () => {
     it('inserts token successfully', async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback.call({ lastID: 1 }, null);
-      });
+      mockDb.run.mockResolvedValue(undefined);
 
-      const result = await insertRefreshToken({
+      const result = await insertRefreshToken(mockDb, {
+        userId: 1,
         token: 'test-token',
-        employeeID: 1,
+        ttlDays: 7,
+        userAgent: 'test-agent',
+        ipAddress: '127.0.0.1',
         deviceId: 'device-123',
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        lastUsedAt: new Date()
       });
 
-      expect(result).toBe(1);
-      expect(db.run).toHaveBeenCalled();
-    });
-
-    it('handles duplicate token error gracefully', async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback.call(this, { message: 'UNIQUE constraint failed' });
-      });
-
-      await expect(insertRefreshToken({
-        token: 'duplicate-token',
-        employeeID: 1,
-        deviceId: 'device-123',
-        expiresAt: new Date().toISOString(),
-      })).rejects.toThrow();
+      expect(typeof result).toBe('string'); // Returns expiresAt ISO string
+      expect(mockDb.run).toHaveBeenCalled();
     });
   });
 
   describe('findRefreshToken', () => {
     it('finds existing token', async () => {
-      const mockToken = {
+      const mockTokens = [{
         id: 1,
         token: 'test-token',
-        employeeID: 1,
-        deviceId: 'device-123',
-        createdAt: new Date().toISOString(),
-      };
+        user_id: 1,
+        device_id: 'device-123',
+        created_at: new Date().toISOString(),
+      }];
 
-      db.get.mockImplementation((sql, params, callback) => {
-        callback(null, mockToken);
-      });
+      mockDb.all.mockResolvedValue(mockTokens);
 
-      const result = await findRefreshToken('test-token');
+      const result = await findRefreshToken(mockDb, 'test-token');
 
-      expect(result).toEqual(mockToken);
-      expect(db.get).toHaveBeenCalled();
+      expect(result).toEqual(mockTokens);
+      expect(mockDb.all).toHaveBeenCalled();
     });
 
-    it('returns null for non-existent token', async () => {
-      db.get.mockImplementation((sql, params, callback) => {
-        callback(null, null);
-      });
+    it('returns empty array for non-existent token', async () => {
+      mockDb.all.mockResolvedValue([]);
 
-      const result = await findRefreshToken('non-existent-token');
+      const result = await findRefreshToken(mockDb, 'non-existent-token');
 
-      expect(result).toBeNull();
+      expect(result).toEqual([]);
     });
   });
 
-  describe('deleteRefreshToken', () => {
-    it('deletes token successfully', async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback.call({ changes: 1 }, null);
-      });
+  describe('revokeRefreshToken', () => {
+    it('revokes token successfully', async () => {
+      mockDb.run.mockResolvedValue(undefined);
 
-      const result = await deleteRefreshToken('test-token');
+      await revokeRefreshToken(mockDb, 'test-token');
 
-      expect(result).toBe(1);
-      expect(db.run).toHaveBeenCalled();
+      expect(mockDb.run).toHaveBeenCalled();
     });
   });
 
-  describe('deleteExpiredTokens', () => {
-    it('deletes expired tokens', async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback.call({ changes: 5 }, null);
-      });
+  describe('rotateRefreshToken', () => {
+    it('rotates token successfully', async () => {
+      mockDb.run.mockResolvedValue(undefined);
 
-      const result = await deleteExpiredTokens();
+      await rotateRefreshToken(mockDb, 'old-token', 'new-token');
 
-      expect(result).toBe(5);
-      expect(db.run).toHaveBeenCalled();
+      expect(mockDb.run).toHaveBeenCalled();
+    });
+  });
+
+  describe('touchRefreshToken', () => {
+    it('updates last used timestamp', async () => {
+      mockDb.run.mockResolvedValue(undefined);
+
+      await touchRefreshToken(mockDb, 'test-token');
+
+      expect(mockDb.run).toHaveBeenCalled();
     });
   });
 });

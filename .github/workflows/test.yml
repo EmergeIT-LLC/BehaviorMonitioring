@@ -82,8 +82,8 @@ jobs:
       run: npm test -- --coverage --watchAll=false
       env:
         NODE_ENV: test
-        JWT_SECRET: test-secret-key-for-ci
-        JWT_REFRESH_SECRET: test-refresh-secret-key-for-ci
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

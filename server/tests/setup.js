@@ -2,6 +2,11 @@
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-key';
+process.env.ClientHost = 'http://localhost:3000';
+process.env.HOST = 'http://localhost';
+process.env.PORT = '5000';
+process.env.ACCESS_TOKEN_TTL = '15m';
+process.env.REFRESH_TOKEN_TTL = '7d';
 
 // Mock Sequelize models
 jest.mock('../models', () => {

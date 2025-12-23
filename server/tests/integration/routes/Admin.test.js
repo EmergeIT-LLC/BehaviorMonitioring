@@ -1,7 +1,7 @@
 const request = require('supertest');
 const express = require('express');
-const adminRoutes = require('../../routes/Admin');
-const { createAccessToken } = require('../../auth/tokens');
+const adminRoutes = require('../../../routes/Admin');
+const { createAccessToken } = require('../../../auth/tokens');
 
 const app = express();
 app.use(express.json());
