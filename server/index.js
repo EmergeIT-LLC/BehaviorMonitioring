@@ -1,5 +1,4 @@
 require('dotenv').config();
-const AWS_S3_Bucket_Handler = require('./middleware/aws/s3Handler');
 const jsonHandler = require('./functions/base/jsonHandler');
 const { testConnection, syncDatabase } = require('./models');
 const host = process.env.HOST;
@@ -103,8 +102,8 @@ const startServer = async () => {
     // Start server
     app.listen(port, () => {
       console.log(`✓ Server running on port ${port}...`);
-      console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`✓ Database: ${process.env.DB_TYPE || 'sqlite'}`);
+      console.log(`✓ Environment: ${process.env.NODE_ENV'}`);
+      console.log(`✓ Database: ${process.env.DB_TYPE}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

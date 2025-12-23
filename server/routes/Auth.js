@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const db = require('../middleware/database/dbConnection');
 const logAuthEvent = require('../middleware/helpers/authLog');
 const { createAccessToken, createRefreshToken, verifyRefreshToken } = require('../auth/tokens');
 const { setRefreshCookie, clearRefreshCookie } = require('../auth/cookies');
@@ -76,7 +75,7 @@ router.post('/verifyEmployeeLogin', async (req, res) => {
 
 
 
-                    await insertRefreshToken(db, { userId: employeeData.employeeID, token: refreshToken, ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7), userAgent: req.headers['user-agent'], ipAddress: req.ip, deviceId, lastUsedAt: new Date() });
+                    await insertRefreshToken({ userId: employeeData.employeeID, token: refreshToken, ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7), userAgent: req.headers['user-agent'], ipAddress: req.ip, deviceId, lastUsedAt: new Date() });
 
                     setRefreshCookie(res, refreshToken);
                     await logAuthEvent("EMPLOYEE_LOGIN_SUCCESS", { userId: employeeData.employeeID, email: employeeData.email, ip: req.ip, userAgent: req.headers['user-agent'] });
@@ -109,7 +108,7 @@ router.post('/verifyEmployeeLogout', async (req, res) => {
         const refreshToken = req.cookies?.[cookieName];
 
         if (refreshToken) {
-            await revokeRefreshToken(db, refreshToken);
+            await revokeRefreshToken(refreshToken);
         }
 
         clearRefreshCookie(res);
@@ -133,8 +132,9 @@ router.post("/refresh", async (req, res) => {
     try {
         const decoded = verifyRefreshToken(refreshToken);
 
-        const row = await findRefreshToken(db, refreshToken);
-        if (!row) return res.status(401).json({ error: "Refresh token not recognized" });
+        const rows = await findRefreshToken(refreshToken);
+        if (!rows || rows.length === 0) return res.status(401).json({ error: "Refresh token not recognized" });
+        const row = rows[0];
 
         const isExpired = new Date(row.expires_at).getTime() <= Date.now();
         if (row.revoked || isExpired) {
@@ -159,11 +159,11 @@ router.post("/refresh", async (req, res) => {
         const newRefreshToken = createRefreshToken(employeeData.employeeID);
         
         // Revoke old token
-        await rotateRefreshToken(db, refreshToken, newRefreshToken);
+        await rotateRefreshToken(refreshToken, newRefreshToken);
         
         // Insert new token (catch duplicate error in case of concurrent requests)
         try {
-            await insertRefreshToken(db, {
+            await insertRefreshToken({
                 userId: employeeData.employeeID,
                 token: newRefreshToken,
                 ttlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS || 7),
@@ -173,7 +173,7 @@ router.post("/refresh", async (req, res) => {
                 lastUsedAt: new Date()
             });
         } catch (insertError) {
-            if (insertError.code !== 'SQLITE_CONSTRAINT') {
+            if (insertError.name !== 'SequelizeUniqueConstraintError') {
                 throw insertError;
             }
             // Token already exists (concurrent request), continue anyway

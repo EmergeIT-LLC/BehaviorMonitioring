@@ -6,23 +6,25 @@ const {
   touchRefreshToken
 } = require('../../../auth/refreshTokenStore');
 
-describe('Refresh Token Store', () => {
-  let mockDb;
+// Mock the RefreshToken model
+jest.mock('../../../models/RefreshToken', () => ({
+  create: jest.fn(),
+  findOne: jest.fn(),
+  update: jest.fn()
+}));
 
+const RefreshToken = require('../../../models/RefreshToken');
+
+describe('Refresh Token Store', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDb = {
-      run: jest.fn(),
-      all: jest.fn(),
-      get: jest.fn()
-    };
   });
 
   describe('insertRefreshToken', () => {
     it('inserts token successfully', async () => {
-      mockDb.run.mockResolvedValue(undefined);
+      RefreshToken.create.mockResolvedValue({});
 
-      const result = await insertRefreshToken(mockDb, {
+      const result = await insertRefreshToken({
         userId: 1,
         token: 'test-token',
         ttlDays: 7,
@@ -33,32 +35,43 @@ describe('Refresh Token Store', () => {
       });
 
       expect(typeof result).toBe('string'); // Returns expiresAt ISO string
-      expect(mockDb.run).toHaveBeenCalled();
+      expect(RefreshToken.create).toHaveBeenCalled();
+      const createCall = RefreshToken.create.mock.calls[0][0];
+      expect(createCall.user_id).toBe(1);
+      expect(createCall.token).toBe('test-token');
     });
   });
 
   describe('findRefreshToken', () => {
     it('finds existing token', async () => {
-      const mockTokens = [{
+      const mockToken = {
         id: 1,
         token: 'test-token',
         user_id: 1,
         device_id: 'device-123',
         created_at: new Date().toISOString(),
-      }];
+        toJSON: jest.fn().mockReturnValue({
+          id: 1,
+          token: 'test-token',
+          user_id: 1,
+          device_id: 'device-123',
+          created_at: new Date().toISOString()
+        })
+      };
 
-      mockDb.all.mockResolvedValue(mockTokens);
+      RefreshToken.findOne.mockResolvedValue(mockToken);
 
-      const result = await findRefreshToken(mockDb, 'test-token');
+      const result = await findRefreshToken('test-token');
 
-      expect(result).toEqual(mockTokens);
-      expect(mockDb.all).toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].token).toBe('test-token');
+      expect(RefreshToken.findOne).toHaveBeenCalledWith({ where: { token: 'test-token' } });
     });
 
     it('returns empty array for non-existent token', async () => {
-      mockDb.all.mockResolvedValue([]);
+      RefreshToken.findOne.mockResolvedValue(null);
 
-      const result = await findRefreshToken(mockDb, 'non-existent-token');
+      const result = await findRefreshToken('non-existent-token');
 
       expect(result).toEqual([]);
     });
@@ -66,31 +79,41 @@ describe('Refresh Token Store', () => {
 
   describe('revokeRefreshToken', () => {
     it('revokes token successfully', async () => {
-      mockDb.run.mockResolvedValue(undefined);
+      RefreshToken.update.mockResolvedValue([1]);
 
-      await revokeRefreshToken(mockDb, 'test-token');
+      await revokeRefreshToken('test-token');
 
-      expect(mockDb.run).toHaveBeenCalled();
+      expect(RefreshToken.update).toHaveBeenCalled();
+      const updateCall = RefreshToken.update.mock.calls[0];
+      expect(updateCall[0].revoked).toBe(1);
+      expect(updateCall[1].where.token).toBe('test-token');
     });
   });
 
   describe('rotateRefreshToken', () => {
     it('rotates token successfully', async () => {
-      mockDb.run.mockResolvedValue(undefined);
+      RefreshToken.update.mockResolvedValue([1]);
 
-      await rotateRefreshToken(mockDb, 'old-token', 'new-token');
+      await rotateRefreshToken('old-token', 'new-token');
 
-      expect(mockDb.run).toHaveBeenCalled();
+      expect(RefreshToken.update).toHaveBeenCalled();
+      const updateCall = RefreshToken.update.mock.calls[0];
+      expect(updateCall[0].revoked).toBe(1);
+      expect(updateCall[0].replaced_by_token).toBe('new-token');
+      expect(updateCall[1].where.token).toBe('old-token');
     });
   });
 
   describe('touchRefreshToken', () => {
     it('updates last used timestamp', async () => {
-      mockDb.run.mockResolvedValue(undefined);
+      RefreshToken.update.mockResolvedValue([1]);
 
-      await touchRefreshToken(mockDb, 'test-token');
+      await touchRefreshToken('test-token');
 
-      expect(mockDb.run).toHaveBeenCalled();
+      expect(RefreshToken.update).toHaveBeenCalled();
+      const updateCall = RefreshToken.update.mock.calls[0];
+      expect(updateCall[0].last_used_at).toBeInstanceOf(Date);
+      expect(updateCall[1].where.token).toBe('test-token');
     });
   });
 });
