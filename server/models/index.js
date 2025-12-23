@@ -31,6 +31,12 @@ const models = {
 // Auto-sync database (creates/updates tables)
 const syncDatabase = async () => {
   try {
+    // Skip sync in production to avoid modifying existing tables
+    if (process.env.NODE_ENV === 'production') {
+      console.log('✓ Skipping database sync (production mode)');
+      return;
+    }
+    
     // alter: true - will update existing tables without dropping data
     // force: false - will NOT drop tables (safer for production)
     await sequelize.sync({ alter: true });

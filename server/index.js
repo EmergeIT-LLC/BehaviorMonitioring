@@ -102,8 +102,8 @@ const startServer = async () => {
     // Start server
     app.listen(port, () => {
       console.log(`✓ Server running on port ${port}...`);
-      console.log(`✓ Environment: ${process.env.NODE_ENV'}`);
-      console.log(`✓ Database: ${process.env.DB_TYPE}`);
+      console.log(`✓ Environment: ${process.env.NODE_ENV}`);
+      console.log(`✓ Database: ${process.env.MYSQL_DATABASE} at ${process.env.MYSQL_HOST}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
