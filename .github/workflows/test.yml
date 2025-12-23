@@ -52,6 +52,20 @@ jobs:
     name: Server Tests
     runs-on: ubuntu-latest
     
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_${{ vars.MYSQL_USER }}_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
     defaults:
       run:
         working-directory: ./server
@@ -74,6 +88,33 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+          echo 'waiting for mysql...'
+          sleep 1
+        done
+    
+    - name: Setup database
+      run: |
+        node -e "
+        const { sequelize } = require('./models');
+        sequelize.sync({ force: true }).then(() => {
+          console.log('Database synced');
+          process.exit(0);
+        }).catch(err => {
+          console.error('Database sync failed:', err);
+          process.exit(1);
+        });
+        "
+      env:
+        DB_TYPE: ${{ vars.DB_TYPE }}
+        MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+        MYSQL_PORT: ${{ vars.MYSQL_PORT }}
+        MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        MYSQL_USER: ${{ vars.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+    
     - name: Run linter
       run: npm run lint --if-present
       continue-on-error: true
@@ -84,6 +125,12 @@ jobs:
         NODE_ENV: test
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+        DB_TYPE: ${{ vars.DB_TYPE }}
+        MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+        MYSQL_PORT: ${{ vars.MYSQL_PORT }}
+        MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        MYSQL_USER: ${{ vars.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
