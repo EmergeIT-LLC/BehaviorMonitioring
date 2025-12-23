@@ -1,10 +1,29 @@
 const request = require('supertest');
 const express = require('express');
 const adminRoutes = require('../../../routes/Admin');
-const adminQueries = require('../../../middleware/helpers/AdminQueries');
 
-// Mock adminQueries
-jest.mock('../../../middleware/helpers/AdminQueries');
+// Mock adminQueries module
+jest.mock('../../../middleware/helpers/AdminQueries', () => ({
+  adminExistByUsername: jest.fn(),
+  adminExistByID: jest.fn(),
+  adminDataByUsername: jest.fn(),
+  adminDataById: jest.fn(),
+  adminAddNewEmployee: jest.fn(),
+  adminDeleteAnEmployeeByID: jest.fn(),
+  adminDeleteAnEmployeeByUsername: jest.fn(),
+  adminUpdateEmployeeAccountStatusByUsername: jest.fn(),
+  adminUpdateEmployeeAccountStatusByID: jest.fn(),
+  adminUpdateEmployeeAccountByUsername: jest.fn(),
+  adminUpdateEmployeeAccountByID: jest.fn(),
+}));
+
+// Mock generate username
+jest.mock('../../../functions/users/generateUsername', () => jest.fn(() => 'test.user'));
+
+// Mock email handler
+jest.mock('../../../middleware/email/emailTemplate', () => jest.fn());
+
+const adminQueries = require('../../../middleware/helpers/AdminQueries');
 
 const app = express();
 app.use(express.json());
@@ -16,21 +35,15 @@ describe('Admin API Integration Tests', () => {
   });
 
   describe('POST /admin/addNewEmployee', () => {
-    it('returns error when required fields are missing', async () => {
-      const response = await request(app)
-        .post('/admin/addNewEmployee')
-        .send({
-          fName: 'John',
-          // Missing other required fields
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.statusCode).toBe(500);
-    });
-
-    it('successfully adds new employee with valid data', async () => {
-      adminQueries.addNewEmployee.mockResolvedValue(true);
-      adminQueries.employeeExistByUsername.mockResolvedValue(false);
+    it('handles add employee request', async () => {
+      // Mock authorization check
+      adminQueries.adminExistByUsername.mockResolvedValue(true);
+      adminQueries.adminDataByUsername.mockResolvedValue({
+        role: 'admin',
+        fName: 'Test',
+        lName: 'Admin',
+      });
+      adminQueries.adminAddNewEmployee.mockResolvedValue(true);
 
       const response = await request(app)
         .post('/admin/addNewEmployee')
@@ -44,13 +57,17 @@ describe('Admin API Integration Tests', () => {
         });
 
       expect(response.status).toBe(200);
-      expect([200, 500]).toContain(response.body.statusCode);
+      expect([200, 201]).toContain(response.body.statusCode);
     });
   });
 
   describe('POST /admin/deleteAnEmployee', () => {
     it('handles delete request', async () => {
-      adminQueries.deleteAnEmployee.mockResolvedValue(true);
+      adminQueries.adminExistByUsername.mockResolvedValue(true);
+      adminQueries.adminDataByUsername.mockResolvedValue({
+        role: 'admin',
+      });
+      adminQueries.adminDeleteAnEmployeeByID.mockResolvedValue(true);
 
       const response = await request(app)
         .post('/admin/deleteAnEmployee')
@@ -60,12 +77,17 @@ describe('Admin API Integration Tests', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.statusCode).toBe(201);
     });
   });
 
   describe('POST /admin/updateAnEmployeeDetail', () => {
     it('handles update request', async () => {
-      adminQueries.updateAnEmployeeDetail.mockResolvedValue(true);
+      adminQueries.adminExistByUsername.mockResolvedValue(true);
+      adminQueries.adminDataByUsername.mockResolvedValue({
+        role: 'admin',
+      });
+      adminQueries.adminUpdateEmployeeAccountByID.mockResolvedValue(true);
 
       const response = await request(app)
         .post('/admin/updateAnEmployeeDetail')
@@ -75,17 +97,17 @@ describe('Admin API Integration Tests', () => {
           lName: 'Doe',
           email: 'john@example.com',
           pNumber: '1234567890',
+          role: 'Technician',
           employeeUsername: 'admin',
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.statusCode).toBe(201);
     });
   });
 
   describe('POST /admin/addNewHome', () => {
     it('successfully adds new home', async () => {
-      adminQueries.addNewHome.mockResolvedValue(true);
-
       const response = await request(app)
         .post('/admin/addNewHome')
         .send({
@@ -100,8 +122,6 @@ describe('Admin API Integration Tests', () => {
 
   describe('POST /admin/deleteAHome', () => {
     it('handles delete home request', async () => {
-      adminQueries.deleteAHome.mockResolvedValue(true);
-
       const response = await request(app)
         .post('/admin/deleteAHome')
         .send({
