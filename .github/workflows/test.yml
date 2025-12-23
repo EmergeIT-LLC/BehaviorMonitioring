@@ -177,6 +177,34 @@ jobs:
     - name: Install server dependencies
       working-directory: ./server
       run: npm ci
+        
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h"${{ env.MYSQL_HOST }}" -P"${{ env.MYSQL_PORT }}" --silent; do
+          echo 'waiting for mysql...'
+          sleep 1
+        done
+    
+    - name: Setup database
+      working-directory: ./server
+      run: |
+        node -e "
+        const { sequelize } = require('./models');
+        sequelize.sync({ force: true }).then(() => {
+          console.log('Database synced');
+          process.exit(0);
+        }).catch(err => {
+          console.error('Database sync failed:', err);
+          process.exit(1);
+        });
+        "
+      env:
+        NODE_ENV: test
+        MYSQL_HOST: 127.0.0.1
+        MYSQL_PORT: 3306
+        MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+        MYSQL_USER: ${{ vars.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     
     - name: Start server
       working-directory: ./server
