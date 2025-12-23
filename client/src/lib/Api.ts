@@ -3,7 +3,7 @@ import { getAccessToken, setAccessToken, clearAccessToken } from "./tokenStore";
 import { ClearLoggedInUser } from '../function/VerificationCheck';
 import { scheduleSilentRefresh } from './authScheduler';
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_UR;
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const apiClient = axios.create({
     baseURL: API_BASE,

@@ -5,7 +5,7 @@ import axios from "axios";
 import { setAccessToken, clearAccessToken } from "@/lib/tokenStore";
 import { scheduleSilentRefresh } from "../lib/authScheduler";
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_UR;
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Track if bootstrap is complete
 let isBootstrapped = false;

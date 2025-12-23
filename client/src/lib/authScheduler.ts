@@ -1,7 +1,7 @@
 import { setAccessToken, clearAccessToken } from "./tokenStore";
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_UR;
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
 

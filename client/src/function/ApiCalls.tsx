@@ -5,7 +5,7 @@ import { debounceAsync } from './debounce';
 //Grabbed from Behavior/Add/Page.tsx
 export const getClientNames = async (loggedInUser : string) => {
     let statusCodeRecieved: number = 0;
-    const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAllClientInfo';
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/aba/getAllClientInfo';
 
     try {
         const response = await Axios.post(url, { "employeeUsername": loggedInUser });
@@ -28,7 +28,7 @@ export const getClientNames = async (loggedInUser : string) => {
 //Grabbed from Behavior/Detail/Page.tsx
 export const getClientActiveBehaviorBaseData = async (clientID: string | number, bID: string | number, loggedInUser: string) => {
     let statusCodeRecieved: number = 0;
-    const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAClientTargetBehavior';
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/aba/getAClientTargetBehavior';
 
     try {
         const response = await Axios.post(url, {
@@ -50,7 +50,7 @@ export const getClientActiveBehaviorBaseData = async (clientID: string | number,
 //Grabbed from Behavior/Detail/Page.tsx
 export const getClientActiveBehaviorData = async (clientID: string | number, bID: string | number, loggedInUser: string) => {
     let statusCodeRecieved: number = 0;
-    const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getTargetBehavior';
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/aba/getTargetBehavior';
 
     try {
         const response = await Axios.post(url, {
@@ -72,7 +72,7 @@ export const getClientActiveBehaviorData = async (clientID: string | number, bID
 //Grabbed from Behavior/Archive_Detail/Page.tsx
 export const getClientArchivedBehaviorBaseData = async (clientID: string | number, bID: string | number, loggedInUser: string) => {
     let statusCodeRecieved: number = 0;
-    const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAClientArchivedBehavior';
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/aba/getAClientArchivedBehavior';
 
     try {
         const response = await Axios.post(url, {
@@ -94,7 +94,7 @@ export const getClientArchivedBehaviorBaseData = async (clientID: string | numbe
 //Grabbed from Behavior/Archive_Detail/Page.tsx
 export const getClientArchiveBehaviorData = async (clientID: string | number, bID: string | number, loggedInUser: string) => {
     let statusCodeRecieved: number = 0
-    const url = process.env.NEXT_PUBLIC_BACKEND_UR + '/aba/getAArchivedBehaviorData';
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL + '/aba/getAArchivedBehaviorData';
 
     try {
         const response = await Axios.post(url, {
