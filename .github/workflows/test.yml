@@ -76,15 +76,6 @@ jobs:
         node-version: [18.x, 20.x]
     
     steps:
-    - name: Debug - Show environment variables
-      run: |
-        echo "DB_TYPE=${{ vars.DB_TYPE }}"
-        echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}"
-        echo "MYSQL_PORT=${{ vars.MYSQL_PORT }}"
-        echo "MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }}"
-        echo "MYSQL_USER=${{ vars.MYSQL_USER }}"
-        echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}"
-
     - name: Checkout repository
       uses: actions/checkout@v4
     
