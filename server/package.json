@@ -6,7 +6,11 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "devStart": "nodemon index.js"
+    "devStart": "nodemon index.js",
+    "db:init": "node scripts/init-db.js",
+    "db:sync": "node scripts/init-db.js --alter",
+    "db:reset": "node scripts/init-db.js --force",
+    "db:import": "node scripts/import-data.js"
   },
   "author": "Devino Labs LLC",
   "license": "ISC",
