@@ -921,6 +921,67 @@
             }
         }
 
+        .tbClientTable {
+            width: 100%;
+            table-layout: fixed; /* Ensures the columns are evenly distributed */
+
+            tr {
+                position: relative;
+            }
+    
+            //Boarder
+            tr:not(:last-child) td {
+                border-bottom: 1px solid $border-light;
+            }
+
+            //Row hover settings
+            tr:hover td{
+                background-color: rgba(59, 130, 246, 0.08);
+                color: $font-color;
+                cursor: pointer;
+            }
+            
+            th {
+                color: $color6;
+                background-color: $color2;
+                border: 1px solid rgba(255,255,255,0.10);
+            }
+
+            td {
+                text-align: center;
+                div {
+                    min-height: 2.50em;
+
+                    button {
+                        background-color: transparent;
+                        color: $font-color;
+                        border-radius: 10px;
+                    }
+
+                    button:hover {
+                        background-color: rgba(59, 130, 246, 0.10);
+                        color: $font-color;
+                    }
+                }
+            }
+
+            th:first-child, td:first-child {
+                width: 3em; /* Auto width for the last three columns */
+            }
+
+            th:nth-child(1), td:nth-child(1){
+                width: 8em;
+            }
+
+            th:nth-last-child(-n+2), td:nth-last-child(-n+2) {
+                width: 12em; /* Auto width for the last three columns */
+            }
+    
+            th:not(:nth-last-child(-n+3)), td:not(:nth-last-child(-n+3)) {
+                width: calc(100% / auto); /* Distribute other columns evenly */
+            }
+        }
+
         .dateDropdown {
             display: flex;
             margin: 1em 2em;

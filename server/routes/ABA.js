@@ -28,7 +28,7 @@ router.post('/addNewClient', async (req, res) => {
 
             if (employeeData.role === "root" || employeeData.role === "Admin") {
                 if (!behaviorProvided) {
-                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                         return res.json({ statusCode: 200, clientAdded: true });
                     }
                     else {
@@ -37,7 +37,7 @@ router.post('/addNewClient', async (req, res) => {
                 }
                 else {
                     behaviorPlanDueDate = await formatDateString(await addYears(intakeDate, 1));
-                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
+                    if (await abaQueries.abaAddClientData(cFName, cLName, DOB, intakeDate, ghName, medicadeNum, behaviorPlanDueDate, employeeData.fName + " " + employeeData.lName, employeeData.companyID, employeeData.companyName, await formatDateString(await currentDateTime.getCurrentDate()), await currentDateTime.getCurrentTime() + " EST")) {
                         return res.json({ statusCode: 200, clientAdded: true });
                     }
                     else {

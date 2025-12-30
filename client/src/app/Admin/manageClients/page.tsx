@@ -119,7 +119,7 @@ const ManageClients: React.FC = () => {
                                 {clients.length === 0 ? (
                                     <p>No clients found. Click "Add Client" to create one.</p>
                                 ) : (
-                                    <table className={componentStyles.tbHRSTable}>
+                                    <table className={componentStyles.tbClientTable}>
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -134,7 +134,7 @@ const ManageClients: React.FC = () => {
                                                 <tr key={client.clientID}>
                                                     <td><div>{client.clientID}</div></td>
                                                     <td><div>{client.fName} {client.lName}</div></td>
-                                                    <td><div>{client.companyID}</div></td>
+                                                    <td><div>{client.companyName}</div></td>
                                                     <td>
                                                         <div>
                                                             <button onClick={() => handleEditClick(client.clientID)}>✏️</button>
