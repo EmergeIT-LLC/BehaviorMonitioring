@@ -1204,19 +1204,19 @@
 
         h2 {
             text-align: center;
-            color: $font-color2;
+            color: $font-color;
             margin-top: 0;
         }
 
         p {
             margin: 1em auto 2em;
             text-align: center;
-            color: rgba(248, 250, 252, 0.85);
+            color: $font-color;
         }
 
         .statusMessage {
             margin: 1em auto 1em;
-            color: rgba(248, 250, 252, 0.9);
+            color: $font-color;
         }
     }
 
