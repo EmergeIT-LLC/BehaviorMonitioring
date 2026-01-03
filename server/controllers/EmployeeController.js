@@ -2,6 +2,7 @@ const employeeQueries = require('../middleware/helpers/EmployeeQueries');
 const currentDateTime = require('../functions/base/currentDateTime');
 const { formatDateString } = require('../functions/base/dateTimeFormat');
 const bcrypt = require('bcryptjs');
+const { verifyAuthorization } = require('../middleware/helpers/authorizationHelper');
 const saltRounds = 10;
 
 class EmployeeController {
@@ -10,20 +11,13 @@ class EmployeeController {
      */
     async getEmployeeData(req, res) {
         try {
-            const uName = req.body.username;
+            const employeeData = await verifyAuthorization(req, res);
+            if (!employeeData) return;
 
-            if (await employeeQueries.employeeExistByUsername(uName.toLowerCase())) {
-                const employeeData = await employeeQueries.employeeDataByUsername(uName.toLowerCase());
-                if (employeeData.length > 0) {
-                    return res.json({ statusCode: 200, employeeData: employeeData });
-                }
-                else {
-                    return res.json({ statusCode: 500, serverMessage: 'Unable to locate data' });
-                }
+            if (employeeData.length > 0) {
+                return res.json({ statusCode: 200, employeeData: employeeData });
             }
-            else {
-                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
-            }
+            return res.json({ statusCode: 500, serverMessage: 'Unable to locate data' });
         } catch (error) {
             return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
         }
@@ -83,6 +77,9 @@ class EmployeeController {
      */
     async addBehaviorData(req, res) {
         try {
+            const employeeData = await verifyAuthorization(req, res, ['root', 'Admin', 'ABA']);
+            if (!employeeData) return;
+
             const bsID = req.body.bsID;
             const clientID = req.body.clientID;
             const clientName = req.body.clientName;
@@ -91,82 +88,69 @@ class EmployeeController {
             const count = req.body.count;
             const duration = req.body.duration;
             const trial = req.body.trial;
-            const employeeUsername = req.body.employeeUsername;
             
-            if (await employeeQueries.employeeExistByUsername(employeeUsername.toLowerCase())) {
-                const employeeData = await employeeQueries.employeeDataByUsername(employeeUsername.toLowerCase());
-
-                if (employeeData.role === "root" || employeeData.role === "Admin" || employeeData.role === "ABA") {
-                    if (await employeeQueries.behaviorSkillExistByID(bsID)) {
-                        if (count > 0) {
-                            if (duration > 0) { // If Count and Duration
-                                if (await employeeQueries.employeeAddRateBehaviorData(
-                                    bsID, 
-                                    clientID, 
-                                    clientName, 
-                                    sessionDate, 
-                                    sessionTime, 
-                                    count, 
-                                    duration, 
-                                    employeeData.fName + " " + employeeData.lName, 
-                                    await formatDateString(await currentDateTime.getCurrentDate()), 
-                                    await currentDateTime.getCurrentTime() + " EST"
-                                )) {
-                                    return res.json({ statusCode: 200, behaviorAdded: true });
-                                }
-                                else {
-                                    return res.json({ statusCode: 500, behaviorAdded: false });
-                                }
-                            }
-                            else if (await employeeQueries.employeeAddFrequencyBehaviorData(
-                                bsID, 
-                                clientID, 
-                                clientName, 
-                                sessionDate, 
-                                sessionTime, 
-                                count, 
-                                employeeData.fName + " " + employeeData.lName, 
-                                await formatDateString(await currentDateTime.getCurrentDate()), 
-                                await currentDateTime.getCurrentTime() + " EST"
-                            )) {
-                                return res.json({ statusCode: 200, behaviorAdded: true });
-                            }
-                            else {
-                                return res.json({ statusCode: 500, behaviorAdded: false });
-                            }
-                        }
-                        else if (trial > 0) { // If trial behavior
-                            if (await employeeQueries.employeeAddDurationBehaviorData(
-                                bsID, 
-                                clientID, 
-                                clientName, 
-                                sessionDate, 
-                                sessionTime, 
-                                trial, 
-                                employeeData.fName + " " + employeeData.lName, 
-                                await formatDateString(await currentDateTime.getCurrentDate()), 
-                                await currentDateTime.getCurrentTime() + " EST"
-                            )) {
-                                return res.json({ statusCode: 200, behaviorAdded: true });
-                            }
-                            else {
-                                return res.json({ statusCode: 500, behaviorAdded: false });
-                            }
+            if (await employeeQueries.behaviorSkillExistByID(bsID)) {
+                if (count > 0) {
+                    if (duration > 0) { // If Count and Duration
+                        if (await employeeQueries.employeeAddRateBehaviorData(
+                            bsID, 
+                            clientID, 
+                            clientName, 
+                            sessionDate, 
+                            sessionTime, 
+                            count, 
+                            duration, 
+                            employeeData.fName + " " + employeeData.lName, 
+                            await formatDateString(await currentDateTime.getCurrentDate()), 
+                            await currentDateTime.getCurrentTime() + " EST"
+                        )) {
+                            return res.json({ statusCode: 200, behaviorAdded: true });
                         }
                         else {
                             return res.json({ statusCode: 500, behaviorAdded: false });
                         }
                     }
+                    else if (await employeeQueries.employeeAddFrequencyBehaviorData(
+                        bsID, 
+                        clientID, 
+                        clientName, 
+                        sessionDate, 
+                        sessionTime, 
+                        count, 
+                        employeeData.fName + " " + employeeData.lName, 
+                        await formatDateString(await currentDateTime.getCurrentDate()), 
+                        await currentDateTime.getCurrentTime() + " EST"
+                    )) {
+                        return res.json({ statusCode: 200, behaviorAdded: true });
+                    }
                     else {
-                        return res.json({ statusCode: 500, serverMessage: 'Behavior does not exist' });
+                        return res.json({ statusCode: 500, behaviorAdded: false });
+                    }
+                }
+                else if (trial > 0) { // If trial behavior
+                    if (await employeeQueries.employeeAddDurationBehaviorData(
+                        bsID, 
+                        clientID, 
+                        clientName, 
+                        sessionDate, 
+                        sessionTime, 
+                        trial, 
+                        employeeData.fName + " " + employeeData.lName, 
+                        await formatDateString(await currentDateTime.getCurrentDate()), 
+                        await currentDateTime.getCurrentTime() + " EST"
+                    )) {
+                        return res.json({ statusCode: 200, behaviorAdded: true });
+                    }
+                    else {
+                        return res.json({ statusCode: 500, behaviorAdded: false });
                     }
                 }
                 else {
-                    return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+                    return res.json({ statusCode: 500, behaviorAdded: false });
                 }
             }
             else {
-                return res.json({ statusCode: 401, serverMessage: 'Unauthorized user' });
+                return res.json({ statusCode: 500, serverMessage: 'Behavior does not exist' });
             }
         } catch (error) {
             return res.json({ statusCode: 500, serverMessage: 'A server error occurred', errorMessage: error.message });
