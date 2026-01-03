@@ -72,7 +72,7 @@ async function adminAddNewEmployee(fName, lName, username, email, phone_number, 
 async function adminDeleteAnEmployeeByID(eID, compID) {
     try {
         const rowsDeleted = await Employee.destroy({
-            where: { employeeID: eID, companyID }
+            where: { employeeID: eID, companyID: compID }
         });
         return rowsDeleted > 0;
     } catch (err) {
@@ -83,7 +83,7 @@ async function adminDeleteAnEmployeeByID(eID, compID) {
 async function adminDeleteAnEmployeeByUsername(uName, compID) {
     try {
         const rowsDeleted = await Employee.destroy({
-            where: { username: uName, companyID }
+            where: { username: uName, companyID: compID }
         });
         return rowsDeleted > 0;
     } catch (err) {
@@ -95,7 +95,7 @@ async function adminUpdateEmployeeAccountStatusByUsername(accountStatus, uName, 
     try {
         const [rowsUpdated] = await Employee.update(
             { account_status: accountStatus },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -107,7 +107,7 @@ async function adminUpdateEmployeeAccountStatusByID(accountStatus, eID, compID) 
     try {
         const [rowsUpdated] = await Employee.update(
             { account_status: accountStatus },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -119,7 +119,7 @@ async function adminUpdateEmployeeAccountByUsername(fName, lName, email, phone_n
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, role },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -131,7 +131,7 @@ async function adminUpdateEmployeeAccountByID(fName, lName, email, phone_number,
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, role },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {

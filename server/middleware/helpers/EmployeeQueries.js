@@ -75,7 +75,7 @@ async function employeeUpdateEmployeeAccountByUsername(fName, lName, email, phon
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, password: pWord },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -87,7 +87,7 @@ async function employeeUpdateEmployeeAccountByID(fName, lName, email, phone_numb
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, password: pWord },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -99,7 +99,7 @@ async function employeeUpdateEmployeeAccountWithoutPasswordByUsername(fName, lNa
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, password: pWord },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -111,7 +111,7 @@ async function employeeUpdateEmployeeAccountWithoutPasswordByID(fName, lName, em
     try {
         const [rowsUpdated] = await Employee.update(
             { fName, lName, email, phone_number, password: pWord },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -123,7 +123,7 @@ async function employeeUpdateEmployeeAccountStatusByUsername(accountStatus, uNam
     try {
         const [rowsUpdated] = await Employee.update(
             { account_status: accountStatus },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -135,7 +135,7 @@ async function employeeUpdateEmployeeStatusAccountByID(accountStatus, eID, compI
     try {
         const [rowsUpdated] = await Employee.update(
             { account_status: accountStatus },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -147,7 +147,7 @@ async function employeeSetEmployeeCredentialsByUsername(pWord, uName, compID) {
     try {
         const [rowsUpdated] = await Employee.update(
             { password: pWord },
-            { where: { username: uName, companyID } }
+            { where: { username: uName, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -159,7 +159,7 @@ async function employeeSetEmployeeCredentialsByID(pWord, eID, compID) {
     try {
         const [rowsUpdated] = await Employee.update(
             { password: pWord },
-            { where: { employeeID: eID, companyID } }
+            { where: { employeeID: eID, companyID: compID } }
         );
         return rowsUpdated > 0;
     } catch (err) {
@@ -171,7 +171,7 @@ async function employeeSetEmployeeCredentialsByID(pWord, eID, compID) {
 async function behaviorSkillExistByID(bsID, compID) {
     try {
         const record = await BehaviorAndSkill.findOne({
-            where: { bsID, companyID }
+            where: { bsID, companyID: compID }
         });
         return record !== null;
     } catch (err) {
@@ -189,8 +189,8 @@ async function employeeAddFrequencyBehaviorData(bsID, cID, cName, sDate, sTime, 
             sessionTime: sTime, 
             count, 
             entered_by: enteredBy, 
-            companyID, 
-            companyName, 
+            companyID: compID, 
+            companyName: compName,
             date_entered: dateEntered, 
             time_entered: timeEntered, 
             status: "Active"
@@ -212,8 +212,8 @@ async function employeeAddRateBehaviorData(bsID, cID, cName, sDate, sTime, count
             count, 
             duration, 
             entered_by: enteredBy, 
-            companyID, 
-            companyName, 
+            companyID: compID, 
+            companyName: compName, 
             date_entered: dateEntered, 
             time_entered: timeEntered, 
             status: "Active"
@@ -234,8 +234,8 @@ async function employeeAddDurationBehaviorData(bsID, cID, cName, sDate, sTime, t
             sessionTime: sTime, 
             duration: trial, 
             entered_by: enteredBy, 
-            companyID, 
-            companyName, 
+            companyID: compID, 
+            companyName: compName,
             date_entered: dateEntered, 
             time_entered: timeEntered, 
             status: "Active"
